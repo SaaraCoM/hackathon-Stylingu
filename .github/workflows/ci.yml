@@ -23,3 +23,7 @@ jobs:
           node --check frontend/public/data.js
           node --check frontend/public/app.js
           for f in frontend/public/js/*.js; do node --check "$f"; done
+      - name: Frontend tests (contrato observable headless)
+        run: |
+          cd frontend
+          npm test
