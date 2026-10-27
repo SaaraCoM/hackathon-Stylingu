@@ -31,24 +31,46 @@
     <div class="grid cols-5-7">
       <div class="card">
         <h2>Mapeo de luz</h2>
-        <div class="placeholder" role="img" aria-label="Moodboard cálido terracota y miel">Moodboard local · arcilla / miel / salvia</div>
+        <div class="flatfield" role="img" aria-label="Moodboard cálido terracota y miel">arcilla · miel · salvia</div>
         <div class="row">
           <span class="pill">Subtono: cálido dorado</span>
           <span class="pill">Contraste: medio-bajo</span>
           <span class="pill">Croma: suave</span>
         </div>
-      </div>
-      <div class="card">
-        <h2>Diagnóstico estacional</h2>
-        <p class="muted">Paleta Otoño Cálido Suave. Toca un swatch para copiar su hex.</p>
-        <div class="swatches" id="swatches"></div>
-        <p class="muted" id="swatchInfo">Ningún tono seleccionado.</p>
         <div class="bars">
           <label><span>Croma suave vs puro</span><span>Suave</span></label>
           <div class="track"><div class="fill" style="width:72%"></div></div>
           <label><span>Temperatura frío vs cálido</span><span>Cálido solar</span></label>
           <div class="track"><div class="fill deep" style="width:84%"></div></div>
         </div>
+      </div>
+      <div class="card">
+        <h2>Diagnóstico estacional</h2>
+        <p class="muted">Otoño Cálido Suave · <strong>6 tonos nucleares</strong>. Toca una muestra para ver su efecto en tez y copiar su hex.</p>
+        <div class="swatch-grid" id="swatches"></div>
+        <div class="detail" id="swatchDetailBox">
+          <span class="dot" id="swatchPreviewDot"></span>
+          <div><strong id="swatchName">Terracota</strong><p class="muted" id="swatchDesc">Eleva la calidez natural del rubor.</p></div>
+          <button class="btn" id="copyHexBtn" type="button">Copiar hex</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card sand">
+        <h2>Tonos a distanciar del rostro</h2>
+        <p class="muted">Longitudes de onda que crean refracciones desfavorables en tu fenotipo.</p>
+        <div id="avoidList"></div>
+      </div>
+      <div class="card">
+        <h2>Probador textil</h2>
+        <p class="muted">El tejido cambia cómo se lee el color sobre la piel.</p>
+        <div class="row" role="group" aria-label="Tejido">
+          <button class="btn primary" data-fabric="seda" type="button">Seda</button>
+          <button class="btn" data-fabric="lino" type="button">Lino</button>
+          <button class="btn" data-fabric="lana" type="button">Lana</button>
+        </div>
+        <h3 id="fabricTitle">Seda salvaje · terracota y nácar</h3>
+        <p class="muted" id="fabricBody">Lustre suave que difumina el escote.</p>
       </div>
     </div>
   </section>
@@ -112,6 +134,7 @@
 </div>
 
 <p class="toast" id="toast" role="status"></p>
+<script src="./data.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
