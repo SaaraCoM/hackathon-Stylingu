@@ -77,12 +77,20 @@
 
   <section class="tab" id="tab-armario" aria-label="Vestuario y armario">
     <div class="card">
-      <h2>Vestuario · combinación modular</h2>
-      <p class="muted" id="outfitText">Blusa de seda marfil + pantalón terracota + blazer camel.</p>
+      <h2>Arquitectura de silueta</h2>
+      <p class="muted">Simetría natural hombro-cadera con cintura definida: acompañar la verticalidad, sin cortes abruptos.</p>
+      <div class="swatch-grid" id="silhouetteGrid" style="grid-template-columns:repeat(2,1fr)"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Generador de conjuntos</h2>
+      <p class="muted" id="outfitCounter">Combinación 1 de 3</p>
+      <ul class="outfit" id="outfitList" style="list-style:none;padding:0"></ul>
       <div class="row">
         <button class="btn primary" id="shuffleBtn" type="button">Nueva combinación</button>
         <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
       </div>
+      <p class="saved" id="savedCount">Armario local: 0 conjuntos</p>
+      <ul class="outfit" id="savedList" style="list-style:none;padding:0"></ul>
     </div>
   </section>
 

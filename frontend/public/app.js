@@ -78,9 +78,39 @@ function selectFabric(key, btn) {
   );
 }
 
-/* ---- Armario (simple, se enriquece en el siguiente commit) ---- */
-const outfitsSimple = D.outfits.map((o) => `${o.top} + ${o.bottom} + ${o.jacket}.`);
+/* ---- Vestuario ---- */
 let outfitIndex = 0;
+function renderSilhouette() {
+  const box = document.getElementById("silhouetteGrid");
+  box.innerHTML = "";
+  D.silhouette.forEach((s) => {
+    const d = document.createElement("div");
+    d.className = "swatch-card";
+    d.style.cursor = "default";
+    d.innerHTML = `<span class="nm">${s.name}</span><span class="hx">${s.note}</span>`;
+    box.appendChild(d);
+  });
+}
+function renderOutfit() {
+  const o = D.outfits[outfitIndex];
+  const rows = [
+    ["Arriba", `${o.top} — ${o.topDesc}`],
+    ["Abajo", `${o.bottom} — ${o.bottomDesc}`],
+    ["Abrigo", `${o.jacket} — ${o.jacketDesc}`],
+    ["Accesorio", `${o.acc} — ${o.accDesc}`]
+  ];
+  document.getElementById("outfitList").innerHTML = rows
+    .map(([k, v]) => `<li><strong>${k}:</strong> <span>${v}</span></li>`).join("");
+  document.getElementById("outfitCounter").textContent =
+    `Combinación ${outfitIndex + 1} de ${D.outfits.length}`;
+}
+function renderSaved() {
+  const saved = JSON.parse(localStorage.getItem("stylingu-outfits") || "[]");
+  document.getElementById("savedCount").textContent =
+    `Armario local: ${saved.length} conjunto${saved.length === 1 ? "" : "s"}`;
+  document.getElementById("savedList").innerHTML = saved.slice(-3).reverse()
+    .map((s) => `<li><span>${s.top} + ${s.bottom} + ${s.jacket}</span></li>`).join("");
+}
 
 /* ---- Init ---- */
 renderPalette();
@@ -91,16 +121,20 @@ document.querySelectorAll("[data-fabric]").forEach((btn) => {
 });
 selectFabric("seda", document.querySelector('[data-fabric="seda"]'));
 
+renderSilhouette();
+renderOutfit();
+renderSaved();
 document.getElementById("shuffleBtn").addEventListener("click", () => {
-  outfitIndex = (outfitIndex + 1) % outfitsSimple.length;
-  document.getElementById("outfitText").textContent = outfitsSimple[outfitIndex];
+  outfitIndex = (outfitIndex + 1) % D.outfits.length;
+  renderOutfit();
   toast("Nueva combinación calculada.");
 });
 
 document.getElementById("saveOutfitBtn").addEventListener("click", () => {
   const saved = JSON.parse(localStorage.getItem("stylingu-outfits") || "[]");
-  saved.push({ text: document.getElementById("outfitText").textContent, at: new Date().toISOString() });
+  saved.push({ ...D.outfits[outfitIndex], at: new Date().toISOString() });
   localStorage.setItem("stylingu-outfits", JSON.stringify(saved));
+  renderSaved();
   toast("Conjunto guardado en local.");
 });
 
