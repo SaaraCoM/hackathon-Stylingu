@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { apiLimiter, aiLimiter } from "./middleware/rateLimit.js";
 import { connectDB, dbState } from "./config/db.js";
+import { armario } from "./routes/armario.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.get("/api/health", (_req, res) =>
 );
 
 app.use("/api/", apiLimiter);
+app.use("/api/armario", armario);
 app.post("/api/ai/analyze-colorimetry", aiLimiter, (req, res) => {
   // Placeholder: la IA real (Meta AI) se integra aquí con cuota y fallback local.
   if (!req.body || !req.body.imageUrl) {

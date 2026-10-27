@@ -31,6 +31,20 @@ function writeJSON(key, val) {
   }
 }
 
+const API = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+  ? "http://localhost:3000"
+  : "";
+
+async function saveOutfitRemote(outfit) {
+  const res = await fetch(`${API}/api/armario`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(outfit)
+  });
+  if (!res.ok) throw new Error(`backend ${res.status}`);
+  return res.json();
+}
+
 const store = {
   getProfile: () => readJSON(STORE_KEYS.profile, null),
   saveProfile: (profile) => writeJSON(STORE_KEYS.profile, profile),

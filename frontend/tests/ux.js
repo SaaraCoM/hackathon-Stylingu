@@ -65,6 +65,10 @@ function boot() {
   };
   global.navigator = {};
   global.window = {};
+  global.location = { hostname: "test" };
+  // Sin backend en el contrato headless: el guardado remoto siempre cae
+  // al fallback local, igual que en el navegador sin conexión.
+  global.fetch = () => Promise.reject(new Error("sin backend en tests"));
   global.document = {
     createElement: (tag) => makeEl(tag),
     getElementById: (id) => { if (!byId[id]) throw new Error('no such id: ' + id); return byId[id]; },
@@ -75,7 +79,7 @@ function boot() {
       let m = sel.match(/^\[data-([a-z]+)\]$/);
       if (m) return allBtns.filter((b) => b.dataset[m[1]] !== undefined);
       m = sel.match(/^\[data-([a-z]+)="([^"]+)"\]$/);
-      if (m) return allBtns.filter((b) => b.dataset[m[1]] === m[2]);
+      if (m) return allBtns.filter((b) => String(b.dataset[m[1]]) === m[2]);
       if (sel === '.swatch-card') return [];
       return [];
     },
@@ -94,10 +98,15 @@ function boot() {
 }
 
 let passed = 0;
-function check(name, fn) { fn(); passed += 1; console.log('ok - ' + name); }
+const queue = [];
+function check(name, fn) { queue.push([name, async () => { await fn(); await Promise.resolve(); }]); }
 
 // --- Escenario 1: primera vez completa ---
-const t = boot();
+// El boot crea el DOM pero los <script> corren en el primer check:
+// así el orden de ejecución es idéntico al navegador (DOM listo + scripts).
+// (boot diferido: mismo orden que los <script> del navegador)
+let t;
+check('__boot primera vez__', () => { t = boot(); });
 check('onboarding visible en paso 1', () => {
   assert.strictEqual(t.byId.onboardSheet.hidden, false);
   assert.strictEqual(t.byId.obTitle.textContent, '¿Cómo te llamamos?');
@@ -134,12 +143,14 @@ check('tabs: clic + flecha cambian de tab', () => {
   t.nav('tab-armario').key('keydown', 'ArrowRight');
   assert.ok(t.byId['tab-makeup'].classList.contains('active'));
 });
-check('armario: shuffle, empty y guardar', () => {
+check('armario: shuffle, empty y guardar', async () => {
   const before = t.byId.outfitList.innerHTML;
   t.byId.shuffleBtn.click();
   assert.notStrictEqual(t.byId.outfitList.innerHTML, before);
   assert.strictEqual(t.byId.savedEmpty.hidden, false);
   t.byId.saveFirstBtn.click();
+  await Promise.resolve();
+  await Promise.resolve();
   assert.strictEqual(t.byId.savedEmpty.hidden, true);
   assert.strictEqual(JSON.parse(t.mem['stylingu-outfits']).length, 1);
   console.log('   toast: ' + t.byId.toast.textContent);
@@ -168,7 +179,8 @@ check('storage corrupto cae a vacío', () => {
 });
 
 // --- Escenario 2: arranque fresco + Esc omite sin perfil ---
-const t2 = boot();
+let t2;
+check('__boot arranque fresco__', () => { t2 = boot(); });
 check('Esc omite el onboarding sin crear perfil', () => {
   assert.strictEqual(t2.byId.onboardSheet.hidden, false);
   t2.key('Escape');
@@ -177,4 +189,7 @@ check('Esc omite el onboarding sin crear perfil', () => {
   console.log('   toast: ' + t2.byId.toast.textContent);
 });
 
-console.log('\nUX CONTRACT: ' + passed + '/10 checks passed');
+(async () => {
+  for (const [name, fn] of queue) { await fn(); passed += 1; console.log('ok - ' + name); }
+  console.log('\nUX CONTRACT: ' + (passed - 2) + '/10 checks passed');
+})();

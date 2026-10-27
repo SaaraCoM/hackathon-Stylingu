@@ -45,10 +45,16 @@ document.getElementById("shuffleBtn").addEventListener("click", () => {
   renderOutfit();
   toast("Nueva combinación lista. Guárdala si te favorece.");
 });
-document.getElementById("saveOutfitBtn").addEventListener("click", () => {
-  store.addOutfit({ ...D.outfits[outfitIndex], at: new Date().toISOString() });
+document.getElementById("saveOutfitBtn").addEventListener("click", async () => {
+  const outfit = { ...D.outfits[outfitIndex], at: new Date().toISOString() };
+  store.addOutfit(outfit);
+  try {
+    await saveOutfitRemote(outfit);
+    toast("Conjunto guardado en tu cuenta. Lo verás en tu Armario.");
+  } catch {
+    toast("Guardado en local (sin conexión a tu cuenta).");
+  }
   renderSaved();
-  toast("Conjunto guardado. Lo verás en tu Armario.");
 });
 document.getElementById("saveFirstBtn").addEventListener("click", () => {
   document.getElementById("saveOutfitBtn").click();
