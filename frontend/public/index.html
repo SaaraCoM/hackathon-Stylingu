@@ -127,14 +127,37 @@
 
   <section class="tab" id="tab-piel" aria-label="Skincare">
     <div class="card">
-      <h2>Skincare · mapa facial</h2>
+      <h2>Mapa facial de zonas</h2>
+      <p class="muted">Toca una zona para ver su lectura y recomendación.</p>
       <div class="row" role="group" aria-label="Zona facial">
-        <button class="btn" data-zone="zona-t" type="button">Zona T</button>
+        <button class="btn primary" data-zone="zona-t" type="button">Zona T</button>
         <button class="btn" data-zone="ojos" type="button">Ojos</button>
         <button class="btn" data-zone="mejillas" type="button">Mejillas</button>
         <button class="btn" data-zone="mandibula" type="button">Mandíbula</button>
       </div>
-      <p class="muted" id="zoneText">Elige una zona para ver la recomendación.</p>
+      <div class="detail">
+        <div><strong id="zoneName">Zona T · frente y nariz</strong>
+        <p class="muted" id="zoneScore" style="font-weight:700;color:var(--primary)">Equilibrio 82%</p>
+        <p class="muted" id="zoneDesc">Leve brillo al mediodía. Tónico PHA + niacinamida.</p></div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card sand">
+        <h2>Rutina AM · protección</h2>
+        <ol class="routine" id="routineAM"></ol>
+      </div>
+      <div class="card sand">
+        <h2>Rutina PM · reparación</h2>
+        <ol class="routine" id="routinePM"></ol>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Check-in semanal</h2>
+      <p class="muted">Foto frontal los domingos con luz natural indirecta. El progreso se guarda en local.</p>
+      <div class="row">
+        <button class="btn primary" id="checkinBtn" type="button">Registrar check-in</button>
+      </div>
+      <p class="saved" id="checkinInfo">Sin check-ins todavía.</p>
     </div>
   </section>
 </main>

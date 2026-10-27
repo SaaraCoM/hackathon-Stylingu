@@ -171,16 +171,40 @@ document.querySelectorAll("[data-look]").forEach((btn) => {
   btn.addEventListener("click", () => selectLook(btn.dataset.look, btn));
 });
 
-const zonesSimple = {
-  "zona-t": "Zona T · Equilibrio 82%: tónico suave con PHA 2 veces/semana.",
-  ojos: "Contorno periocular · Hidratación 74%: sérum de cafeína + masaje frío.",
-  mejillas: "Mejillas · Barrera 68%: emulsión con escualano y ceramidas.",
-  mandibula: "Mandíbula · Firmeza 91%: pases ascendentes en la selladora PM."
-};
+/* ---- Skincare ---- */
+function selectZone(key, btn) {
+  const z = D.zones[key];
+  if (!z) return;
+  document.getElementById("zoneName").textContent = z.name;
+  document.getElementById("zoneScore").textContent = z.score;
+  document.getElementById("zoneDesc").textContent = z.desc;
+  document.querySelectorAll("[data-zone]").forEach((b) =>
+    b.classList.toggle("primary", b === btn));
+}
+function renderRoutine() {
+  document.getElementById("routineAM").innerHTML = D.routineAM
+    .map(([t, d]) => `<li><strong>${t}.</strong> <span>${d}</span></li>`).join("");
+  document.getElementById("routinePM").innerHTML = D.routinePM
+    .map(([t, d]) => `<li><strong>${t}.</strong> <span>${d}</span></li>`).join("");
+}
+function renderCheckin() {
+  const n = JSON.parse(localStorage.getItem("stylingu-checkins") || "[]").length;
+  document.getElementById("checkinInfo").textContent = n
+    ? `${n} check-in${n === 1 ? "" : "s"} registrados en local.`
+    : "Sin check-ins todavía.";
+}
+renderRoutine();
+renderCheckin();
+selectZone("zona-t", document.querySelector('[data-zone="zona-t"]'));
 document.querySelectorAll("[data-zone]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.getElementById("zoneText").textContent = zonesSimple[btn.dataset.zone];
-  });
+  btn.addEventListener("click", () => selectZone(btn.dataset.zone, btn));
+});
+document.getElementById("checkinBtn").addEventListener("click", () => {
+  const all = JSON.parse(localStorage.getItem("stylingu-checkins") || "[]");
+  all.push({ at: new Date().toISOString() });
+  localStorage.setItem("stylingu-checkins", JSON.stringify(all));
+  renderCheckin();
+  toast("Check-in semanal registrado.");
 });
 
 document.querySelectorAll(".bottomnav button").forEach((btn) => {
