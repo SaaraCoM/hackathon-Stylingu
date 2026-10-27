@@ -23,8 +23,8 @@
 
 <section class="hero" id="inicio">
   <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
-  <h1>Elena Vance — Atelier de Armonía Óptica</h1>
-  <p>Tu espectro responde a matices aterciopelados y cálidos. Todo corre en local: sin CDN, sin imágenes externas, sin claves.</p>
+  <h1 id="heroTitle">Elena Vance — Atelier de Armonía Óptica</h1>
+  <p id="heroSub">Tu espectro responde a matices aterciopelados y cálidos. Todo corre en local: sin CDN, sin imágenes externas, sin claves.</p>
   <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
 </section>
 
@@ -92,6 +92,11 @@
         <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
       </div>
       <p class="saved" id="savedCount">Armario local: 0 conjuntos</p>
+      <div class="empty" id="savedEmpty">
+        <strong>Tu armario empieza aquí</strong>
+        <p>Guarda la combinación actual para verla junto a tu paleta cada vez que abras el Atelier.</p>
+        <button class="btn primary" id="saveFirstBtn" type="button">Guardar mi primer conjunto</button>
+      </div>
       <ul class="outfit" id="savedList" style="list-style:none;padding:0"></ul>
     </div>
   </section>
@@ -178,10 +183,53 @@
     <h2>Nueva consulta</h2>
     <p class="muted">Solo crea un dossier local de ejemplo.</p>
     <label class="visually-hidden" for="consultName">Nombre del dossier</label>
-    <input id="consultName" name="consultName" type="text" placeholder="Nombre (ej. Elena Vance)…" autocomplete="name" maxlength="60" />
+    <input id="consultName" name="consultName" type="text" placeholder="Nombre (ej. Elena Vance)…" autocomplete="name" maxlength="60" aria-describedby="consultError" />
+    <p class="error" id="consultError" role="alert" hidden>Escribe un nombre para crear el dossier.</p>
     <div class="row">
       <button class="btn primary" id="confirmConsultBtn" type="button">Crear dossier</button>
       <button class="btn" id="closeConsultBtn" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="onboardSheet" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden>
+  <div class="sheet-box">
+    <p class="kicker" id="obStep" aria-live="polite">Paso 1 de 4 · Tu nombre</p>
+    <h2 id="obTitle">¿Cómo te llamamos?</h2>
+    <div class="ob-body">
+      <label class="visually-hidden" for="obName">Tu nombre</label>
+      <input id="obName" name="obName" type="text" placeholder="Tu nombre…" autocomplete="given-name" maxlength="60" />
+      <div class="ob-step" data-step="2" hidden>
+        <p class="muted">¿Qué quieres lograr?</p>
+        <div class="row" role="group" aria-label="Objetivos">
+          <button class="btn chip" data-goal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
+          <button class="btn chip" data-goal="compras" type="button" aria-pressed="false">Comprar mejor</button>
+          <button class="btn chip" data-goal="maquillaje" type="button" aria-pressed="false">Maquillaje</button>
+        </div>
+      </div>
+      <div class="ob-step" data-step="3" hidden>
+        <p class="muted">Sol y joyas: ¿qué te sienta?</p>
+        <div class="row" role="group" aria-label="Joyería">
+          <button class="btn chip" data-jewelry="dorado" type="button" aria-pressed="false">Dorado</button>
+          <button class="btn chip" data-jewelry="plateado" type="button" aria-pressed="false">Plateado</button>
+          <button class="btn chip" data-jewelry="ambos" type="button" aria-pressed="false">Ambos</button>
+        </div>
+        <div class="row" role="group" aria-label="Estilos" style="margin-top:8px">
+          <button class="btn chip" data-style="Elegante" type="button" aria-pressed="false">Elegante</button>
+          <button class="btn chip" data-style="Minimalista" type="button" aria-pressed="false">Minimalista</button>
+          <button class="btn chip" data-style="Natural" type="button" aria-pressed="false">Natural</button>
+        </div>
+      </div>
+      <div class="ob-step" data-step="4" hidden>
+        <p class="muted">Tu dossier de ejemplo ya está listo con la paleta Otoño Cálido Suave. Podrás cambiarlo cuando quieras.</p>
+        <p><span class="pill">Otoño Cálido Suave · 6 tonos</span></p>
+      </div>
+      <p class="error" id="obError" role="alert" hidden></p>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="obNextBtn" type="button">Continuar</button>
+      <button class="btn" id="obBackBtn" type="button" disabled>Atrás</button>
+      <button class="btn link" id="obSkipBtn" type="button">Omitir</button>
     </div>
   </div>
 </div>

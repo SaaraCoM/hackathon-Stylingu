@@ -138,6 +138,7 @@ function renderSaved() {
     `Armario local: ${saved.length} conjunto${saved.length === 1 ? "" : "s"}`;
   document.getElementById("savedList").innerHTML = saved.slice(-3).reverse()
     .map((s) => `<li><span>${s.top} + ${s.bottom} + ${s.jacket}</span></li>`).join("");
+  document.getElementById("savedEmpty").hidden = saved.length > 0;
 }
 
 /* ---- Init ---- */
@@ -155,7 +156,7 @@ renderSaved();
 document.getElementById("shuffleBtn").addEventListener("click", () => {
   outfitIndex = (outfitIndex + 1) % D.outfits.length;
   renderOutfit();
-  toast("Nueva combinación calculada.");
+  toast("Nueva combinación lista. Guárdala si te favorece.");
 });
 
 document.getElementById("saveOutfitBtn").addEventListener("click", () => {
@@ -163,12 +164,12 @@ document.getElementById("saveOutfitBtn").addEventListener("click", () => {
   saved.push({ ...D.outfits[outfitIndex], at: new Date().toISOString() });
   writeJSON("stylingu-outfits", saved);
   renderSaved();
-  toast("Conjunto guardado en local.");
+  toast("Conjunto guardado. Lo verás en tu Armario.");
 });
 
 document.getElementById("savePaletteBtn").addEventListener("click", () => {
   writeJSON("stylingu-palette", D.palette);
-  toast("Paleta guardada en local.");
+  toast("Paleta guardada. Úsala al comparar prendas.");
 });
 
 /* ---- Maquillaje ---- */
@@ -218,8 +219,8 @@ function renderRoutine() {
 function renderCheckin() {
   const n = readJSON("stylingu-checkins", []).length;
   document.getElementById("checkinInfo").textContent = n
-    ? `${n} check-in${n === 1 ? "" : "s"} registrados en local.`
-    : "Sin check-ins todavía.";
+    ? `${n} check-in${n === 1 ? "" : "s"} en local. El próximo, este domingo.`
+    : "Aún sin check-ins. Registra el primero y sigue tu progreso aquí.";
 }
 renderRoutine();
 renderCheckin();
@@ -232,7 +233,7 @@ document.getElementById("checkinBtn").addEventListener("click", () => {
   all.push({ at: new Date().toISOString() });
   writeJSON("stylingu-checkins", all);
   renderCheckin();
-  toast("Check-in semanal registrado.");
+  toast("Check-in registrado. Nos vemos el domingo.");
 });
 
 tabBtns.forEach((btn, i) => {
@@ -264,8 +265,100 @@ modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); }
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
 });
+document.getElementById("saveFirstBtn").addEventListener("click", () => {
+  document.getElementById("saveOutfitBtn").click();
+});
+
+/* ---- Primera vez: onboarding en 4 pasos ---- */
+const onboardSheet = document.getElementById("onboardSheet");
+const obTitle = document.getElementById("obTitle");
+const obStep = document.getElementById("obStep");
+const obName = document.getElementById("obName");
+const obError = document.getElementById("obError");
+const obNextBtn = document.getElementById("obNextBtn");
+const obBackBtn = document.getElementById("obBackBtn");
+const obSteps = [...document.querySelectorAll(".ob-step")];
+const obTitles = ["¿Cómo te llamamos?", "¿Qué quieres lograr?", "Sol, joyas y estilo", "Tu dossier está listo"];
+let obIndex = 0;
+const obDraft = { name: "", goals: [], jewelry: "", styles: [] };
+function renderObStep() {
+  obTitle.textContent = obTitles[obIndex];
+  obStep.textContent = `Paso ${obIndex + 1} de 4 · ${["Tu nombre", "Tus objetivos", "Tus gustos", "Confirmar"][obIndex]}`;
+  obSteps.forEach((s) => { s.hidden = Number(s.dataset.step) !== obIndex + 1; });
+  obName.style.display = obIndex === 0 ? "" : "none";
+  obError.hidden = true;
+  obBackBtn.disabled = obIndex === 0;
+  obNextBtn.textContent = obIndex === 3 ? "Empezar" : "Continuar";
+  (obIndex === 0 ? obName : obNextBtn).focus();
+}
+function personalizeHero(name) {
+  document.getElementById("heroTitle").textContent = `${name} — Atelier de Armonía Óptica`;
+  document.getElementById("heroSub").textContent =
+    "Tu dossier vive en este dispositivo. Explora tu paleta, arma conjuntos y registra tu progreso cada domingo.";
+}
+function finishOnboarding(skipped) {
+  if (!skipped && obDraft.name) {
+    writeJSON("stylingu-profile", { ...obDraft, at: new Date().toISOString() });
+    personalizeHero(obDraft.name);
+  }
+  onboardSheet.hidden = true;
+  switchTab("tab-color");
+  toast(skipped ? "Explora el Atelier a tu ritmo." : `Hola, ${obDraft.name}. Empieza por tu paleta.`);
+}
+document.querySelectorAll("[data-goal]").forEach((b) => {
+  b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") === "true";
+    b.setAttribute("aria-pressed", String(!on));
+    const g = b.dataset.goal;
+    obDraft.goals = on ? obDraft.goals.filter((x) => x !== g) : [...obDraft.goals, g];
+  });
+});
+document.querySelectorAll("[data-jewelry]").forEach((b) => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("[data-jewelry]").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    obDraft.jewelry = b.dataset.jewelry;
+  });
+});
+document.querySelectorAll("[data-style]").forEach((b) => {
+  b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") === "true";
+    b.setAttribute("aria-pressed", String(!on));
+    const s = b.dataset.style;
+    obDraft.styles = on ? obDraft.styles.filter((x) => x !== s) : [...obDraft.styles, s];
+  });
+});
+obName.addEventListener("input", () => { obError.hidden = true; });
+obNextBtn.addEventListener("click", () => {
+  if (obIndex === 0) {
+    const name = obName.value.trim().slice(0, 60);
+    if (!name) {
+      obError.textContent = "Escribe tu nombre para personalizar tu dossier.";
+      obError.hidden = false;
+      obName.focus();
+      return;
+    }
+    obDraft.name = name;
+  }
+  if (obIndex < 3) { obIndex += 1; renderObStep(); }
+  else finishOnboarding(false);
+});
+obBackBtn.addEventListener("click", () => { if (obIndex > 0) { obIndex -= 1; renderObStep(); } });
+document.getElementById("obSkipBtn").addEventListener("click", () => finishOnboarding(true));
+const existingProfile = readJSON("stylingu-profile", null);
+if (existingProfile && existingProfile.name) personalizeHero(existingProfile.name);
+else { onboardSheet.hidden = false; renderObStep(); }
+
+const consultError = document.getElementById("consultError");
+consultName.addEventListener("input", () => { consultError.hidden = true; });
 document.getElementById("confirmConsultBtn").addEventListener("click", () => {
   const name = consultName.value.trim().slice(0, 60);
+  if (!name) {
+    consultError.hidden = false;
+    consultName.focus();
+    return;
+  }
+  consultError.hidden = true;
   closeModal();
-  toast(name ? `Dossier creado para ${name}.` : "Dossier de ejemplo creado.");
+  toast(`Dossier creado para ${name}. Míralo en Colorimetría.`);
 });
