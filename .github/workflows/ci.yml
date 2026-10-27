@@ -18,3 +18,8 @@ jobs:
           node --check src/index.js
           node --check src/middleware/rateLimit.js
           node --check src/models/schemas.js
+      - name: Frontend sintaxis (shell + modulos js/)
+        run: |
+          node --check frontend/public/data.js
+          node --check frontend/public/app.js
+          for f in frontend/public/js/*.js; do node --check "$f"; done
