@@ -12,6 +12,7 @@ const accountState = document.getElementById("accountState");
 const accountForm = document.getElementById("accountForm");
 const accountOut = document.getElementById("accountOut");
 const accountError = document.getElementById("accountError");
+const accountPrefs = document.getElementById("accountPrefs");
 let accountLastFocus = null;
 
 async function api(path, opts) {
@@ -28,7 +29,9 @@ function renderAccount() {
   const logged = !!currentUser;
   accountForm.hidden = logged;
   accountOut.hidden = !logged;
+  if (accountPrefs) accountPrefs.hidden = !logged;
   accountError.hidden = true;
+  if (logged) renderPrefs();
   document.getElementById("accountBtn").textContent = logged ? currentUser.name : "Mi cuenta";
   accountState.textContent = logged
     ? `Sesión de ${currentUser.name}. Tu armario es solo tuyo.`
@@ -71,6 +74,72 @@ async function loadRemoteOutfits() {
   renderSaved();
 }
 
+/* --- Dossier: sincronía con la cuenta ---
+ * Regla de conflicto simple: si la cuenta ya tiene gustos, manda la cuenta
+ * (así un dispositivo nuevo recupera el dossier); si la cuenta está vacía,
+ * sube el dossier local. Sin backend todo sigue en localStorage.
+ */
+async function pushProfile() {
+  const p = store.getProfile();
+  if (!p || !currentUser) return;
+  await api("/auth/perfil", {
+    method: "PUT",
+    body: JSON.stringify({
+      goals: p.goals || [],
+      jewelry: p.jewelry || "",
+      styles: p.styles || []
+    })
+  });
+}
+
+async function pullProfile() {
+  try {
+    const { preferences } = await api("/auth/perfil");
+    const remote = preferences || {};
+    const hasRemote = (remote.goals && remote.goals.length) || remote.jewelry ||
+      (remote.styles && remote.styles.length);
+    const local = store.getProfile();
+    const hasLocal = local && ((local.goals && local.goals.length) || local.jewelry ||
+      (local.styles && local.styles.length));
+    if (hasRemote) {
+      store.saveProfile({
+        ...(local || { name: currentUser ? currentUser.name : "", at: new Date().toISOString() }),
+        goals: remote.goals || [],
+        jewelry: remote.jewelry || "",
+        styles: remote.styles || []
+      });
+    } else if (hasLocal && currentUser) {
+      await pushProfile();
+    }
+    renderDossier();
+    renderPrefs();
+  } catch { /* sin backend: el dossier sigue en local */ }
+}
+
+function renderPrefs() {
+  if (!accountPrefs) return;
+  const p = store.getProfile() || {};
+  const goals = Array.isArray(p.goals) ? p.goals : [];
+  const styles = Array.isArray(p.styles) ? p.styles : [];
+  document.querySelectorAll("[data-pgoal]").forEach((b) =>
+    b.setAttribute("aria-pressed", String(goals.includes(b.dataset.pgoal))));
+  document.querySelectorAll("[data-pstyle]").forEach((b) =>
+    b.setAttribute("aria-pressed", String(styles.includes(b.dataset.pstyle))));
+  document.querySelectorAll("[data-pjewelry]").forEach((b) =>
+    b.setAttribute("aria-pressed", String(p.jewelry === b.dataset.pjewelry)));
+}
+
+function readPrefs() {
+  const collect = (sel, key) => [...document.querySelectorAll(sel)]
+    .filter((b) => b.getAttribute("aria-pressed") === "true")
+    .map((b) => b.dataset[key]);
+  return {
+    goals: collect("[data-pgoal]", "pgoal"),
+    jewelry: collect("[data-pjewelry]", "pjewelry")[0] || "",
+    styles: collect("[data-pstyle]", "pstyle")
+  };
+}
+
 async function submitAuth(path) {
   accountError.hidden = true;
   const name = document.getElementById("accountName").value.trim().slice(0, 60);
@@ -95,6 +164,7 @@ async function submitAuth(path) {
     document.getElementById("accountPassword").value = "";
     renderAccount();
     toast(`Hola de nuevo, ${user.name}. Cargando tu armario…`);
+    await pullProfile();
     try {
       await loadRemoteOutfits();
       toast(`Armario de ${user.name} listo.`);
@@ -117,6 +187,33 @@ document.addEventListener("keydown", (e) => {
 });
 document.getElementById("loginBtn").addEventListener("click", () => submitAuth("/auth/login"));
 document.getElementById("registerBtn").addEventListener("click", () => submitAuth("/auth/registro"));
+
+// Edición del dossier desde Mi cuenta (chips con aria-pressed).
+document.querySelectorAll("[data-pgoal]").forEach((b) => b.addEventListener("click", () => {
+  b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
+}));
+document.querySelectorAll("[data-pjewelry]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-pjewelry]").forEach((x) => x.setAttribute("aria-pressed", "false"));
+  b.setAttribute("aria-pressed", "true");
+}));
+document.querySelectorAll("[data-pstyle]").forEach((b) => b.addEventListener("click", () => {
+  b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
+}));
+document.getElementById("savePrefsBtn").addEventListener("click", async () => {
+  const prefs = readPrefs();
+  const local = store.getProfile() || {
+    name: currentUser ? currentUser.name : "",
+    at: new Date().toISOString()
+  };
+  store.saveProfile({ ...local, ...prefs });
+  renderDossier();
+  try {
+    await pushProfile();
+    toast("Dossier guardado en tu cuenta.");
+  } catch {
+    toast("Dossier guardado en local (sin conexión a tu cuenta).");
+  }
+});
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   try { await api("/auth/logout", { method: "POST", body: "{}" }); } catch { /* igual se cierra */ }
   currentUser = null;
@@ -125,6 +222,8 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   toast("Sesión cerrada. Tu armario local sigue aquí.");
 });
 
-refreshSession().then((user) => {
-  if (user) loadRemoteOutfits().catch(() => {});
+refreshSession().then(async (user) => {
+  if (!user) return;
+  await pullProfile();
+  loadRemoteOutfits().catch(() => {});
 });

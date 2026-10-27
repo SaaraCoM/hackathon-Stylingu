@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
 import { dbState } from "../config/db.js";
-import { createSession, destroySession } from "../middleware/auth.js";
+import { createSession, destroySession, requireUser } from "../middleware/auth.js";
 
 export const auth = Router();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -59,10 +59,60 @@ auth.post("/logout", async (req, res) => {
 
 auth.get("/yo", async (req, res) => {
   if (needDB(req, res)) return;
-  const { requireUser } = await import("../middleware/auth.js");
   return requireUser(req, res, async () => {
     const user = await User.findById(req.userId).lean();
     if (!user) return res.status(401).json({ error: "Sesión sin cuenta." });
     res.json({ user: { id: user._id, name: user.name, email: user.email } });
+  });
+});
+
+// Dossier (objetivos · joyería · estilos): el onboarding lo recoge y aquí
+// viaja con la cuenta. Whitelist de valores: nunca se persiste basura.
+const GOALS = new Set(["saber_colores", "compras", "maquillaje"]);
+const JEWELRY = new Set(["dorado", "plateado", "ambos"]);
+const STYLES = new Set(["Elegante", "Minimalista", "Natural"]);
+
+function cleanPrefs(body) {
+  const { goals, jewelry, styles } = body ?? {};
+  return {
+    goals: Array.isArray(goals)
+      ? [...new Set(goals.filter((g) => GOALS.has(String(g))))].slice(0, 6)
+      : [],
+    jewelry: JEWELRY.has(String(jewelry)) ? String(jewelry) : "",
+    styles: Array.isArray(styles)
+      ? [...new Set(styles.filter((s) => STYLES.has(String(s))))].slice(0, 6)
+      : []
+  };
+}
+
+auth.get("/perfil", async (req, res) => {
+  if (needDB(req, res)) return;
+  return requireUser(req, res, async () => {
+    try {
+      const user = await User.findById(req.userId).select("preferences").lean();
+      if (!user) return res.status(401).json({ error: "Sesión sin cuenta." });
+      res.json({ preferences: user.preferences ?? { goals: [], jewelry: "", styles: [] } });
+    } catch {
+      res.status(500).json({ error: "No se pudo leer el dossier." });
+    }
+  });
+});
+
+auth.put("/perfil", async (req, res) => {
+  if (needDB(req, res)) return;
+  return requireUser(req, res, async () => {
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.userId,
+        { preferences: cleanPrefs(req.body) },
+        { new: true }
+      )
+        .select("preferences")
+        .lean();
+      if (!user) return res.status(401).json({ error: "Sesión sin cuenta." });
+      res.json({ preferences: user.preferences });
+    } catch {
+      res.status(500).json({ error: "No se pudo guardar el dossier." });
+    }
   });
 });

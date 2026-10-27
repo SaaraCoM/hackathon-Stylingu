@@ -35,6 +35,7 @@
       <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
       <span class="pill live"><span class="pulse" aria-hidden="true"></span><span id="heroMode">Modo local · este dispositivo</span></span>
     </div>
+    <p class="dossier-line" id="dossierLine" hidden></p>
     <svg class="hero-wave" viewBox="0 0 220 50" fill="none" aria-hidden="true">
       <path d="M0 30 C10 30 12 45 18 45 C24 45 26 10 34 10 C42 10 44 40 52 40 C60 40 62 5 70 5 C78 5 80 42 88 42 C96 42 98 15 106 15 C114 15 116 38 124 38 C132 38 134 20 142 20 C150 20 152 35 160 35 C168 35 170 22 178 22 C186 22 188 32 196 32 C204 32 210 28 220 28"
             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
@@ -271,6 +272,27 @@
     <div class="row" id="accountOut" hidden>
       <button class="btn" id="logoutBtn" type="button">Cerrar sesión</button>
       <button class="btn primary" id="closeAccountBtn2" type="button">Seguir</button>
+    </div>
+    <div id="accountPrefs" hidden>
+      <p class="muted">Tu dossier viaja con tu cuenta.</p>
+      <div class="row" role="group" aria-label="Objetivos">
+        <button class="btn chip" data-pgoal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
+        <button class="btn chip" data-pgoal="compras" type="button" aria-pressed="false">Comprar mejor</button>
+        <button class="btn chip" data-pgoal="maquillaje" type="button" aria-pressed="false">Maquillaje</button>
+      </div>
+      <div class="row" role="group" aria-label="Joyería">
+        <button class="btn chip" data-pjewelry="dorado" type="button" aria-pressed="false">Oro</button>
+        <button class="btn chip" data-pjewelry="plateado" type="button" aria-pressed="false">Plata</button>
+        <button class="btn chip" data-pjewelry="ambos" type="button" aria-pressed="false">Ambos</button>
+      </div>
+      <div class="row" role="group" aria-label="Estilos">
+        <button class="btn chip" data-pstyle="Elegante" type="button" aria-pressed="false">Elegante</button>
+        <button class="btn chip" data-pstyle="Minimalista" type="button" aria-pressed="false">Minimalista</button>
+        <button class="btn chip" data-pstyle="Natural" type="button" aria-pressed="false">Natural</button>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="savePrefsBtn" type="button">Guardar preferencias</button>
+      </div>
     </div>
   </div>
 </div>

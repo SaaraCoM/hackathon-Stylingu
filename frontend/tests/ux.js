@@ -1,8 +1,9 @@
 /* tests/ux.js — contrato observable del shell, sin navegador.
  * Stub de DOM minimo + un solo eval concatenado de data.js, js/*.js y
  * app.js (mismo scope compartido que los <script> clasicos del navegador).
- * Cubre: onboarding en 4 pasos, 4 tabs + flechas, armario con empty,
- * consulta con error inline, check-in, storage corrupto y tecla Esc.
+ * Cubre: onboarding en 4 pasos, dossier en el hero, 4 tabs + flechas,
+ * armario con empty, consulta con error inline, check-in, storage
+ * corrupto y tecla Esc.
  * Uso: `npm test` desde frontend/ (sin dependencias, solo node).
  */
 const fs = require('node:fs');
@@ -133,10 +134,18 @@ check('paso 4: gustos + perfil y hero', () => {
   assert.strictEqual(t.byId.onboardSheet.hidden, true);
   const profile = JSON.parse(t.mem['stylingu-profile']);
   assert.strictEqual(profile.name, 'Lucía');
-  assert.deepStrictEqual(profile.goals, ['saber_colores', 'compras']);
-  assert.ok(t.byId.heroTitle.textContent.indexOf('Lucía') === 0);
+  assert.deepStrictEqual(profile.goals, ['saber_colores', 'compras']);  assert.ok(t.byId.heroTitle.textContent.indexOf('Lucía') === 0);
   console.log('   toast: ' + t.byId.toast.textContent);
 });
+check('dossier del hero refleja el perfil', () => {
+  t.rerun('renderDossier();');
+  const line = t.byId.dossierLine;
+  assert.strictEqual(line.hidden, false);
+  assert.ok(line.textContent.indexOf('Mis colores') !== -1);
+  assert.ok(line.textContent.indexOf('Oro') !== -1);
+  assert.ok(line.textContent.indexOf('Elegante') !== -1);
+});
+
 check('tabs: clic + flecha cambian de tab', () => {
   t.nav('tab-armario').click();
   assert.ok(t.byId['tab-armario'].classList.contains('active'));
@@ -190,5 +199,5 @@ check('Esc omite el onboarding sin crear perfil', () => {
 
 (async () => {
   for (const [name, fn] of queue) { await fn(); passed += 1; console.log('ok - ' + name); }
-  console.log('\nUX CONTRACT: ' + (passed - 2) + '/10 checks passed');
+  console.log('\nUX CONTRACT: ' + (passed - 2) + '/11 checks passed');
 })();

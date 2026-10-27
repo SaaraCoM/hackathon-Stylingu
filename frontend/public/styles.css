@@ -200,6 +200,14 @@ a { color: inherit; }
 }
 .hero-pills { margin-top: 1.5rem; }
 
+/* Línea del dossier: gustos elegidos en el onboarding */
+.dossier-line {
+  margin-top: 1.1rem;
+  font-size: 0.76rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--body);
+}
+
 .pill {
   display: inline-flex; align-items: center; gap: 0.55rem;
   padding: 0.42rem 0.95rem;
@@ -220,6 +228,14 @@ a { color: inherit; }
   70% { box-shadow: 0 0 0 10px rgba(88, 98, 75, 0); }
   100% { box-shadow: 0 0 0 0 rgba(88, 98, 75, 0); }
 }
+
+/* Acento según la joyería del dossier (data-joya en <html>): pinta el
+ * punto vivo y la wave del hero. Solo cambios decorativos, sin texto. */
+html[data-joya="dorado"] { --joya: #c49a45; }
+html[data-joya="plateado"] { --joya: #93a0ac; }
+html[data-joya="ambos"] { --joya: #b0654f; }
+html[data-joya] .pulse { background: var(--joya); }
+html[data-joya] .hero-wave { color: var(--joya); opacity: 0.6; }
 
 /* Wave animada (la línea de firma, viva) */
 .hero-wave {
@@ -531,6 +547,8 @@ strong { font-weight: 600; }
 
 .modal-box, .sheet-box {
   width: min(460px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
   padding: clamp(22px, 4vw, 32px);
   border-radius: 26px;
   background: var(--glass-strong);
@@ -564,6 +582,13 @@ strong { font-weight: 600; }
 .error {
   margin-top: 10px; color: #a2402c; font-size: 0.82rem; font-weight: 500;
 }
+
+/* Dossier editable en Mi cuenta */
+#accountPrefs {
+  margin-top: 14px; padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+#accountPrefs .row { margin-top: 8px; }
 
 /* ---------- Toast ---------- */
 .toast {

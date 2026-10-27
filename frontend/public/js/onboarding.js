@@ -29,10 +29,39 @@ function personalizeHero(name) {
     "Tu dossier vive en este dispositivo. Explora tu paleta, arma conjuntos y registra tu progreso cada domingo.";
 }
 
+const GOAL_LABELS = { saber_colores: "Mis colores", compras: "Comprar mejor", maquillaje: "Maquillaje" };
+const JEWELRY_LABELS = { dorado: "Oro", plateado: "Plata", ambos: "Oro y plata" };
+
+// renderDossier — el hero muestra los gustos elegidos y la joyería pinta
+// el acento (pulse + wave) vía data-joya en <html>. Sin perfil, oculto.
+function renderDossier() {
+  const line = document.getElementById("dossierLine");
+  const p = store.getProfile();
+  const parts = [];
+  if (p) {
+    (p.goals || []).forEach((g) => parts.push(GOAL_LABELS[g] || g));
+    if (p.jewelry) parts.push(JEWELRY_LABELS[p.jewelry] || p.jewelry);
+    (p.styles || []).forEach((s) => parts.push(s));
+  }
+  if (line) {
+    line.textContent = parts.join(" · ");
+    line.hidden = parts.length === 0;
+  }
+  if (document.documentElement) {
+    if (p && p.jewelry) document.documentElement.dataset.joya = p.jewelry;
+    else delete document.documentElement.dataset.joya;
+  }
+}
+
 function finishOnboarding(skipped) {
   if (!skipped && obDraft.name) {
     store.saveProfile({ ...obDraft, at: new Date().toISOString() });
     personalizeHero(obDraft.name);
+    renderDossier();
+    // Si hay sesión abierta, el dossier sube a la cuenta (best-effort).
+    if (typeof currentUser !== "undefined" && currentUser && typeof pushProfile === "function") {
+      pushProfile().catch(() => {});
+    }
   }
   onboardSheet.hidden = true;
   switchTab("tab-color");
@@ -83,3 +112,4 @@ document.getElementById("obSkipBtn").addEventListener("click", () => finishOnboa
 const existingProfile = store.getProfile();
 if (existingProfile && existingProfile.name) personalizeHero(existingProfile.name);
 else { onboardSheet.hidden = false; renderObStep(); }
+renderDossier();
