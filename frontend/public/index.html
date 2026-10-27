@@ -83,10 +83,10 @@
       <p class="muted">Simetría natural hombro-cadera con cintura definida: acompañar la verticalidad, sin cortes abruptos.</p>
       <div class="swatch-grid" id="silhouetteGrid" style="grid-template-columns:repeat(2,1fr)"></div>
     </div>
-    <div class="card" style="margin-top:16px">
+    <div class="card stack">
       <h2>Generador de conjuntos</h2>
       <p class="muted" id="outfitCounter">Combinación 1 de 3</p>
-      <ul class="outfit" id="outfitList" style="list-style:none;padding:0"></ul>
+      <ul class="outfit bare-list" id="outfitList"></ul>
       <div class="row">
         <button class="btn primary" id="shuffleBtn" type="button">Nueva combinación</button>
         <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
@@ -97,7 +97,7 @@
         <p>Guarda la combinación actual para verla junto a tu paleta cada vez que abras el Atelier.</p>
         <button class="btn primary" id="saveFirstBtn" type="button">Guardar mi primer conjunto</button>
       </div>
-      <ul class="outfit" id="savedList" style="list-style:none;padding:0"></ul>
+      <ul class="outfit bare-list" id="savedList"></ul>
     </div>
   </section>
 
@@ -117,15 +117,15 @@
       <div class="card">
         <h2>Labiales</h2>
         <div id="lipList"></div>
-        <p class="muted" style="font-size:12px">Evita frambuesas azulados: restan vitalidad a la sonrisa.</p>
+        <p class="muted fine">Evita frambuesas azulados: restan vitalidad a la sonrisa.</p>
       </div>
       <div class="card">
         <h2>Colorete</h2>
         <div id="blushList"></div>
-        <p class="muted" style="font-size:12px">Difumina ascendente desde la manzana del pómulo.</p>
+        <p class="muted fine">Difumina ascendente desde la manzana del pómulo.</p>
       </div>
     </div>
-    <div class="card" style="margin-top:16px">
+    <div class="card stack">
       <h2>Cuarteto de mirada</h2>
       <p class="muted">Máscara recomendada: marrón chocolate.</p>
       <div class="quad" id="eyesQuad"></div>
@@ -144,7 +144,7 @@
       </div>
       <div class="detail">
         <div><strong id="zoneName">Zona T · frente y nariz</strong>
-        <p class="muted" id="zoneScore" style="font-weight:700;color:var(--primary)">Equilibrio 82%</p>
+        <p class="muted" id="zoneScore">Equilibrio 82%</p>
         <p class="muted" id="zoneDesc">Leve brillo al mediodía. Tónico PHA + niacinamida.</p></div>
       </div>
     </div>
@@ -158,7 +158,7 @@
         <ol class="routine" id="routinePM"></ol>
       </div>
     </div>
-    <div class="card" style="margin-top:16px">
+    <div class="card stack">
       <h2>Check-in semanal</h2>
       <p class="muted">Foto frontal los domingos con luz natural indirecta. El progreso se guarda en local.</p>
       <div class="row">
