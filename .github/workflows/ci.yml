@@ -1,0 +1,20 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sin URLs externas rotas en el shell
+        run: |
+          ! grep -R "googleusercontent\|cdn.tailwindcss" -n frontend/public || (echo "URL externa encontrada" && exit 1)
+      - name: Backend sintaxis
+        run: |
+          cd backend
+          npm install --no-audit --no-fund
+          node --check src/index.js
+          node --check src/middleware/rateLimit.js
+          node --check src/models/schemas.js
