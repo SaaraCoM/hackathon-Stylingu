@@ -96,13 +96,32 @@
 
   <section class="tab" id="tab-makeup" aria-label="Maquillaje">
     <div class="card sand">
-      <h2>Maquillaje por ocasión</h2>
+      <h2>Pigmentos por ocasión</h2>
       <div class="row" role="group" aria-label="Ocasión">
         <button class="btn primary" data-look="diario" type="button">Diario</button>
         <button class="btn" data-look="editorial" type="button">Editorial</button>
         <button class="btn" data-look="reunion" type="button">Reunión</button>
       </div>
-      <p id="lookText"><strong>Diario luminoso:</strong> base translúcida, rubor melocotón y labio nude.</p>
+      <p><span class="pill" id="lookBadge">Diario luminoso</span></p>
+      <h3 id="lookTitle">Second skin + labio canela</h3>
+      <p class="muted" id="lookDesc">Base acuosa translúcida, rubor melocotón y nude con bálsamo.</p>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h2>Labiales</h2>
+        <div id="lipList"></div>
+        <p class="muted" style="font-size:12px">Evita frambuesas azulados: restan vitalidad a la sonrisa.</p>
+      </div>
+      <div class="card">
+        <h2>Colorete</h2>
+        <div id="blushList"></div>
+        <p class="muted" style="font-size:12px">Difumina ascendente desde la manzana del pómulo.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Cuarteto de mirada</h2>
+      <p class="muted">Máscara recomendada: marrón chocolate.</p>
+      <div class="quad" id="eyesQuad"></div>
     </div>
   </section>
 
