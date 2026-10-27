@@ -1,0 +1,18 @@
+{
+  "name": "stylingu-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "hono": "^4.13.14",
+    "mongoose": "^9.11.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "wrangler": "^4.153.0"
+  }
+}

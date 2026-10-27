@@ -1,0 +1,15 @@
+{
+  "name": "stylingu-backend-host",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node --input-type=module --experimental-vm-modules -e 'import app from \"./vercel/api/index.js\"; const t=8080; console.log(`listening on http://localhost:${t}`); require(\"node:http\").createServer((req,res)=>app.fetch(req,res)).listen(t);'"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.6.15",
+    "mongoose": "^8.12.2",
+    "lodash": "^4.17.21"
+  }
+}

@@ -1,0 +1,1 @@
+mongodb+srv://stylingu_user:StylinguHack2025!@stylingu-cluster.xi7vh.mongodb.net/stylingu?retryWrites=true&w=majority

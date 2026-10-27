@@ -25,6 +25,11 @@ android/.gradle/
 .tmp-ref/
 .playwright-cli/
 
+# Worker (publicación por Sites)
+worker/.dev.vars
+worker/mongodb-uri.txt
+deploy/
+
 # OS / editores
 .DS_Store
 Thumbs.db

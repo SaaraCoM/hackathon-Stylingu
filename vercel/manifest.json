@@ -1,0 +1,9 @@
+{
+  "name": "StylingU Atelier",
+  "short_name": "StylingU",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFF8F6",
+  "theme_color": "#865044",
+  "icons": []
+}

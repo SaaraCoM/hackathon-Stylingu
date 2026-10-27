@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StylingU Atelier — Colorimetría, Armario y Maquillaje</title>
+<meta name="description" content="StylingU Atelier: colorimetría Otoño Suave, armario virtual, maquillaje y skincare. Funciona en tu dispositivo, con cuenta opcional para tu armario." />
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#EFEAE2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<a class="skiplink" href="#contenido">Saltar al contenido</a>
+<div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#inicio" translate="no">stylingu<small>Atelier</small></a>
+    <div>
+      <button class="btn" id="accountBtn" type="button">Mi cuenta</button>
+      <button class="btn" id="savePaletteBtn" type="button">Guardar paleta</button>
+      <button class="btn primary" id="newConsultBtn" type="button">Nueva consulta</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="hero-card">
+    <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
+    <h1 id="heroTitle">Elena Vance — Atelier de Armonía Óptica</h1>
+    <p id="heroSub">Tu espectro responde a matices aterciopelados y cálidos. Todo vive en tu dispositivo: tu paleta, tu armario y tu progreso, con cuenta opcional.</p>
+    <div class="row hero-pills">
+      <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
+      <span class="pill live"><span class="pulse" aria-hidden="true"></span><span id="heroMode">Modo local · este dispositivo</span></span>
+    </div>
+    <p class="dossier-line" id="dossierLine" hidden></p>
+    <svg class="hero-wave" viewBox="0 0 220 50" fill="none" aria-hidden="true">
+      <path d="M0 30 C10 30 12 45 18 45 C24 45 26 10 34 10 C42 10 44 40 52 40 C60 40 62 5 70 5 C78 5 80 42 88 42 C96 42 98 15 106 15 C114 15 116 38 124 38 C132 38 134 20 142 20 C150 20 152 35 160 35 C168 35 170 22 178 22 C186 22 188 32 196 32 C204 32 210 28 220 28"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
+    </svg>
+  </div>
+  <p class="wordmark" aria-hidden="true">stylingu</p>
+  <div class="fog" aria-hidden="true"></div>
+</section>
+
+<main id="contenido">
+  <section class="tab active" id="tab-color" role="tabpanel" aria-labelledby="nav-color" aria-label="Colorimetría" tabindex="0">
+    <div class="grid cols-5-7">
+      <div class="card">
+        <h2>Mapeo de luz</h2>
+        <div class="flatfield" role="img" aria-label="Moodboard cálido terracota y miel">arcilla · miel · salvia</div>
+        <div class="row">
+          <span class="pill">Subtono: cálido dorado</span>
+          <span class="pill">Contraste: medio-bajo</span>
+          <span class="pill">Croma: suave</span>
+        </div>
+        <div class="bars">
+          <div class="bar-row"><span>Croma suave vs puro</span><span>Suave</span></div>
+          <div class="track" role="img" aria-label="Croma: suave, 72 de 100 hacia puro"><div class="fill" style="width:72%"></div></div>
+          <div class="bar-row"><span>Temperatura frío vs cálido</span><span>Cálido solar</span></div>
+          <div class="track" role="img" aria-label="Temperatura: cálido solar, 84 de 100 hacia cálido"><div class="fill deep" style="width:84%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Diagnóstico estacional</h2>
+        <p class="muted">Otoño Cálido Suave · <strong>6 tonos nucleares</strong>. Toca una muestra para ver su efecto en tez y copiar su hex.</p>
+        <div class="swatch-grid" id="swatches"></div>
+        <div class="detail" id="swatchDetailBox">
+          <span class="dot" id="swatchPreviewDot"></span>
+          <div><strong id="swatchName">Terracota</strong><p class="muted" id="swatchDesc">Eleva la calidez natural del rubor.</p></div>
+          <button class="btn" id="copyHexBtn" type="button">Copiar hex</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card sand">
+        <h2>Tonos a distanciar del rostro</h2>
+        <p class="muted">Longitudes de onda que crean refracciones desfavorables en tu fenotipo.</p>
+        <div id="avoidList"></div>
+      </div>
+      <div class="card">
+        <h2>Probador textil</h2>
+        <p class="muted">El tejido cambia cómo se lee el color sobre la piel.</p>
+        <div class="row" role="group" aria-label="Tejido">
+          <button class="btn primary" data-fabric="seda" type="button">Seda</button>
+          <button class="btn" data-fabric="lino" type="button">Lino</button>
+          <button class="btn" data-fabric="lana" type="button">Lana</button>
+        </div>
+        <h3 id="fabricTitle">Seda salvaje · terracota y nácar</h3>
+        <p class="muted" id="fabricBody">Lustre suave que difumina el escote.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-armario" role="tabpanel" aria-labelledby="nav-armario" aria-label="Vestuario y armario" tabindex="0">
+    <div class="card">
+      <h2>Arquitectura de silueta</h2>
+      <p class="muted">Simetría natural hombro-cadera con cintura definida: acompañar la verticalidad, sin cortes abruptos.</p>
+      <div class="swatch-grid" id="silhouetteGrid" style="grid-template-columns:repeat(2,1fr)"></div>
+    </div>
+    <div class="card stack">
+      <h2>Generador de conjuntos</h2>
+      <p class="muted" id="outfitCounter">Combinación 1 de 3</p>
+      <ul class="outfit bare-list" id="outfitList"></ul>
+      <div class="row">
+        <button class="btn primary" id="shuffleBtn" type="button">Nueva combinación</button>
+        <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
+      </div>
+      <p class="saved" id="savedCount">Armario local: 0 conjuntos</p>
+      <div class="empty" id="savedEmpty">
+        <strong>Tu armario empieza aquí</strong>
+        <p>Guarda la combinación actual para verla junto a tu paleta cada vez que abras el Atelier.</p>
+        <button class="btn primary" id="saveFirstBtn" type="button">Guardar mi primer conjunto</button>
+      </div>
+      <ul class="outfit bare-list" id="savedList"></ul>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-makeup" role="tabpanel" aria-labelledby="nav-makeup" aria-label="Maquillaje" tabindex="0">
+    <div class="card sand">
+      <h2>Pigmentos por ocasión</h2>
+      <div class="row" role="group" aria-label="Ocasión">
+        <button class="btn primary" data-look="diario" type="button">Diario</button>
+        <button class="btn" data-look="editorial" type="button">Editorial</button>
+        <button class="btn" data-look="reunion" type="button">Reunión</button>
+      </div>
+      <p><span class="pill" id="lookBadge">Diario luminoso</span></p>
+      <h3 id="lookTitle">Second skin + labio canela</h3>
+      <p class="muted" id="lookDesc">Base acuosa translúcida, rubor melocotón y nude con bálsamo.</p>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h2>Labiales</h2>
+        <div id="lipList"></div>
+        <p class="muted fine">Evita frambuesas azulados: restan vitalidad a la sonrisa.</p>
+      </div>
+      <div class="card">
+        <h2>Colorete</h2>
+        <div id="blushList"></div>
+        <p class="muted fine">Difumina ascendente desde la manzana del pómulo.</p>
+      </div>
+    </div>
+    <div class="card stack">
+      <h2>Cuarteto de mirada</h2>
+      <p class="muted">Máscara recomendada: marrón chocolate.</p>
+      <div class="quad" id="eyesQuad"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-piel" role="tabpanel" aria-labelledby="nav-piel" aria-label="Skincare" tabindex="0">
+    <div class="card">
+      <h2>Mapa facial de zonas</h2>
+      <p class="muted">Toca una zona para ver su lectura y recomendación.</p>
+      <div class="row" role="group" aria-label="Zona facial">
+        <button class="btn primary" data-zone="zona-t" type="button">Zona T</button>
+        <button class="btn" data-zone="ojos" type="button">Ojos</button>
+        <button class="btn" data-zone="mejillas" type="button">Mejillas</button>
+        <button class="btn" data-zone="mandibula" type="button">Mandíbula</button>
+      </div>
+      <div class="detail">
+        <div><strong id="zoneName">Zona T · frente y nariz</strong>
+        <p class="muted" id="zoneScore">Equilibrio 82%</p>
+        <p class="muted" id="zoneDesc">Leve brillo al mediodía. Tónico PHA + niacinamida.</p></div>
+      </div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card sand">
+        <h2>Rutina AM · protección</h2>
+        <ol class="routine" id="routineAM"></ol>
+      </div>
+      <div class="card sand">
+        <h2>Rutina PM · reparación</h2>
+        <ol class="routine" id="routinePM"></ol>
+      </div>
+    </div>
+    <div class="card stack">
+      <h2>Check-in semanal</h2>
+      <p class="muted">Foto frontal los domingos con luz natural indirecta. El progreso se guarda en local.</p>
+      <div class="row">
+        <button class="btn primary" id="checkinBtn" type="button">Registrar check-in</button>
+      </div>
+      <p class="saved" id="checkinInfo">Sin check-ins todavía.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="bottomnav" aria-label="Navegación principal">
+  <div class="bottomnav-inner" role="tablist">
+    <button role="tab" id="nav-color" aria-selected="true" aria-controls="tab-color" data-tab="tab-color" type="button">Color</button>
+    <button role="tab" id="nav-armario" aria-selected="false" aria-controls="tab-armario" data-tab="tab-armario" type="button" tabindex="-1">Armario</button>
+    <button role="tab" id="nav-makeup" aria-selected="false" aria-controls="tab-makeup" data-tab="tab-makeup" type="button" tabindex="-1">Makeup</button>
+    <button role="tab" id="nav-piel" aria-selected="false" aria-controls="tab-piel" data-tab="tab-piel" type="button" tabindex="-1">Piel</button>
+  </div>
+</nav>
+
+<div class="modal" id="consultModal" role="dialog" aria-modal="true" aria-label="Nueva consulta">
+  <div class="modal-box">
+    <h2>Nueva consulta</h2>
+    <p class="muted">Solo crea un dossier local de ejemplo.</p>
+    <label class="visually-hidden" for="consultName">Nombre del dossier</label>
+    <input id="consultName" name="consultName" type="text" placeholder="Nombre (ej. Elena Vance)…" autocomplete="name" maxlength="60" aria-describedby="consultError" />
+    <p class="error" id="consultError" role="alert" hidden>Escribe un nombre para crear el dossier.</p>
+    <div class="row">
+      <button class="btn primary" id="confirmConsultBtn" type="button">Crear dossier</button>
+      <button class="btn" id="closeConsultBtn" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="onboardSheet" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden>
+  <div class="sheet-box">
+    <p class="kicker" id="obStep" aria-live="polite">Paso 1 de 4 · Tu nombre</p>
+    <h2 id="obTitle">¿Cómo te llamamos?</h2>
+    <div class="ob-body">
+      <label class="visually-hidden" for="obName">Tu nombre</label>
+      <input id="obName" name="obName" type="text" placeholder="Tu nombre…" autocomplete="given-name" maxlength="60" />
+      <div class="ob-step" data-step="2" hidden>
+        <p class="muted">¿Qué quieres lograr?</p>
+        <div class="row" role="group" aria-label="Objetivos">
+          <button class="btn chip" data-goal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
+          <button class="btn chip" data-goal="compras" type="button" aria-pressed="false">Comprar mejor</button>
+          <button class="btn chip" data-goal="maquillaje" type="button" aria-pressed="false">Maquillaje</button>
+        </div>
+      </div>
+      <div class="ob-step" data-step="3" hidden>
+        <p class="muted">Sol y joyas: ¿qué te sienta?</p>
+        <div class="row" role="group" aria-label="Joyería">
+          <button class="btn chip" data-jewelry="dorado" type="button" aria-pressed="false">Dorado</button>
+          <button class="btn chip" data-jewelry="plateado" type="button" aria-pressed="false">Plateado</button>
+          <button class="btn chip" data-jewelry="ambos" type="button" aria-pressed="false">Ambos</button>
+        </div>
+        <div class="row" role="group" aria-label="Estilos" style="margin-top:8px">
+          <button class="btn chip" data-style="Elegante" type="button" aria-pressed="false">Elegante</button>
+          <button class="btn chip" data-style="Minimalista" type="button" aria-pressed="false">Minimalista</button>
+          <button class="btn chip" data-style="Natural" type="button" aria-pressed="false">Natural</button>
+        </div>
+      </div>
+      <div class="ob-step" data-step="4" hidden>
+        <p class="muted">Tu dossier de ejemplo ya está listo con la paleta Otoño Cálido Suave. Podrás cambiarlo cuando quieras.</p>
+        <p><span class="pill">Otoño Cálido Suave · 6 tonos</span></p>
+      </div>
+      <p class="error" id="obError" role="alert" hidden></p>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="obNextBtn" type="button">Continuar</button>
+      <button class="btn" id="obBackBtn" type="button" disabled>Atrás</button>
+      <button class="btn link" id="obSkipBtn" type="button">Omitir</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Mi cuenta">
+  <div class="modal-box">
+    <h2>Mi cuenta</h2>
+    <p class="muted" id="accountState">Tu armario vive en este dispositivo.</p>
+    <div id="accountForm">
+      <label class="visually-hidden" for="accountName">Nombre</label>
+      <input id="accountName" name="accountName" type="text" placeholder="Nombre" autocomplete="given-name" maxlength="60" />
+      <label class="visually-hidden" for="accountEmail">Email</label>
+      <input id="accountEmail" name="accountEmail" type="email" placeholder="Email" autocomplete="email" maxlength="160" />
+      <label class="visually-hidden" for="accountPassword">Contraseña</label>
+      <input id="accountPassword" name="accountPassword" type="password" placeholder="Contraseña (8+ caracteres)" autocomplete="current-password" maxlength="200" />
+      <p class="error" id="accountError" role="alert" hidden></p>
+      <div class="row">
+        <button class="btn primary" id="loginBtn" type="button">Entrar</button>
+        <button class="btn" id="registerBtn" type="button">Crear cuenta</button>
+        <button class="btn" id="closeAccountBtn" type="button">Cerrar</button>
+      </div>
+    </div>
+    <div class="row" id="accountOut" hidden>
+      <button class="btn" id="logoutBtn" type="button">Cerrar sesión</button>
+      <button class="btn primary" id="closeAccountBtn2" type="button">Seguir</button>
+    </div>
+    <div id="accountPrefs" hidden>
+      <p class="muted">Tu dossier viaja con tu cuenta.</p>
+      <div class="row" role="group" aria-label="Objetivos">
+        <button class="btn chip" data-pgoal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
+        <button class="btn chip" data-pgoal="compras" type="button" aria-pressed="false">Comprar mejor</button>
+        <button class="btn chip" data-pgoal="maquillaje" type="button" aria-pressed="false">Maquillaje</button>
+      </div>
+      <div class="row" role="group" aria-label="Joyería">
+        <button class="btn chip" data-pjewelry="dorado" type="button" aria-pressed="false">Oro</button>
+        <button class="btn chip" data-pjewelry="plateado" type="button" aria-pressed="false">Plata</button>
+        <button class="btn chip" data-pjewelry="ambos" type="button" aria-pressed="false">Ambos</button>
+      </div>
+      <div class="row" role="group" aria-label="Estilos">
+        <button class="btn chip" data-pstyle="Elegante" type="button" aria-pressed="false">Elegante</button>
+        <button class="btn chip" data-pstyle="Minimalista" type="button" aria-pressed="false">Minimalista</button>
+        <button class="btn chip" data-pstyle="Natural" type="button" aria-pressed="false">Natural</button>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="savePrefsBtn" type="button">Guardar preferencias</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="toast" id="toast" role="status" aria-live="polite"></p>
+<script src="./data.js"></script>
+<script src="./js/store.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/color.js"></script>
+<script src="./js/wardrobe.js"></script>
+<script src="./js/makeup.js"></script>
+<script src="./js/skincare.js"></script>
+<script src="./js/onboarding.js"></script>
+<script src="./js/account.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

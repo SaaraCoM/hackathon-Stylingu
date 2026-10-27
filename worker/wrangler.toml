@@ -1,0 +1,6 @@
+# Desarrollo local del Worker (wrangler dev). El despliegue usa
+# ../deploy/manifest.json (Sites), no este archivo.
+name = "stylingu-atelier"
+main = "src/index.js"
+compatibility_date = "2026-10-27"
+assets = { directory = "../frontend/public" }

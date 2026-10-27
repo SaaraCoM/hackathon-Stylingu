@@ -1,0 +1,14 @@
+# Vercel Function local env — never commit secrets
+.env
+.env.local
+*.local
+
+# Validate/build temp dir
+.vercel-validate/
+
+# Logs
+*.log
+
+# OS/editor
+.DS_Store
+Thumbs.db
