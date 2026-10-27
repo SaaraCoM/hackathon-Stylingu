@@ -62,7 +62,7 @@ main{max-width:var(--max);margin:0 auto;padding:12px 20px 96px;width:100%;flex:1
 .swatch-card{border:1px solid var(--line);border-radius:10px;background:var(--sand);
   padding:10px 6px;text-align:center;cursor:pointer;font:inherit;color:inherit}
 .swatch-card[aria-pressed="true"]{border-color:var(--primary);background:#fff}
-.swatch-card .chipdot{width:40px;height:40px;border-radius:50%;margin:0 auto 6px;
+.swatch-card .chipdot{display:block;width:40px;height:40px;border-radius:50%;margin:0 auto 6px;
   border:1px solid rgba(33,26,23,.25)}
 .swatch-card .nm{display:block;font-size:12px;font-weight:700}
 .swatch-card .hx{display:block;font-size:11px;color:var(--muted)}
