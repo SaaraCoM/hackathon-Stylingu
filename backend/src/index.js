@@ -1,21 +1,26 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { apiLimiter, aiLimiter } from "./middleware/rateLimit.js";
 import { connectDB, dbState } from "./config/db.js";
 import { armario } from "./routes/armario.js";
+import { auth } from "./routes/auth.js";
+import { authLimiter } from "./middleware/rateLimit.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
-app.use(cors({ origin: (process.env.CORS_ORIGIN || "http://localhost:8080").split(",") }));
+app.use(cookieParser());
+app.use(cors({ origin: (process.env.CORS_ORIGIN || "http://localhost:8080").split(","), credentials: true }));
 
 app.get("/api/health", (_req, res) =>
   res.json({ ok: true, service: "stylingu-backend", db: dbState() })
 );
 
 app.use("/api/", apiLimiter);
+app.use("/api/auth", authLimiter, auth);
 app.use("/api/armario", armario);
 app.post("/api/ai/analyze-colorimetry", aiLimiter, (req, res) => {
   // Placeholder: la IA real (Meta AI) se integra aquí con cuota y fallback local.

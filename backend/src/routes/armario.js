@@ -1,15 +1,20 @@
 import { Router } from "express";
 import { Outfit } from "../models/Outfit.js";
 import { dbState } from "../config/db.js";
+import { requireUser } from "../middleware/auth.js";
 
 export const armario = Router();
 
 // Sin base: 503 y el frontend guarda en localStorage (fallback visible).
-armario.get("/", async (_req, res) => {
+// Todo aquí exige sesión: cada usuario solo ve y guarda lo suyo
+// (requireUser pone req.userId desde la cookie, nunca del cliente).
+armario.use(requireUser);
+
+armario.get("/", async (req, res) => {
   if (dbState() !== "conectado") {
     return res.status(503).json({ error: "Sin base de datos: uso local." });
   }
-  const items = await Outfit.find().sort({ createdAt: -1 }).limit(50).lean();
+  const items = await Outfit.find({ userId: req.userId }).sort({ createdAt: -1 }).limit(50).lean();
   res.json({ items });
 });
 
@@ -22,6 +27,7 @@ armario.post("/", async (req, res) => {
     return res.status(400).json({ error: "top, bottom y jacket son requeridos." });
   }
   const doc = await Outfit.create({
+    userId: req.userId,
     top: String(top).slice(0, 120),
     topDesc: String(topDesc ?? "").slice(0, 300),
     bottom: String(bottom).slice(0, 120),

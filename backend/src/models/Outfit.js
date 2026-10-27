@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 // temporada) con strict:false en el subdocumento no, solo raíz conocida.
 const outfitSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     top: { type: String, required: true, maxlength: 120 },
     topDesc: { type: String, default: "", maxlength: 300 },
     bottom: { type: String, required: true, maxlength: 120 },

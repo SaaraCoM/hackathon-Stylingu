@@ -7,6 +7,15 @@ export const apiLimiter = rateLimit({
   legacyHeaders: false
 });
 
+// Auth: 10 intentos/minuto por IP (fuerza bruta contenida sin castigar typos).
+export const authLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiados intentos. Espera un minuto." }
+});
+
 // Endpoint pesado de IA: 5 peticiones/minuto por IP, según documento de contexto.
 export const aiLimiter = rateLimit({
   windowMs: 60_000,
