@@ -3,7 +3,9 @@
  * el navegador. Al entrar, el armario se recarga desde la cuenta.
  */
 
-let currentUser = null;
+// var, no let: wardrobe.js lo lee como global para etiquetar el armario
+// (allí se protege con typeof porque este archivo corre después).
+var currentUser = null;
 
 const accountModal = document.getElementById("accountModal");
 const accountState = document.getElementById("accountState");
@@ -31,6 +33,13 @@ function renderAccount() {
   accountState.textContent = logged
     ? `Sesión de ${currentUser.name}. Tu armario es solo tuyo.`
     : "Tu armario vive en este dispositivo.";
+  const heroMode = document.getElementById("heroMode");
+  if (heroMode) {
+    heroMode.textContent = logged
+      ? "Cuenta activa · armario propio"
+      : "Modo local · este dispositivo";
+  }
+  if (logged) personalizeHero(currentUser.name);
 }
 
 function openAccount() {

@@ -4,13 +4,17 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>StylingU Atelier — Colorimetría, Armario y Maquillaje</title>
-<meta name="description" content="Shell PWA StylingU: colorimetría Otoño Suave, armario virtual, maquillaje y skincare. Sin dependencias externas." />
+<meta name="description" content="StylingU Atelier: colorimetría Otoño Suave, armario virtual, maquillaje y skincare. Funciona en tu dispositivo, con cuenta opcional para tu armario." />
 <link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#FFF8F6" />
+<meta name="theme-color" content="#EFEAE2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
 <a class="skiplink" href="#contenido">Saltar al contenido</a>
+<div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="#inicio" translate="no">stylingu<small>Atelier</small></a>
@@ -23,10 +27,21 @@
 </header>
 
 <section class="hero" id="inicio">
-  <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
-  <h1 id="heroTitle">Elena Vance — Atelier de Armonía Óptica</h1>
-  <p id="heroSub">Tu espectro responde a matices aterciopelados y cálidos. Todo corre en local: sin CDN, sin imágenes externas, sin claves.</p>
-  <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
+  <div class="hero-card">
+    <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
+    <h1 id="heroTitle">Elena Vance — Atelier de Armonía Óptica</h1>
+    <p id="heroSub">Tu espectro responde a matices aterciopelados y cálidos. Todo vive en tu dispositivo: tu paleta, tu armario y tu progreso, con cuenta opcional.</p>
+    <div class="row hero-pills">
+      <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
+      <span class="pill live"><span class="pulse" aria-hidden="true"></span><span id="heroMode">Modo local · este dispositivo</span></span>
+    </div>
+    <svg class="hero-wave" viewBox="0 0 220 50" fill="none" aria-hidden="true">
+      <path d="M0 30 C10 30 12 45 18 45 C24 45 26 10 34 10 C42 10 44 40 52 40 C60 40 62 5 70 5 C78 5 80 42 88 42 C96 42 98 15 106 15 C114 15 116 38 124 38 C132 38 134 20 142 20 C150 20 152 35 160 35 C168 35 170 22 178 22 C186 22 188 32 196 32 C204 32 210 28 220 28"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
+    </svg>
+  </div>
+  <p class="wordmark" aria-hidden="true">stylingu</p>
+  <div class="fog" aria-hidden="true"></div>
 </section>
 
 <main id="contenido">

@@ -30,8 +30,13 @@ function renderOutfit() {
 
 function renderSaved() {
   const saved = store.getOutfits();
+  // typeof guarda el primer render: account.js (dueño de currentUser)
+  // todavía no ha corrido cuando este archivo se carga.
+  const owner = typeof currentUser !== "undefined" && currentUser
+    ? `Armario de ${currentUser.name}`
+    : "Armario local";
   document.getElementById("savedCount").textContent =
-    `Armario local: ${saved.length} conjunto${saved.length === 1 ? "" : "s"}`;
+    `${owner}: ${saved.length} conjunto${saved.length === 1 ? "" : "s"}`;
   document.getElementById("savedList").innerHTML = saved.slice(-3).reverse()
     .map((s) => `<li><span>${s.top} + ${s.bottom} + ${s.jacket}</span></li>`).join("");
   document.getElementById("savedEmpty").hidden = saved.length > 0;

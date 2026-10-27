@@ -8,35 +8,30 @@ Asistente de belleza, armario virtual y maquillaje. PWA mobile-first con tabs
 ## Estructura
 
 ```text
-frontend/public/   # Shell PWA estática (sin CDN, sin URLs externas)
-backend/src/       # API Express (salud + placeholder IA con rate-limit)
+frontend/public/   # Shell PWA estática (tipografía Inter con fallback a sistema)
+backend/src/       # API Express + sirve el frontend (un solo origen)
 DESIGN.md          # Tokens de diseño propios
 docs/              # Notas de arquitectura
 ```
 
 ## Cómo correr
 
-Frontend (sin dependencias, funciona con doble clic o servidor estático):
-
-```bash
-# Opción 1: abrir directo
-start frontend/public/index.html
-
-# Opción 2: servidor local
-npx serve frontend/public
-# o
-python -m http.server -d frontend/public 8080
-```
-
-Backend (requiere Node 20+):
+Un solo comando (Node 20+): el backend sirve también el frontend, así que
+registro, login y armario funcionan sin configurar CORS ni puertos:
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
-npm run dev
-# GET http://localhost:3000/api/health
+cp .env.example .env   # pon aquí tu MONGODB_URI de Atlas
+npm start
+# → http://localhost:3000  (app completa)
+# GET http://localhost:3000/api/health → {"ok":true,"db":"conectado"}
 ```
+
+Sin `MONGODB_URI` la app arranca igual pero guarda en localStorage (fallback
+visible). En desarrollo se acepta cualquier origen localhost, así que servir
+el frontend por separado (p. ej. `python -m http.server -d frontend/public 8099`)
+también funciona.
 
 ## Seguridad repo público
 
