@@ -23,6 +23,7 @@ android/.gradle/
 # Skill / temporal
 .taste-skill/
 .tmp-ref/
+.playwright-cli/
 
 # OS / editores
 .DS_Store
