@@ -11,7 +11,7 @@ const assert = require('node:assert');
 
 const PUBLIC = path.join(__dirname, '..', 'public');
 const ORDER = ['data.js', 'js/store.js', 'js/ui.js', 'js/color.js',
-  'js/wardrobe.js', 'js/makeup.js', 'js/skincare.js', 'js/onboarding.js', 'app.js'];
+  'js/wardrobe.js', 'js/makeup.js', 'js/skincare.js', 'js/onboarding.js', 'js/account.js', 'app.js'];
 const ALL = ORDER.map((f) => fs.readFileSync(path.join(PUBLIC, f), 'utf8')).join('\n');
 const HTML = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
 
@@ -149,8 +149,7 @@ check('armario: shuffle, empty y guardar', async () => {
   assert.notStrictEqual(t.byId.outfitList.innerHTML, before);
   assert.strictEqual(t.byId.savedEmpty.hidden, false);
   t.byId.saveFirstBtn.click();
-  await Promise.resolve();
-  await Promise.resolve();
+  for (let i = 0; i < 10; i++) await Promise.resolve();
   assert.strictEqual(t.byId.savedEmpty.hidden, true);
   assert.strictEqual(JSON.parse(t.mem['stylingu-outfits']).length, 1);
   console.log('   toast: ' + t.byId.toast.textContent);

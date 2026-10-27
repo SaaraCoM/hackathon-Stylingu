@@ -15,6 +15,7 @@
   <div class="topbar-inner">
     <a class="brand" href="#inicio" translate="no">stylingu<small>Atelier</small></a>
     <div>
+      <button class="btn" id="accountBtn" type="button">Mi cuenta</button>
       <button class="btn" id="savePaletteBtn" type="button">Guardar paleta</button>
       <button class="btn primary" id="newConsultBtn" type="button">Nueva consulta</button>
     </div>
@@ -234,6 +235,31 @@
   </div>
 </div>
 
+<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Mi cuenta">
+  <div class="modal-box">
+    <h2>Mi cuenta</h2>
+    <p class="muted" id="accountState">Tu armario vive en este dispositivo.</p>
+    <div id="accountForm">
+      <label class="visually-hidden" for="accountName">Nombre</label>
+      <input id="accountName" name="accountName" type="text" placeholder="Nombre" autocomplete="given-name" maxlength="60" />
+      <label class="visually-hidden" for="accountEmail">Email</label>
+      <input id="accountEmail" name="accountEmail" type="email" placeholder="Email" autocomplete="email" maxlength="160" />
+      <label class="visually-hidden" for="accountPassword">Contraseña</label>
+      <input id="accountPassword" name="accountPassword" type="password" placeholder="Contraseña (8+ caracteres)" autocomplete="current-password" maxlength="200" />
+      <p class="error" id="accountError" role="alert" hidden></p>
+      <div class="row">
+        <button class="btn primary" id="loginBtn" type="button">Entrar</button>
+        <button class="btn" id="registerBtn" type="button">Crear cuenta</button>
+        <button class="btn" id="closeAccountBtn" type="button">Cerrar</button>
+      </div>
+    </div>
+    <div class="row" id="accountOut" hidden>
+      <button class="btn" id="logoutBtn" type="button">Cerrar sesión</button>
+      <button class="btn primary" id="closeAccountBtn2" type="button">Seguir</button>
+    </div>
+  </div>
+</div>
+
 <p class="toast" id="toast" role="status" aria-live="polite"></p>
 <script src="./data.js"></script>
 <script src="./js/store.js"></script>
@@ -243,6 +269,7 @@
 <script src="./js/makeup.js"></script>
 <script src="./js/skincare.js"></script>
 <script src="./js/onboarding.js"></script>
+<script src="./js/account.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

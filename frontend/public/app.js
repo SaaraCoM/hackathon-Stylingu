@@ -3,7 +3,7 @@
  * seguir abriendo con doble clic): data.js → js/store.js (único dueño
  * de datos y localStorage) → js/ui.js (toast, tabs, modal) →
  * js/color.js · js/wardrobe.js · js/makeup.js · js/skincare.js ·
- * js/onboarding.js (cada tab se autorenderiza) → este boot.
+ * js/onboarding.js (cada tab se autorenderiza) · js/account.js → este boot.
  */
 switchTab("tab-color");
 document.addEventListener("keydown", (e) => {

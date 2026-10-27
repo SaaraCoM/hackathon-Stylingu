@@ -35,8 +35,12 @@ const API = location.hostname === "localhost" || location.hostname === "127.0.0.
   ? "http://localhost:3000"
   : "";
 
+async function apiFetch(path, opts) {
+  return fetch(`${API}/api${path}`, { credentials: "include", ...opts });
+}
+
 async function saveOutfitRemote(outfit) {
-  const res = await fetch(`${API}/api/armario`, {
+  const res = await apiFetch("/armario", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(outfit)
