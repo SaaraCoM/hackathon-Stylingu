@@ -20,6 +20,10 @@ android/.gradle/
 *.aab
 *.keystore
 
+# Skill / temporal
+.taste-skill/
+.tmp-ref/
+
 # OS / editores
 .DS_Store
 Thumbs.db
