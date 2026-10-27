@@ -10,11 +10,39 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
 }
 
-function switchTab(id) {
+/* Almacenamiento seguro: un valor corrupto vuelve a estado vacío en vez de romper la UI. */
+function readJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const val = JSON.parse(raw);
+    return Array.isArray(fallback) ? (Array.isArray(val) ? val : fallback) : val;
+  } catch {
+    return fallback;
+  }
+}
+function writeJSON(key, val) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {
+    toast("No se pudo guardar en local.");
+  }
+}
+
+const tabBtns = [...document.querySelectorAll(".bottomnav button")];
+function switchTab(id, focus) {
   document.querySelectorAll(".tab").forEach((s) => s.classList.toggle("active", s.id === id));
-  document.querySelectorAll(".bottomnav button").forEach((b) =>
-    b.setAttribute("aria-selected", String(b.dataset.tab === id))
-  );
+  tabBtns.forEach((b) => {
+    const selected = b.dataset.tab === id;
+    b.setAttribute("aria-selected", String(selected));
+    b.tabIndex = selected ? 0 : -1;
+    if (selected && focus) b.focus();
+  });
+}
+function stepTab(dir) {
+  const i = tabBtns.findIndex((b) => b.getAttribute("aria-selected") === "true");
+  const next = tabBtns[(i + dir + tabBtns.length) % tabBtns.length];
+  switchTab(next.dataset.tab, true);
 }
 
 /* ---- Colorimetría ---- */
@@ -105,7 +133,7 @@ function renderOutfit() {
     `Combinación ${outfitIndex + 1} de ${D.outfits.length}`;
 }
 function renderSaved() {
-  const saved = JSON.parse(localStorage.getItem("stylingu-outfits") || "[]");
+  const saved = readJSON("stylingu-outfits", []);
   document.getElementById("savedCount").textContent =
     `Armario local: ${saved.length} conjunto${saved.length === 1 ? "" : "s"}`;
   document.getElementById("savedList").innerHTML = saved.slice(-3).reverse()
@@ -131,15 +159,15 @@ document.getElementById("shuffleBtn").addEventListener("click", () => {
 });
 
 document.getElementById("saveOutfitBtn").addEventListener("click", () => {
-  const saved = JSON.parse(localStorage.getItem("stylingu-outfits") || "[]");
+  const saved = readJSON("stylingu-outfits", []);
   saved.push({ ...D.outfits[outfitIndex], at: new Date().toISOString() });
-  localStorage.setItem("stylingu-outfits", JSON.stringify(saved));
+  writeJSON("stylingu-outfits", saved);
   renderSaved();
   toast("Conjunto guardado en local.");
 });
 
 document.getElementById("savePaletteBtn").addEventListener("click", () => {
-  localStorage.setItem("stylingu-palette", JSON.stringify(D.palette));
+  writeJSON("stylingu-palette", D.palette);
   toast("Paleta guardada en local.");
 });
 
@@ -188,7 +216,7 @@ function renderRoutine() {
     .map(([t, d]) => `<li><strong>${t}.</strong> <span>${d}</span></li>`).join("");
 }
 function renderCheckin() {
-  const n = JSON.parse(localStorage.getItem("stylingu-checkins") || "[]").length;
+  const n = readJSON("stylingu-checkins", []).length;
   document.getElementById("checkinInfo").textContent = n
     ? `${n} check-in${n === 1 ? "" : "s"} registrados en local.`
     : "Sin check-ins todavía.";
@@ -200,22 +228,44 @@ document.querySelectorAll("[data-zone]").forEach((btn) => {
   btn.addEventListener("click", () => selectZone(btn.dataset.zone, btn));
 });
 document.getElementById("checkinBtn").addEventListener("click", () => {
-  const all = JSON.parse(localStorage.getItem("stylingu-checkins") || "[]");
+  const all = readJSON("stylingu-checkins", []);
   all.push({ at: new Date().toISOString() });
-  localStorage.setItem("stylingu-checkins", JSON.stringify(all));
+  writeJSON("stylingu-checkins", all);
   renderCheckin();
   toast("Check-in semanal registrado.");
 });
 
-document.querySelectorAll(".bottomnav button").forEach((btn) => {
+tabBtns.forEach((btn, i) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  btn.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); stepTab(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); stepTab(-1); }
+    else if (e.key === "Home") { e.preventDefault(); switchTab(tabBtns[0].dataset.tab, true); }
+    else if (e.key === "End") { e.preventDefault(); switchTab(tabBtns[tabBtns.length - 1].dataset.tab, true); }
+    void i;
+  });
 });
 
 const modal = document.getElementById("consultModal");
-document.getElementById("newConsultBtn").addEventListener("click", () => modal.classList.add("open"));
-document.getElementById("closeConsultBtn").addEventListener("click", () => modal.classList.remove("open"));
-document.getElementById("confirmConsultBtn").addEventListener("click", () => {
+const consultName = document.getElementById("consultName");
+let lastFocus = null;
+function openModal() {
+  lastFocus = document.activeElement;
+  modal.classList.add("open");
+  consultName.focus();
+}
+function closeModal() {
   modal.classList.remove("open");
-  const name = document.getElementById("consultName").value.trim();
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+document.getElementById("newConsultBtn").addEventListener("click", openModal);
+document.getElementById("closeConsultBtn").addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+});
+document.getElementById("confirmConsultBtn").addEventListener("click", () => {
+  const name = consultName.value.trim().slice(0, 60);
+  closeModal();
   toast(name ? `Dossier creado para ${name}.` : "Dossier de ejemplo creado.");
 });
