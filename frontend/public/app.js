@@ -236,14 +236,13 @@ document.getElementById("checkinBtn").addEventListener("click", () => {
   toast("Check-in registrado. Nos vemos el domingo.");
 });
 
-tabBtns.forEach((btn, i) => {
+tabBtns.forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   btn.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") { e.preventDefault(); stepTab(1); }
     else if (e.key === "ArrowLeft") { e.preventDefault(); stepTab(-1); }
     else if (e.key === "Home") { e.preventDefault(); switchTab(tabBtns[0].dataset.tab, true); }
     else if (e.key === "End") { e.preventDefault(); switchTab(tabBtns[tabBtns.length - 1].dataset.tab, true); }
-    void i;
   });
 });
 
