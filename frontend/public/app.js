@@ -264,6 +264,7 @@ document.getElementById("closeConsultBtn").addEventListener("click", closeModal)
 modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  else if (e.key === "Escape" && !onboardSheet.hidden) finishOnboarding(true);
 });
 document.getElementById("saveFirstBtn").addEventListener("click", () => {
   document.getElementById("saveOutfitBtn").click();
