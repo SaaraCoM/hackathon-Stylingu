@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StylingU Atelier — Colorimetría, Armario y Maquillaje</title>
+<meta name="description" content="Shell PWA StylingU: colorimetría Otoño Suave, armario virtual, maquillaje y skincare. Sin dependencias externas." />
+<link rel="manifest" href="./manifest.json" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#inicio">stylingu<small>Atelier</small></a>
+    <div>
+      <button class="btn" id="savePaletteBtn" type="button">Guardar paleta</button>
+      <button class="btn primary" id="newConsultBtn" type="button">Nueva consulta</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="inicio">
+  <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
+  <h1>Elena Vance — Atelier de Armonía Óptica</h1>
+  <p>Tu espectro responde a matices aterciopelados y cálidos. Todo corre en local: sin CDN, sin imágenes externas, sin claves.</p>
+  <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
+</section>
+
+<main>
+  <section class="tab active" id="tab-color" aria-label="Colorimetría">
+    <div class="grid cols-5-7">
+      <div class="card">
+        <h2>Mapeo de luz</h2>
+        <div class="placeholder" role="img" aria-label="Moodboard cálido terracota y miel">Moodboard local · arcilla / miel / salvia</div>
+        <div class="row">
+          <span class="pill">Subtono: cálido dorado</span>
+          <span class="pill">Contraste: medio-bajo</span>
+          <span class="pill">Croma: suave</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Diagnóstico estacional</h2>
+        <p class="muted">Paleta Otoño Cálido Suave. Toca un swatch para copiar su hex.</p>
+        <div class="swatches" id="swatches"></div>
+        <p class="muted" id="swatchInfo">Ningún tono seleccionado.</p>
+        <div class="bars">
+          <label><span>Croma suave vs puro</span><span>Suave</span></label>
+          <div class="track"><div class="fill" style="width:72%"></div></div>
+          <label><span>Temperatura frío vs cálido</span><span>Cálido solar</span></label>
+          <div class="track"><div class="fill deep" style="width:84%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-armario" aria-label="Vestuario y armario">
+    <div class="card">
+      <h2>Vestuario · combinación modular</h2>
+      <p class="muted" id="outfitText">Blusa de seda marfil + pantalón terracota + blazer camel.</p>
+      <div class="row">
+        <button class="btn primary" id="shuffleBtn" type="button">Nueva combinación</button>
+        <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-makeup" aria-label="Maquillaje">
+    <div class="card sand">
+      <h2>Maquillaje por ocasión</h2>
+      <div class="row" role="group" aria-label="Ocasión">
+        <button class="btn primary" data-look="diario" type="button">Diario</button>
+        <button class="btn" data-look="editorial" type="button">Editorial</button>
+        <button class="btn" data-look="reunion" type="button">Reunión</button>
+      </div>
+      <p id="lookText"><strong>Diario luminoso:</strong> base translúcida, rubor melocotón y labio nude.</p>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-piel" aria-label="Skincare">
+    <div class="card">
+      <h2>Skincare · mapa facial</h2>
+      <div class="row" role="group" aria-label="Zona facial">
+        <button class="btn" data-zone="zona-t" type="button">Zona T</button>
+        <button class="btn" data-zone="ojos" type="button">Ojos</button>
+        <button class="btn" data-zone="mejillas" type="button">Mejillas</button>
+        <button class="btn" data-zone="mandibula" type="button">Mandíbula</button>
+      </div>
+      <p class="muted" id="zoneText">Elige una zona para ver la recomendación.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="bottomnav" aria-label="Navegación principal">
+  <div class="bottomnav-inner" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="tab-color" type="button">Color</button>
+    <button role="tab" aria-selected="false" data-tab="tab-armario" type="button">Armario</button>
+    <button role="tab" aria-selected="false" data-tab="tab-makeup" type="button">Makeup</button>
+    <button role="tab" aria-selected="false" data-tab="tab-piel" type="button">Piel</button>
+  </div>
+</nav>
+
+<div class="modal" id="consultModal" role="dialog" aria-modal="true" aria-label="Nueva consulta">
+  <div class="modal-box">
+    <h2>Nueva consulta</h2>
+    <p class="muted">Solo crea un dossier local de ejemplo.</p>
+    <input id="consultName" type="text" placeholder="Nombre (ej. Elena Vance)" autocomplete="name" />
+    <div class="row">
+      <button class="btn primary" id="confirmConsultBtn" type="button">Crear dossier</button>
+      <button class="btn" id="closeConsultBtn" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<p class="toast" id="toast" role="status"></p>
+<script src="./app.js"></script>
+</body>
+</html>
