@@ -27,6 +27,11 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.analysis-gate { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+.analysis-gate > .card { width: min(100%, 520px); }
+.analysis-gate h1 { font-size: clamp(26px, 5vw, 34px); line-height: 1.2; }
+.analysis-gate p { margin-bottom: 20px; }
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
@@ -473,24 +478,6 @@ strong { font-weight: 600; }
 }
 .outfit li:last-child { border-bottom: 0; }
 .outfit li span { color: var(--body); }
-.routine { list-style: none; counter-reset: step; margin-top: 14px; }
-.routine li {
-  position: relative;
-  padding: 10px 0 10px 40px;
-  border-bottom: 1px solid rgba(32, 26, 21, 0.07);
-  font-size: 0.85rem;
-}
-.routine li:last-child { border-bottom: 0; }
-.routine li::before {
-  counter-increment: step; content: counter(step);
-  position: absolute; left: 0; top: 10px;
-  width: 26px; height: 26px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--terracota-soft); color: var(--terracota);
-  font-size: 0.72rem; font-weight: 600;
-}
-.routine li span { color: var(--body); }
-
 .saved {
   font-size: 0.82rem; font-weight: 500; color: var(--terracota);
   font-variant-numeric: tabular-nums;
@@ -614,3 +601,13 @@ strong { font-weight: 600; }
     scroll-behavior: auto !important;
   }
 }
+
+/* El flujo de fotos reutiliza el modal y las tarjetas existentes. */
+#consultationModal .modal-box { max-height: 90dvh; overflow-y: auto; width: min(720px, 94vw); }
+#consultationForm > .row:first-of-type { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#consultationModal input { max-width: 100%; }
+#consultationModal .thumb { width: 100%; max-height: 180px; object-fit: contain; }
+#consultationModal .muted { color: var(--body); }
+#consultationResults { overflow-wrap: anywhere; }
+#consultationModal [hidden] { display: none !important; }
+@media(max-width:600px) { #consultationForm > .row:first-of-type { grid-template-columns: 1fr; } }

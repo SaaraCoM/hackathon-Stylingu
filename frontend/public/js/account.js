@@ -29,24 +29,35 @@ function renderAccount() {
   const logged = !!currentUser;
   accountForm.hidden = logged;
   accountOut.hidden = !logged;
-  if (accountPrefs) accountPrefs.hidden = !logged;
+  if (accountPrefs) accountPrefs.hidden = !logged || !store.getAnalysis();
   accountError.hidden = true;
   if (logged) renderPrefs();
   document.getElementById("accountBtn").textContent = logged ? currentUser.name : "Mi cuenta";
   accountState.textContent = logged
     ? `Sesión de ${currentUser.name}. Tu armario es solo tuyo.`
-    : "Tu armario vive en este dispositivo.";
+    : "Entra o crea tu cuenta para guardar tus fotos y completar el análisis.";
   const heroMode = document.getElementById("heroMode");
   if (heroMode) {
     heroMode.textContent = logged
       ? "Cuenta activa · armario propio"
       : "Modo local · este dispositivo";
   }
-  if (logged) personalizeHero(currentUser.name);
+  if (logged) {
+    onboardSheet.hidden = true;
+    personalizeHero(currentUser.name);
+  }
 }
 
 function openAccount() {
   accountLastFocus = document.activeElement;
+  const birth = document.getElementById("accountBirthDate");
+  if (birth) {
+    const limit = new Date();
+    limit.setFullYear(limit.getFullYear() - 16);
+    const pad = (n) => String(n).padStart(2, "0");
+    birth.max = `${limit.getFullYear()}-${pad(limit.getMonth() + 1)}-${pad(limit.getDate())}`;
+    birth.min = "1900-01-01";
+  }
   renderAccount();
   accountModal.classList.add("open");
   (currentUser ? document.getElementById("logoutBtn") : document.getElementById("accountEmail")).focus();
@@ -58,11 +69,14 @@ function closeAccount() {
 }
 
 async function refreshSession() {
+  if (localStorage.getItem("stylingu-session-locked") === "1") { currentUser=null;store.setUser(null);return null; }
   try {
     const { user } = await api("/auth/yo");
     currentUser = user;
+    store.setUser(user);
   } catch {
-    currentUser = null;
+    currentUser = null;store.setUser(null);
+    accessError = 'No se pudo comprobar tu cuenta. Revisa la conexión y reintenta.';
   }
   renderAccount();
   return currentUser;
@@ -94,7 +108,8 @@ async function pushProfile() {
 
 async function pullProfile() {
   try {
-    const { preferences } = await api("/auth/perfil");
+    const { preferences, analysis } = await api("/auth/perfil");
+    store.applyAnalysis(analysis);
     const remote = preferences || {};
     const hasRemote = (remote.goals && remote.goals.length) || remote.jewelry ||
       (remote.styles && remote.styles.length);
@@ -108,12 +123,15 @@ async function pullProfile() {
         jewelry: remote.jewelry || "",
         styles: remote.styles || []
       });
-    } else if (hasLocal && currentUser) {
-      await pushProfile();
-    }
+    } else { store.saveProfile({name:currentUser.name,goals:[],jewelry:"",styles:[]}); }
     renderDossier();
     renderPrefs();
-  } catch { /* sin backend: el dossier sigue en local */ }
+    return true;
+  } catch {
+    store.applyAnalysis(null);
+    accessError = 'No se pudo recuperar tu análisis. Revisa la conexión y reintenta.';
+    return false;
+  }
 }
 
 function renderPrefs() {
@@ -140,15 +158,45 @@ function readPrefs() {
   };
 }
 
+// Edad cumplida en la fecha local. Devuelve null si la fecha no existe.
+function ageFromBirthDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const birth = new Date(year, month - 1, day);
+  if (birth.getFullYear() !== year || birth.getMonth() !== month - 1 || birth.getDate() !== day) return null;
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const monthDelta = today.getMonth() - (month - 1);
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < day)) age -= 1;
+  return age >= 0 ? age : null;
+}
+
 async function submitAuth(path) {
   accountError.hidden = true;
   const name = document.getElementById("accountName").value.trim().slice(0, 60);
   const email = document.getElementById("accountEmail").value.trim();
   const password = document.getElementById("accountPassword").value;
+  const birthDate = document.getElementById("accountBirthDate").value;
   if (path === "/auth/registro" && !name) {
     accountError.textContent = "Escribe tu nombre para crear la cuenta.";
     accountError.hidden = false;
     return;
+  }
+  if (path === "/auth/registro") {
+    const age = ageFromBirthDate(birthDate);
+    if (age === null) {
+      accountError.textContent = "Indica tu fecha de nacimiento para crear la cuenta.";
+      accountError.hidden = false;
+      return;
+    }
+    if (age < 16) {
+      accountError.textContent = "Debes tener al menos 16 años para crear una cuenta.";
+      accountError.hidden = false;
+      return;
+    }
   }
   if (!email || !password) {
     accountError.textContent = "Email y contraseña son requeridos.";
@@ -156,25 +204,37 @@ async function submitAuth(path) {
     return;
   }
   try {
+    accessChecking = true;
+    accessError = '';
+    renderAccess();
     const body = path === "/auth/registro"
-      ? { name, email, password }
+      ? { name, email, password, birthDate }
       : { email, password };
     const { user } = await api(path, { method: "POST", body: JSON.stringify(body) });
     currentUser = user;
+    store.setUser(user);
+    localStorage.removeItem("stylingu-session-locked");
+    clearConsultation();
+    store.applyAnalysis(null);
     document.getElementById("accountPassword").value = "";
+    document.getElementById("accountBirthDate").value = "";
     renderAccount();
-    toast(`Hola de nuevo, ${user.name}. Cargando tu armario…`);
+    toast(`Hola, ${user.name}. Comprobando tu análisis…`);
     await pullProfile();
-    try {
+    if (store.getAnalysis()) try {
       await loadRemoteOutfits();
       toast(`Armario de ${user.name} listo.`);
     } catch {
       toast("Sesión lista. Tu armario sigue en local.");
     }
     closeAccount();
+    if (!accessError && (consultationPending || !store.getAnalysis())) showConsultation();
   } catch (err) {
     accountError.textContent = err.message;
     accountError.hidden = false;
+  } finally {
+    accessChecking = false;
+    renderAccess();
   }
 }
 
@@ -215,15 +275,23 @@ document.getElementById("savePrefsBtn").addEventListener("click", async () => {
   }
 });
 document.getElementById("logoutBtn").addEventListener("click", async () => {
-  try { await api("/auth/logout", { method: "POST", body: "{}" }); } catch { /* igual se cierra */ }
-  currentUser = null;
-  renderAccount();
-  closeAccount();
-  toast("Sesión cerrada. Tu armario local sigue aquí.");
+  let revoked=false;
+  try { await api('/auth/logout',{method:'POST',body:'{}'});revoked=true; } catch {}
+  localStorage.setItem('stylingu-session-locked','1');
+  currentUser=null;store.setUser(null);accessError='';store.applyAnalysis(null);clearConsultation();renderAccount();closeAccount();
+  const message=revoked?'Sesión revocada y datos ocultos.':'Datos ocultos en este dispositivo. No se pudo revocar la sesión del servidor; vuelve a entrar y reintenta cerrar sesión.';
+  toast(message);document.getElementById('gateStatus').textContent=message;document.getElementById('gateContinueBtn').focus();
 });
 
-refreshSession().then(async (user) => {
-  if (!user) return;
-  await pullProfile();
-  loadRemoteOutfits().catch(() => {});
-});
+async function restoreAccount() {
+  accessChecking = true;
+  accessError = '';
+  renderAccess();
+  const user = await refreshSession();
+  if (user) await pullProfile();
+  else store.applyAnalysis(null);
+  accessChecking = false;
+  renderAccess();
+  if (store.getAnalysis() && user) loadRemoteOutfits().catch(() => {});
+}
+restoreAccount();

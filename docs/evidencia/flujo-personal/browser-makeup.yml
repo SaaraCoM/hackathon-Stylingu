@@ -1,0 +1,153 @@
+- generic [ref=f2e1]:
+  - link "Saltar al contenido" [ref=f2e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=f2e7]:
+    - generic [ref=f2e8]:
+      - link "stylinguAtelier" [ref=f2e9] [cursor=pointer]:
+        - /url: "#inicio"
+      - generic [ref=f2e10]:
+        - button "Prueba navegador" [ref=f2e169] [cursor=pointer]
+        - button "Guardar paleta" [ref=f2e12] [cursor=pointer]
+        - button "Nueva consulta" [ref=f2e13] [cursor=pointer]
+  - generic [ref=f2e14]:
+    - generic [ref=f2e15]:
+      - generic [ref=f2e16]: Dossier personalizado · Temporada 2024 / 2025
+      - heading "Prueba navegador — Atelier de Armonía Óptica" [level=1] [ref=f2e170]
+      - paragraph [ref=f2e18]: Tu dossier vive en este dispositivo. Explora tu paleta, arma conjuntos y registra tu progreso cada domingo.
+      - generic [ref=f2e19]:
+        - generic [ref=f2e20]: Primavera Cálida · Simulación guardada
+        - generic [ref=f2e21]: Cuenta activa · armario propio
+    - paragraph: stylingu
+  - main [ref=f2e26]:
+    - tabpanel "Makeup" [ref=f2e295]:
+      - generic [ref=f2e296]:
+        - heading "Pigmentos por ocasión" [level=2] [ref=f2e297]
+        - group "Ocasión" [ref=f2e298]:
+          - button "Diario" [ref=f2e299] [cursor=pointer]
+          - button "Editorial" [ref=f2e300] [cursor=pointer]
+          - button "Reunión" [ref=f2e301] [cursor=pointer]
+        - paragraph [ref=f2e302]:
+          - generic [ref=f2e303]: Diario luminous
+        - heading "catliner" [level=3] [ref=f2e304]
+        - paragraph [ref=f2e305]: "Rostro: carrucada · Ojos: aguila · Sombras: difuminado entero · Colorete: en nuca para redondear"
+      - generic [ref=f2e306]:
+        - generic [ref=f2e307]:
+          - heading "Labiales" [level=2] [ref=f2e308]
+          - generic [ref=f2e310]:
+            - generic [ref=f2e312]:
+              - strong [ref=f2e313]: Diario luminous
+              - generic [ref=f2e314]: Simulación
+            - generic [ref=f2e315]: Elegante
+          - paragraph [ref=f2e316]: "Evita frambuesas azulados: restan vitalidad a la sonrisa."
+        - generic [ref=f2e317]:
+          - heading "Colorete" [level=2] [ref=f2e318]
+          - generic [ref=f2e322]:
+            - strong [ref=f2e323]: en nuca para redondear
+            - generic [ref=f2e324]: Simulación
+          - paragraph [ref=f2e325]: Difumina ascendente desde la manzana del pómulo.
+      - generic [ref=f2e326]:
+        - heading "Cuarteto de mirada" [level=2] [ref=f2e327]
+        - paragraph [ref=f2e328]: "Máscara recomendada: marrón chocolate."
+        - generic [ref=f2e329]:
+          - generic [ref=f2e330]:
+            - strong [ref=f2e332]: "#865044"
+            - generic [ref=f2e333]: difuminado entero
+          - generic [ref=f2e334]:
+            - strong [ref=f2e336]: "#58624B"
+            - generic [ref=f2e337]: difuminado entero
+          - generic [ref=f2e338]:
+            - strong [ref=f2e340]: "#D5B5AB"
+            - generic [ref=f2e341]: difuminado entero
+          - generic [ref=f2e342]:
+            - strong [ref=f2e344]: "#C98A7B"
+            - generic [ref=f2e345]: difuminado entero
+  - navigation "Navegación principal" [ref=f2e117]:
+    - tablist [ref=f2e118]:
+      - tab "Color" [ref=f2e119] [cursor=pointer]
+      - tab "Armario" [ref=f2e120] [cursor=pointer]
+      - tab "Makeup" [active] [selected] [ref=f2e121] [cursor=pointer]
+      - tab "Piel" [ref=f2e122] [cursor=pointer]
+  - dialog "Tu análisis de imagen":
+    - generic:
+      - heading "Tu análisis de imagen" [level=2]
+      - status: Fotos y análisis guardados en tu cuenta. Tu dossier está personalizado.
+      - generic:
+        - paragraph: "Sube una foto de cara y otra de cuerpo. El resultado es una simulación: todavía no hay un agente conectado. Tus fotos y el resultado se guardan de forma privada en tu cuenta. PNG, JPEG o WebP, máximo 2 MB por foto."
+        - generic:
+          - generic:
+            - heading "Foto de cara" [level=3]
+            - button "Foto de cara"
+            - img "Vista previa de la foto de cara"
+          - generic:
+            - heading "Foto de cuerpo" [level=3]
+            - button "Foto de cuerpo"
+            - img "Vista previa de la foto de cuerpo"
+        - generic:
+          - button "Analizar fotos"
+          - button "Cerrar"
+      - generic:
+        - heading "Tu análisis está guardado · Simulación" [level=3]
+        - generic:
+          - heading "Colorimetría" [level=3]
+          - paragraph:
+            - strong: "Temporada:"
+            - text: Primavera Cálida
+          - paragraph:
+            - strong: "Subtono:"
+            - text: cálido
+          - paragraph:
+            - strong: "Paleta:"
+            - text: "#865044 · #58624B · #D5B5AB · #C98A7B · #C49A45"
+          - paragraph:
+            - strong: "Colores a evitar:"
+            - text: "Negro puro #000000 · Azul glacial #0033FF · Fucsia neón #FF007F"
+        - generic:
+          - heading "Maquillaje" [level=3]
+          - paragraph:
+            - strong: "Forma de rostro:"
+            - text: carrucada
+          - paragraph:
+            - strong: "Forma de ojo:"
+            - text: aguila
+          - paragraph:
+            - strong: "Delineado:"
+            - text: catliner
+          - paragraph:
+            - strong: "Sombras:"
+            - text: difuminado entero
+          - paragraph:
+            - strong: "Colorete:"
+            - text: en nuca para redondear
+        - generic:
+          - heading "Estilo de vestimenta" [level=3]
+          - paragraph:
+            - strong: "Estilo:"
+            - text: Elegante
+          - paragraph:
+            - strong: "Silueta:"
+            - text: Escotes en V y tiro fluido
+        - button "Ver mi dossier"
+  - dialog "Mi cuenta":
+    - generic:
+      - heading "Mi cuenta" [level=2]
+      - paragraph: Sesión de Prueba navegador. Tu armario es solo tuyo.
+      - generic:
+        - button "Cerrar sesión"
+        - button "Seguir"
+      - generic:
+        - paragraph: Tu dossier viaja con tu cuenta.
+        - group "Objetivos":
+          - button "Mis colores"
+          - button "Comprar mejor"
+          - button "Maquillaje"
+        - group "Joyería":
+          - button "Oro"
+          - button "Plata"
+          - button "Ambos"
+        - group "Estilos":
+          - button "Elegante"
+          - button "Minimalista"
+          - button "Natural"
+        - generic:
+          - button "Guardar preferencias"
+  - status: Armario de Prueba navegador listo.

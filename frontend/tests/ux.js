@@ -1,203 +1,177 @@
-/* tests/ux.js — contrato observable del shell, sin navegador.
- * Stub de DOM minimo + un solo eval concatenado de data.js, js/*.js y
- * app.js (mismo scope compartido que los <script> clasicos del navegador).
- * Cubre: onboarding en 4 pasos, dossier en el hero, 4 tabs + flechas,
- * armario con empty, consulta con error inline, check-in, storage
- * corrupto y tecla Esc.
- * Uso: `npm test` desde frontend/ (sin dependencias, solo node).
- */
-const fs = require('node:fs');
-const path = require('node:path');
-const assert = require('node:assert');
+const {JSDOM}=require('jsdom');const fs=require('node:fs');const path=require('node:path');const assert=require('node:assert/strict');
+const tick=()=>new Promise(r=>setTimeout(r,0));
+const localDate=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+(async()=>{
+ const root=path.join(__dirname,'../public');const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;
+ w.structuredClone=structuredClone;w.AbortSignal=AbortSignal;w.fetch=async()=>({ok:true,json:async()=>({user:null})});w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
+ const files=[...html.matchAll(/<script src="\.\/([^"]+)"/g)].map(m=>m[1]).filter(f=>!['js/barcode.js','js/pwa.js'].includes(f));
+ w.eval(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\nwindow.testStore=store;window.testApply=applyAnalysis;window.testSetUser=u=>{currentUser=u;store.setUser(u)};window.testD=D;');
+ await new Promise(r=>setTimeout(r,30));let checks=0;function check(name,fn){return Promise.resolve().then(fn).then(()=>{checks++;console.log('ok - '+name);});}
+ await check('sin sesión no expone contenido ni ejemplos',()=>{assert.equal(w.document.getElementById('appShell').hidden,true);assert.equal(w.testD.outfits.length,0);assert.equal(w.testD.palette.length,0);});
+ await check('almacenamiento separado por cuenta',()=>{w.testSetUser({id:'a'});w.testStore.saveProfile({name:'Ana'});w.testStore.addOutfit({top:'Camisa privada'});w.testSetUser({id:'b'});assert.equal(w.testStore.getProfile(),null);assert.equal(w.testStore.getOutfits().length,0);w.testSetUser({id:'a'});assert.equal(w.testStore.getProfile().name,'Ana');});
+ await check('JSON corrupto vuelve a vacío',()=>{w.localStorage.setItem('stylingu:v2:a:outfits','{bad');assert.equal(w.testStore.getOutfits().length,0);});
+ await check('respuesta IA incompleta no abre dossier',()=>{w.testApply({analyzedAt:'2026-10-28'});assert.equal(w.testStore.getAnalysis(),null);});
+ await check('textos guardados no ejecutan HTML',()=>{w.testStore.addOutfit({top:'<img id="injected" onerror="alert(1)">',bottom:'pantalón'});w.eval('renderSaved()');assert.equal(w.document.getElementById('injected'),null);assert.match(w.document.getElementById('savedList').textContent,/<img/);});
+ await check('navegación por teclado',()=>{const nav=w.document.getElementById('nav-color');nav.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));assert.equal(w.document.getElementById('nav-makeup').getAttribute('aria-selected'),'true');});
+ await check('escáner separado de consulta',()=>{w.document.getElementById('comprasShootBtn').click();assert.equal(w.document.getElementById('scannerDialog').open,true);assert.equal(w.document.getElementById('consultationModal').hidden,true);w.document.getElementById('scanClose').click();});
+ await check('etiquetas y estados accesibles',()=>{assert.ok(w.document.querySelector('label[for="scanQuery"]'));assert.equal(w.document.getElementById('scanStatus').getAttribute('aria-live'),'polite');assert.equal(w.document.getElementById('scannerDialog').getAttribute('aria-labelledby'),'scanTitle');});
 
-const PUBLIC = path.join(__dirname, '..', 'public');
-const ORDER = ['data.js', 'js/store.js', 'js/ui.js', 'js/color.js',
-  'js/wardrobe.js', 'js/makeup.js', 'js/skincare.js', 'js/onboarding.js', 'js/account.js', 'app.js'];
-const ALL = ORDER.map((f) => fs.readFileSync(path.join(PUBLIC, f), 'utf8')).join('\n');
-const HTML = fs.readFileSync(path.join(PUBLIC, 'index.html'), 'utf8');
+ /* --- Entrega 1: el cliente espera más que el proveedor, no menos --- */
+ await check('el cliente no caduca antes que el proveedor (125 s > 120 s)',()=>{
+  assert.equal(w.testStore.requestTimeout('/personal/analyze'),125000);
+  assert.equal(w.testStore.requestTimeout('/personal/photos'),125000);
+  assert.equal(w.testStore.requestTimeout('/scans'),125000);
+  assert.ok(w.testStore.requestTimeout('/personal/analyze')>120000);
+  assert.equal(w.testStore.requestTimeout('/garments'),20000);
+ });
 
-function makeEl(tag, attrs) {
-  attrs = attrs || {};
-  const el = {
-    tag: tag, attrs: attrs, children: [], dataset: {}, style: {}, hidden: false, disabled: false,
-    textContent: '', innerHTML: '', value: '', title: '', _cls: {}, _listeners: {},
-    classList: {
-      add: function () { for (const c of arguments) el._cls[c] = true; },
-      remove: function () { for (const c of arguments) delete el._cls[c]; },
-      toggle: function (c, f) {
-        if (f === undefined) { if (el._cls[c]) delete el._cls[c]; else el._cls[c] = true; }
-        else if (f) el._cls[c] = true; else delete el._cls[c];
-      },
-      contains: function (c) { return !!el._cls[c]; }
-    },
-    setAttribute: function (k, v) { el.attrs[k] = String(v); },
-    getAttribute: function (k) { return (k in el.attrs) ? el.attrs[k] : null; },
-    addEventListener: function (t, fn) { (el._listeners[t] = el._listeners[t] || []).push(fn); },
-    appendChild: function (c) { el.children.push(c); return c; },
-    focus: function () { el._focused = true; },
-    click: function () { (el._listeners.click || []).forEach((f) => f({ preventDefault: () => {}, target: el })); },
-    key: function (t, k) { (el._listeners[t] || []).forEach((f) => f({ key: k, preventDefault: () => {}, target: el })); }
+ /* --- Perfil versionado y conjuntos externos --- */
+ const analysis={
+  analyzedAt:'2026-10-28T10:00:00Z',source:'meta',analysisId:'an-1',profileVersion:4,
+  photos:{face:'/api/personal/photos/'+'a'.repeat(64),body:'/api/personal/photos/'+'b'.repeat(64)},
+  colorimetry:{season:'otoño',temperature:'cálido',contrast:'medio',chroma:'medio',palette:['#AA5533','#BB6644','#CC7755','#DD8866'],avoid:[],harmony:0},
+  makeup:{faceShape:'oval',eyeShape:'almendrada',eyelinerType:'suave',shadowPlacement:'difuminar',blushPlacement:'mejilla',look:'natural',lipHex:'#AA5533',blushHex:'#BB6644',applicationSteps:['Prepara la piel','Difumina la sombra','Fija con polvo']},
+  outfit:{style:'natural',silhouette:'recta',accent:'terracota'},
+  outfits:[{top:'Camisa lino',topDesc:'',bottom:'Pantalón sastre',bottomDesc:'',jacket:'',jacketDesc:'',acc:'',accDesc:''}],
+  notes:['Nota del análisis'],observed:{hairColor:'castaño',eyeColor:'avellana',eyelid:'visible',depth:'media',uncertain:['Iluminación mixta']}
+ };
+ await check('las propuestas de la IA se marcan como externas, nunca como propias',()=>{
+  w.testSetUser({id:'a'});w.testApply(analysis);
+  assert.equal(w.testStore.getAnalysis().analysisId,'an-1');
+  assert.equal(w.testD.externalOutfits.length,1);
+  const text=w.document.getElementById('estilismosGrid').textContent;
+  assert.match(text,/Propuesta externa/);
+  assert.doesNotMatch(text,/Prendas propias/);
+ });
+
+ /* --- Entrega 2: maquillaje con catálogo real y tutoriales distintos --- */
+ await check('el maquillaje usa el catálogo real y no inventa tonos',()=>{
+  w.testStore.setCatalog([{_id:'v1',shade:'Moon',market:'US',finish:'brillo',colorVerified:false,hex:'',product:{brand:'Maybelline',name:'Lifter Gloss',category:'labial'},source:'https://example.test/ficha'}]);
+  w.eval('renderProducts()');
+  const lip=w.document.getElementById('lipList').textContent;
+  assert.match(lip,/Maybelline/);assert.match(lip,/Moon/);assert.match(lip,/color no verificado/);
+  assert.doesNotMatch(lip,/melocotón/);
+  assert.match(w.document.getElementById('blushList').textContent,/Sin referencias verificadas/);
+  assert.match(w.document.getElementById('eyesQuad').textContent,/Sin referencias verificadas/);
+ });
+ await check('catálogo vacío no se rellena con ejemplos',()=>{
+  w.testStore.setCatalog([]);w.eval('renderProducts()');
+  assert.match(w.document.getElementById('lipList').textContent,/Sin referencias verificadas/);
+ });
+ await check('cambiar de look cambia pasos, productos e intensidad',async()=>{
+  w.api=async(path)=>{if(String(path).startsWith('/tutorial-progress'))return {completed:[]};return {};};
+  const tutorials=[
+   {id:'diario',title:'Diario suave',duration:8,difficulty:'inicial',intensity:'suave',categories:['colorete','labial'],goal:'día a día',zone:'rostro completo',steps:['Paso diario 1','Paso diario 2'],materials:['brocha'],adaptations:'Rostro oval.',alternative:'Omite el labial.'},
+   {id:'noche',title:'Noche con contraste',duration:15,difficulty:'intermedio',intensity:'intensa',categories:['sombra','delineador'],goal:'luz artificial',zone:'ojos',steps:['Paso noche 1','Paso noche 2','Paso noche 3'],materials:['pincel'],adaptations:'Ojos almendrados.',alternative:'Refuerza la sombra.'},
+   {id:'especial',title:'Ocasión especial',duration:20,difficulty:'avanzado',intensity:'media',categories:['sombra satinada'],goal:'ocasión',zone:'rostro completo',steps:['Paso especial 1'],materials:['espejo'],adaptations:'Rostro oval.',alternative:'Omite el colorete.'}
+  ];
+  w.testStore.setTutorials(tutorials);
+  assert.equal(w.document.querySelectorAll('#looksGrid [data-look]').length,3);
+  w.document.querySelector('[data-look="noche"]').click();
+  await tick();
+  assert.equal(w.document.getElementById('lookTitle').textContent,'Noche con contraste');
+  assert.equal(w.document.getElementById('lookBadge').textContent,'intensa');
+  const steps=w.document.getElementById('tutorialSteps').textContent;
+  assert.match(steps,/Paso noche 1/);assert.doesNotMatch(steps,/Paso diario 1/);
+  assert.match(w.document.getElementById('tutorialMeta').textContent,/15 min/);
+  assert.match(w.document.getElementById('tutorialMeta').textContent,/Zona|intermedio/);
+  w.document.querySelector('[data-look="diario"]').click();
+  await tick();
+  assert.match(w.document.getElementById('tutorialSteps').textContent,/Paso diario 1/);
+ });
+
+ /* --- Entrega 3: armario y calendario por fecha --- */
+ const plans=[0,1,2,3,4,5,6].map(i=>({date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),labels:['Top '+i,'Bottom '+i],signature:'sig'+i,status:'proposed',profileVersion:4,colors:['#AA5533'],explanation:'Prendas propias',origin:'owned'}));
+ await check('el conjunto de hoy se recupera igual en dos aperturas',()=>{
+  w.testSetUser({id:'w'});w.testStore.setPlans(plans);w.eval('renderOutfit()');
+  const first=w.document.getElementById('outfitCounter').textContent;
+  assert.match(first,new RegExp(localDate()));
+  w.testStore.setPlans(plans);w.eval('renderOutfit()');
+  assert.equal(w.document.getElementById('outfitCounter').textContent,first);
+  assert.match(w.document.getElementById('outfitList').textContent,/Prendas propias/);
+ });
+ await check('siete conjuntos sin duplicados completos',()=>{
+  assert.equal(new Set(plans.map(p=>p.signature)).size,7);
+  assert.equal(plans.length,7);
+ });
+ await check('el botón recorre fechas del calendario, no ejemplos',()=>{
+  const before=w.document.getElementById('outfitCounter').textContent;
+  w.document.getElementById('shuffleBtn').click();
+  const after=w.document.getElementById('outfitCounter').textContent;
+  assert.notEqual(after,before);
+  assert.match(after,/\d{4}-\d{2}-\d{2}/);
+ });
+ await check('aceptar un conjunto persiste en la cuenta y en local',async()=>{
+  let patched=null;
+  w.api=async(path,opts)=>{if(String(path).startsWith('/outfit-plans/')){patched=JSON.parse(opts.body);return {item:{}};}return {};};
+  w.eval('renderOutfit()');
+  const before=w.testStore.getOutfits().length;
+  w.document.getElementById('saveOutfitBtn').click();
+  await tick();
+  assert.equal(patched.status,'accepted');
+  assert.equal(w.testStore.getOutfits().length,before+1);
+  assert.match(w.document.getElementById('savedList').textContent,/Top 0|Top 1|Top 2|Top 3|Top 4|Top 5|Top 6/);
+ });
+ await check('cambiar de cuenta borra el calendario en memoria',()=>{
+  w.testSetUser({id:'otra'});assert.equal(w.testStore.getPlans().length,0);assert.equal(w.testStore.getTodayPlan(),null);
+ });
+
+ /* --- Entrega 4: escáner contra catálogo y widget de decisión --- */
+ await check('producto desconocido conserva la incertidumbre',async()=>{
+  w.testSetUser({id:'s'});w.eval('openScanner(false)');
+  w.api=async(path)=>{if(path==='/scans')return {state:'unknown',candidates:[]};return {};};
+  await w.eval("scanRequest({query:'producto inexistente'})");
+  assert.match(w.document.getElementById('scanStatus').textContent,/No puedo identificar|no puedo identificar/);
+  assert.equal(w.document.querySelectorAll('#scanResults button').length,0);
+ });
+ await check('envase conocido con tono desconocido pide confirmación',async()=>{
+  w.api=async(path)=>{if(path==='/scans')return {state:'confirm_variant',candidates:[{_id:'v1',shade:'Moon',market:'US',product:{brand:'Maybelline',name:'Lifter Gloss'}}]};return {};};
+  await w.eval("scanRequest({barcode:'1234567890123'})");
+  assert.match(w.document.getElementById('scanStatus').textContent,/Confirma el tono/);
+  assert.equal(w.document.querySelectorAll('#scanResults button').length,1);
+ });
+ await check('widget favorable con motivos, versión de perfil y feedback persistido',async()=>{
+  let feedback=null;
+  w.api=async(path,opts)=>{
+   if(path==='/scans')return {state:'identified',variant:{_id:'v1',shade:'Moon'}};
+   if(path==='/purchase-recommendations')return {state:'favorable',label:'Buena compra para ti',reasons:['El tono está próximo a tu paleta.','Afinidad orientativa del sistema.'],profileVersion:4,product:{brand:'Maybelline',name:'Lifter Gloss'},variant:{shade:'Moon'}};
+   if(path==='/recommendation-feedback'){feedback=JSON.parse(opts.body);return {saved:true,effect:'Preferencia guardada para ordenar tu catálogo.'};}
+   return {};
   };
-  return el;
-}
+  await w.eval("scanRequest({barcode:'7777777777777'})");
+  await tick();
+  assert.equal(w.document.getElementById('scanStatus').textContent,'Buena compra para ti');
+  const text=w.document.getElementById('scanResults').textContent;
+  assert.match(text,/El tono está próximo a tu paleta/);
+  assert.match(text,/Perfil v4/);
+  assert.equal(w.testStore.getScanner().variantId,'v1');
+  assert.equal(w.document.getElementById('thumbUpBtn').hidden,false);
+  const like=[...w.document.querySelectorAll('#scanResults button')].find(b=>b.textContent==='Me gusta');
+  like.click();await tick();
+  assert.deepEqual(feedback,{variantId:'v1',action:'like'});
+ });
+ await check('una respuesta tardía no sobrescribe el producto nuevo',async()=>{
+  let release;
+  w.api=async(path)=>{if(path==='/scans'){await new Promise(r=>{release=r;});return {state:'confirm_variant',candidates:[{_id:'old',shade:'Old',product:{brand:'Vieja',name:'Marca'}}]};}return {};};
+  const pending=w.eval("scanRequest({query:'producto viejo'})");
+  w.document.getElementById('scanQuery').dispatchEvent(new w.Event('input'));
+  release();
+  await pending;await tick();
+  assert.equal(w.document.getElementById('scanResults').children.length,0);
+  assert.doesNotMatch(w.document.getElementById('scanResults').textContent,/Vieja/);
+ });
+ await check('el mismo envase no se consulta dos veces al proveedor',async()=>{
+  let calls=0;
+  w.api=async(path)=>{if(path==='/scans'){calls++;return {state:'unknown',candidates:[]};}return {};};
+  await w.eval("scanRequest({barcode:'9999999999999'})");
+  await w.eval("scanRequest({barcode:'9999999999999'})");
+  assert.equal(calls,1);
+ });
+ await check('el widget no depende solo del color para informar',()=>{
+  assert.equal(w.document.getElementById('scanStatus').getAttribute('aria-live'),'polite');
+  assert.ok(w.document.getElementById('scanResults').tagName);
+ });
 
-// Arranque fresco: nuevo stub + nuevo localStorage por llamada,
-// como abrir la app por primera vez en otro perfil.
-function boot() {
-  const byId = {};
-  const idRe = /id="([^"]+)"/g;
-  let mm;
-  while ((mm = idRe.exec(HTML)) !== null) { if (!byId[mm[1]]) byId[mm[1]] = makeEl('div', { id: mm[1] }); }
-  const chipDefs = [];
-  const tabRe = /data-tab="([^"]+)"/g;
-  while ((mm = tabRe.exec(HTML)) !== null) chipDefs.push(['tab', mm[1]]);
-  const dataRe = /data-(fabric|look|zone|goal|jewelry|style)="([^"]+)"/g;
-  while ((mm = dataRe.exec(HTML)) !== null) chipDefs.push([mm[1], mm[2]]);
-  const allBtns = chipDefs.map((kv) => { const b = makeEl('button'); b.dataset[kv[0]] = kv[1]; return b; });
-  const obSteps = [1, 2, 3, 4].map((n) => { const d = makeEl('div'); d.dataset.step = String(n); d.hidden = n !== 1; return d; });
-  Object.keys(byId).forEach((k) => { byId[k].id = k; });
-  const tabs = ['tab-color', 'tab-armario', 'tab-makeup', 'tab-piel'].map((id) => byId[id]);
-  const mem = {};
-  const docHandlers = {};
-  global.localStorage = {
-    getItem: (k) => ((k in mem) ? mem[k] : null),
-    setItem: (k, v) => { mem[k] = String(v); },
-    removeItem: (k) => { delete mem[k]; }
-  };
-  global.navigator = {};
-  global.window = {};
-  global.location = { hostname: "test" };
-  // Sin backend en el contrato headless: el guardado remoto siempre cae
-  // al fallback local, igual que en el navegador sin conexión.
-  global.fetch = () => Promise.reject(new Error("sin backend en tests"));
-  global.document = {
-    createElement: (tag) => makeEl(tag),
-    getElementById: (id) => { if (!byId[id]) throw new Error('no such id: ' + id); return byId[id]; },
-    querySelectorAll: (sel) => {
-      if (sel === '.tab') return tabs;
-      if (sel === '.bottomnav button') return allBtns.filter((b) => b.dataset.tab !== undefined);
-      if (sel === '.ob-step') return obSteps;
-      let m = sel.match(/^\[data-([a-z]+)\]$/);
-      if (m) return allBtns.filter((b) => b.dataset[m[1]] !== undefined);
-      m = sel.match(/^\[data-([a-z]+)="([^"]+)"\]$/);
-      if (m) return allBtns.filter((b) => String(b.dataset[m[1]]) === m[2]);
-      if (sel === '.swatch-card') return [];
-      return [];
-    },
-    querySelector: (sel) => global.document.querySelectorAll(sel)[0] || null,
-    addEventListener: (t, fn) => { (docHandlers[t] = docHandlers[t] || []).push(fn); },
-    activeElement: null
-  };
-  eval(ALL);
-  return {
-    byId, mem, allBtns,
-    nav: (tab) => allBtns.find((b) => b.dataset.tab === tab),
-    chip: (kind, val) => allBtns.find((b) => b.dataset[kind] === val),
-    key: (k) => (docHandlers.keydown || []).forEach((f) => f({ key: k, preventDefault: () => {} })),
-    rerun: (code) => eval(code)
-  };
-}
-
-let passed = 0;
-const queue = [];
-function check(name, fn) { queue.push([name, async () => { await fn(); await Promise.resolve(); }]); }
-
-// --- Escenario 1: primera vez completa ---
-// El boot crea el DOM pero los <script> corren en el primer check:
-// así el orden de ejecución es idéntico al navegador (DOM listo + scripts).
-// (boot diferido: mismo orden que los <script> del navegador)
-let t;
-check('__boot primera vez__', () => { t = boot(); });
-check('onboarding visible en paso 1', () => {
-  assert.strictEqual(t.byId.onboardSheet.hidden, false);
-  assert.strictEqual(t.byId.obTitle.textContent, '¿Cómo te llamamos?');
-});
-check('continuar sin nombre muestra error', () => {
-  t.byId.obNextBtn.click();
-  assert.strictEqual(t.byId.obError.hidden, false);
-});
-check('paso 2: nombre + objetivos', () => {
-  t.byId.obName.value = 'Lucía';
-  t.byId.obNextBtn.click();
-  assert.strictEqual(t.byId.obTitle.textContent, '¿Qué quieres lograr?');
-  t.chip('goal', 'saber_colores').click();
-  t.chip('goal', 'compras').click();
-  t.byId.obNextBtn.click();
-  assert.strictEqual(t.byId.obTitle.textContent, 'Sol, joyas y estilo');
-});
-check('paso 4: gustos + perfil y hero', () => {
-  t.chip('jewelry', 'dorado').click();
-  t.chip('style', 'Elegante').click();
-  t.byId.obNextBtn.click();
-  assert.strictEqual(t.byId.obTitle.textContent, 'Tu dossier está listo');
-  t.byId.obNextBtn.click();
-  assert.strictEqual(t.byId.onboardSheet.hidden, true);
-  const profile = JSON.parse(t.mem['stylingu-profile']);
-  assert.strictEqual(profile.name, 'Lucía');
-  assert.deepStrictEqual(profile.goals, ['saber_colores', 'compras']);  assert.ok(t.byId.heroTitle.textContent.indexOf('Lucía') === 0);
-  console.log('   toast: ' + t.byId.toast.textContent);
-});
-check('dossier del hero refleja el perfil', () => {
-  t.rerun('renderDossier();');
-  const line = t.byId.dossierLine;
-  assert.strictEqual(line.hidden, false);
-  assert.ok(line.textContent.indexOf('Mis colores') !== -1);
-  assert.ok(line.textContent.indexOf('Oro') !== -1);
-  assert.ok(line.textContent.indexOf('Elegante') !== -1);
-});
-
-check('tabs: clic + flecha cambian de tab', () => {
-  t.nav('tab-armario').click();
-  assert.ok(t.byId['tab-armario'].classList.contains('active'));
-  t.nav('tab-armario').key('keydown', 'ArrowRight');
-  assert.ok(t.byId['tab-makeup'].classList.contains('active'));
-});
-check('armario: shuffle, empty y guardar', async () => {
-  const before = t.byId.outfitList.innerHTML;
-  t.byId.shuffleBtn.click();
-  assert.notStrictEqual(t.byId.outfitList.innerHTML, before);
-  assert.strictEqual(t.byId.savedEmpty.hidden, false);
-  t.byId.saveFirstBtn.click();
-  for (let i = 0; i < 10; i++) await Promise.resolve();
-  assert.strictEqual(t.byId.savedEmpty.hidden, true);
-  assert.strictEqual(JSON.parse(t.mem['stylingu-outfits']).length, 1);
-  console.log('   toast: ' + t.byId.toast.textContent);
-});
-check('consulta: vacía da error, con nombre crea dossier', () => {
-  t.byId.newConsultBtn.click();
-  assert.ok(t.byId.consultModal.classList.contains('open'));
-  t.byId.consultName.value = '';
-  t.byId.confirmConsultBtn.click();
-  assert.strictEqual(t.byId.consultError.hidden, false);
-  t.byId.consultName.value = 'Elena';
-  t.byId.consultName._listeners.input.forEach((f) => f());
-  t.byId.confirmConsultBtn.click();
-  assert.ok(!t.byId.consultModal.classList.contains('open'));
-  console.log('   toast: ' + t.byId.toast.textContent);
-});
-check('check-in semanal se guarda', () => {
-  t.byId.checkinBtn.click();
-  assert.strictEqual(JSON.parse(t.mem['stylingu-checkins']).length, 1);
-  console.log('   toast: ' + t.byId.toast.textContent);
-});
-check('storage corrupto cae a vacío', () => {
-  t.mem['stylingu-outfits'] = '{roto';
-  t.rerun('renderSaved();');
-  assert.strictEqual(t.byId.savedCount.textContent, 'Armario local: 0 conjuntos');
-});
-
-// --- Escenario 2: arranque fresco + Esc omite sin perfil ---
-let t2;
-check('__boot arranque fresco__', () => { t2 = boot(); });
-check('Esc omite el onboarding sin crear perfil', () => {
-  assert.strictEqual(t2.byId.onboardSheet.hidden, false);
-  t2.key('Escape');
-  assert.strictEqual(t2.byId.onboardSheet.hidden, true);
-  assert.strictEqual(t2.mem['stylingu-profile'], undefined);
-  console.log('   toast: ' + t2.byId.toast.textContent);
-});
-
-(async () => {
-  for (const [name, fn] of queue) { await fn(); passed += 1; console.log('ok - ' + name); }
-  console.log('\nUX CONTRACT: ' + (passed - 2) + '/11 checks passed');
-})();
+ console.log('UX DOM: '+checks+'/'+checks+' checks passed');dom.window.close();
+})().catch(e=>{console.error(e);process.exitCode=1;});

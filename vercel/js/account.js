@@ -29,20 +29,23 @@ function renderAccount() {
   const logged = !!currentUser;
   accountForm.hidden = logged;
   accountOut.hidden = !logged;
-  if (accountPrefs) accountPrefs.hidden = !logged;
+  if (accountPrefs) accountPrefs.hidden = !logged || !store.getAnalysis();
   accountError.hidden = true;
   if (logged) renderPrefs();
   document.getElementById("accountBtn").textContent = logged ? currentUser.name : "Mi cuenta";
   accountState.textContent = logged
     ? `Sesión de ${currentUser.name}. Tu armario es solo tuyo.`
-    : "Tu armario vive en este dispositivo.";
+    : "Entra o crea tu cuenta para guardar tus fotos y completar el análisis.";
   const heroMode = document.getElementById("heroMode");
   if (heroMode) {
     heroMode.textContent = logged
       ? "Cuenta activa · armario propio"
       : "Modo local · este dispositivo";
   }
-  if (logged) personalizeHero(currentUser.name);
+  if (logged) {
+    onboardSheet.hidden = true;
+    personalizeHero(currentUser.name);
+  }
 }
 
 function openAccount() {
@@ -63,6 +66,7 @@ async function refreshSession() {
     currentUser = user;
   } catch {
     currentUser = null;
+    accessError = 'No se pudo comprobar tu cuenta. Revisa la conexión y reintenta.';
   }
   renderAccount();
   return currentUser;
@@ -94,7 +98,8 @@ async function pushProfile() {
 
 async function pullProfile() {
   try {
-    const { preferences } = await api("/auth/perfil");
+    const { preferences, analysis } = await api("/auth/perfil");
+    store.applyAnalysis(analysis);
     const remote = preferences || {};
     const hasRemote = (remote.goals && remote.goals.length) || remote.jewelry ||
       (remote.styles && remote.styles.length);
@@ -113,7 +118,12 @@ async function pullProfile() {
     }
     renderDossier();
     renderPrefs();
-  } catch { /* sin backend: el dossier sigue en local */ }
+    return true;
+  } catch {
+    store.applyAnalysis(null);
+    accessError = 'No se pudo recuperar tu análisis. Revisa la conexión y reintenta.';
+    return false;
+  }
 }
 
 function renderPrefs() {
@@ -156,25 +166,33 @@ async function submitAuth(path) {
     return;
   }
   try {
+    accessChecking = true;
+    accessError = '';
+    renderAccess();
     const body = path === "/auth/registro"
       ? { name, email, password }
       : { email, password };
     const { user } = await api(path, { method: "POST", body: JSON.stringify(body) });
     currentUser = user;
+    store.applyAnalysis(null);
     document.getElementById("accountPassword").value = "";
     renderAccount();
-    toast(`Hola de nuevo, ${user.name}. Cargando tu armario...`);
+    toast(`Hola, ${user.name}. Comprobando tu análisis…`);
     await pullProfile();
-    try {
+    if (store.getAnalysis()) try {
       await loadRemoteOutfits();
       toast(`Armario de ${user.name} listo.`);
     } catch {
       toast("Sesión lista. Tu armario sigue en local.");
     }
     closeAccount();
+    if (!accessError && (consultationPending || !store.getAnalysis())) showConsultation();
   } catch (err) {
     accountError.textContent = err.message;
     accountError.hidden = false;
+  } finally {
+    accessChecking = false;
+    renderAccess();
   }
 }
 
@@ -217,4 +235,24 @@ document.getElementById("savePrefsBtn").addEventListener("click", async () => {
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   try { await api("/auth/logout", { method: "POST", body: "{}" }); } catch { /* igual se cierra */ }
   currentUser = null;
+  accessError = '';
+  store.applyAnalysis(null);
+  clearConsultation();
   renderAccount();
+  closeAccount();
+  toast("Sesión cerrada.");
+  document.getElementById('gateContinueBtn').focus();
+});
+
+async function restoreAccount() {
+  accessChecking = true;
+  accessError = '';
+  renderAccess();
+  const user = await refreshSession();
+  if (user) await pullProfile();
+  else store.applyAnalysis(null);
+  accessChecking = false;
+  renderAccess();
+  if (store.getAnalysis() && user) loadRemoteOutfits().catch(() => {});
+}
+restoreAccount();

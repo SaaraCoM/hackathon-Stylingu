@@ -170,7 +170,7 @@ Dos familias, como en ambas referencias (serif para sentir, sans para leer):
 
 ## Datos (fuente única)
 
-Toda la UI renderiza desde `frontend/public/data.js` (`window.STYLINGU_DATA`): paleta 6 + evitar 3 + tejidos 3 + looks 3 + labiales 3 + coloretes 3 + cuarteto 4 + silueta 4 + conjuntos 3×4 piezas + zonas 4 + rutinas AM/PM 4+4. Persistencia solo en `localStorage` (`stylingu-profile`, `stylingu-palette`, `stylingu-outfits`, `stylingu-checkins`) con lectura segura ante JSON corrupto.
+Toda la UI renderiza desde `frontend/public/data.js` (`window.STYLINGU_DATA`): paleta 6 + evitar 3 + looks 3 + labiales 3 + coloretes 3 + cuarteto 4 + silueta 4 + conjuntos 3×4 piezas + comparador 3 + feed de referencias 6 + diagnóstico fotográfico 3. Persistencia solo en `localStorage` (`stylingu-profile`, `stylingu-palette`, `stylingu-outfits`) con lectura segura ante JSON corrupto.
 
 ## Reglas de puerta
 

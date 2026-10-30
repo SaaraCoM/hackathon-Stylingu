@@ -1,75 +1,41 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
-import { fileURLToPath } from "node:url";
-import { apiLimiter, aiLimiter } from "./middleware/rateLimit.js";
-import { connectDB, dbState } from "./config/db.js";
-import { armario } from "./routes/armario.js";
-import { auth } from "./routes/auth.js";
-import { authLimiter } from "./middleware/rateLimit.js";
-
-dotenv.config();
-
-const app = express();
-app.use(express.json({ limit: "1mb" }));
-app.use(cookieParser());
-
-// CORS: la lista de .env manda en producción; en desarrollo se acepta
-// cualquier origen local (y "null" para file://) para que la API
-// "funcione" sin tocar configuración al cambiar de puerto.
-const allowedOrigins = new Set(
-  (process.env.CORS_ORIGIN || "http://localhost:8080").split(",").map((s) => s.trim())
-);
-const localOrigin = /^(null|https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/;
-app.use(
-  cors({
-    origin(origin, cb) {
-      const ok =
-        !origin ||
-        allowedOrigins.has(origin) ||
-        (process.env.NODE_ENV !== "production" && localOrigin.test(origin));
-      cb(null, ok);
-    },
-    credentials: true
-  })
-);
-
-app.get("/api/health", (_req, res) =>
-  res.json({ ok: true, service: "stylingu-backend", db: dbState() })
-);
-
-app.use("/api/", apiLimiter);
-app.use("/api/auth", authLimiter, auth);
-app.use("/api/armario", armario);
-app.post("/api/ai/analyze-colorimetry", aiLimiter, (req, res) => {
-  // Placeholder: la IA real (Meta AI) se integra aquí con cuota y fallback local.
-  if (!req.body || !req.body.imageUrl) {
-    return res.status(400).json({ error: "imageUrl es requerido" });
-  }
-  return res.status(501).json({ error: "IA no configurada: define META_AI_API_KEY en .env" });
+import express from 'express';
+import { fileURLToPath } from 'node:url';
+import { connectDB,dbState } from './config/db.js';
+import authRoutes from './routes/auth.js';
+import { armario } from './routes/armario.js';
+import { mountPersonal } from './personal.js';
+import { productRoutes } from './routes/product.js';
+import { recoveryRoutes } from './routes/recovery.js';
+import { apiLimiter } from './middleware/rateLimit.js';
+const app=express();
+app.disable('x-powered-by');
+if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);
+app.use((req,res,next)=>{
+ res.set('X-Content-Type-Options','nosniff').set('Referrer-Policy','same-origin').set('Permissions-Policy','camera=(self)');
+ if(req.path.startsWith('/api/'))res.set('Cache-Control','private, no-store');
+ if(!['GET','HEAD','OPTIONS'].includes(req.method)&&req.get('Origin')) {
+  const expected=process.env.PUBLIC_ORIGIN||req.protocol+'://'+req.get('host');
+  if(req.get('Origin')!==expected)return res.status(403).json({code:'ORIGIN_DENIED',error:'Origen no permitido.'});
+ }
+ next();
 });
-
-// Ojo: un PORT=0 ambient (p. ej. en la shell) no debe elegir puerto
-// aleatorio — dotenv no pisa env ya definida, así que 0 → 3000.
-// El backend sirve también el frontend: un solo origen (cookies y API
-// sin CORS) → http://localhost:3000 es toda la app.
-const FRONTEND_DIR = fileURLToPath(new URL("../../frontend/public", import.meta.url));
-app.use(express.static(FRONTEND_DIR));
-app.get("*", (req, res) => {
-  if (req.path.startsWith("/api")) {
-    return res.status(404).json({ error: "ruta no encontrada" });
-  }
-  res.sendFile("index.html", { root: FRONTEND_DIR });
+app.use(express.json({limit:'12mb'}));
+app.get('/api/health',(_req,res)=>res.json({ok:true,service:'stylingu',version:process.env.RELEASE_VERSION||'development'}));
+app.get('/api/ready',async(_req,res)=>{try{await connectDB();if(dbState()!=='conectado')throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}});
+app.use('/api',apiLimiter);
+app.use('/api/auth',authRoutes);
+app.use('/api/auth',recoveryRoutes);
+app.use('/api',productRoutes);
+mountPersonal(app);
+app.use('/api/armario',armario);
+app.use('/api',(_req,res)=>res.status(404).json({code:'NOT_FOUND',error:'Ruta no encontrada.'}));
+app.use(express.static(fileURLToPath(new URL('../../frontend/public',import.meta.url))));
+app.get('/favicon.ico',(_req,res)=>res.status(204).end());
+app.use((err,_req,res,_next)=>{
+ // 23505 (unique_violation) es el equivalente Postgres del 11000 de Mongo.
+ const unique=err.code==='23505';
+ const status=err.type==='entity.too.large'?413:err.type==='entity.parse.failed'?400:unique?409:err.status||500;
+ const code=typeof err.code==='string'&&!/^\d+$/.test(err.code)?err.code:status===409?'CONFLICT':status===500?'INTERNAL_ERROR':'INVALID_INPUT';
+ res.status(status).json({code,error:status===413?'Las fotos superan el tamaño permitido.':err.status?err.message:status===500?'Error interno del servidor.':'Solicitud no válida.'});
 });
-
-const port = Number(process.env.PORT) || 3000;
-if (process.env.NODE_ENV !== "test") {
-  try {
-    await connectDB(process.env.MONGODB_URI);
-  } catch (err) {
-    console.error("[db] no se pudo conectar, sirvo sin base:", err.message);
-  }
-  app.listen(port, () => console.log(`stylingu-backend en :${port}`));
-}
 export default app;

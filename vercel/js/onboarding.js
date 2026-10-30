@@ -25,8 +25,9 @@ function renderObStep() {
 
 function personalizeHero(name) {
   document.getElementById("heroTitle").textContent = `${name} — Atelier de Armonía Óptica`;
-  document.getElementById("heroSub").textContent =
-    "Tu dossier vive en este dispositivo. Explora tu paleta, arma conjuntos y registra tu progreso cada domingo.";
+  document.getElementById("heroSub").textContent = store.getAnalysis()
+    ? "Tu análisis simulado está guardado en tu cuenta. Explora tu paleta, tu maquillaje y tu estilo de vestimenta."
+    : "Tu dossier vive en este dispositivo. Explora tu paleta, arma conjuntos y registra tu progreso cada domingo.";
 }
 
 const GOAL_LABELS = { saber_colores: "Mis colores", compras: "Comprar mejor", maquillaje: "Maquillaje" };
@@ -111,5 +112,6 @@ document.getElementById("obSkipBtn").addEventListener("click", () => finishOnboa
 
 const existingProfile = store.getProfile();
 if (existingProfile && existingProfile.name) personalizeHero(existingProfile.name);
-else { onboardSheet.hidden = false; renderObStep(); }
+// El acceso inicial se decide por el análisis de la cuenta, nunca por gustos locales.
+onboardSheet.hidden = true;
 renderDossier();

@@ -1,0 +1,23 @@
+# Contexto de build: solo lo que la imagen necesita.
+.git
+.gitignore
+.github
+node_modules
+backend/node_modules
+frontend/node_modules
+frontend/dist
+frontend/build
+backend/.env
+backend/.env.*
+backend/.pgdata
+backend/.pgdata-*
+backend/.photos
+.env
+.env.*
+.tmp-flow
+.playwright-cli
+docs
+tests
+vercel
+android
+*.log

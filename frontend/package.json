@@ -4,5 +4,13 @@
   "private": true,
   "scripts": {
     "test": "node tests/ux.js"
+  },
+  "dependencies": {
+    "@zxing/browser": "0.1.5",
+    "@zxing/library": "0.21.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "jsdom": "26.1.0"
   }
 }

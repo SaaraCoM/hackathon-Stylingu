@@ -2,6 +2,24 @@
 
 let outfitIndex = 0;
 
+function renderEstilismos() {
+  const box = document.getElementById("estilismosGrid");
+  box.innerHTML = "";
+  D.outfits.forEach((o, i) => {
+    const card = document.createElement("article");
+    card.className = "card outfit-card";
+    card.innerHTML = `<span class="pill">Conjunto ${String(i + 1).padStart(2, "0")}</span>
+      <h3>${o.top} & ${o.bottom}</h3>
+      <ul class="outfit bare-list">
+        <li><strong>Arriba:</strong> <span>${o.top} — ${o.topDesc}</span></li>
+        <li><strong>Abajo:</strong> <span>${o.bottom} — ${o.bottomDesc}</span></li>
+        <li><strong>Abrigo:</strong> <span>${o.jacket} — ${o.jacketDesc}</span></li>
+        <li><strong>Accesorio:</strong> <span>${o.acc} — ${o.accDesc}</span></li>
+      </ul>`;
+    box.appendChild(card);
+  });
+}
+
 function renderSilhouette() {
   const box = document.getElementById("silhouetteGrid");
   box.innerHTML = "";
@@ -43,6 +61,7 @@ function renderSaved() {
 }
 
 renderSilhouette();
+renderEstilismos();
 renderOutfit();
 renderSaved();
 document.getElementById("shuffleBtn").addEventListener("click", () => {
@@ -62,5 +81,12 @@ document.getElementById("saveOutfitBtn").addEventListener("click", async () => {
   renderSaved();
 });
 document.getElementById("saveFirstBtn").addEventListener("click", () => {
+  document.getElementById("saveOutfitBtn").click();
+});
+document.getElementById("mirrorLooksBtn").addEventListener("click", () => {
+  document.getElementById("estilismosGrid").scrollIntoView?.({ behavior: "smooth" });
+  toast("Estilismos recomendados, listos para comparar.");
+});
+document.getElementById("capsuleAddBtn").addEventListener("click", () => {
   document.getElementById("saveOutfitBtn").click();
 });

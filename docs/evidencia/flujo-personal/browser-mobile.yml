@@ -1,0 +1,184 @@
+- generic [ref=f3e1]:
+  - link "Saltar al contenido" [ref=f3e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=f3e7]:
+    - generic [ref=f3e8]:
+      - link "stylinguAtelier" [ref=f3e9] [cursor=pointer]:
+        - /url: "#inicio"
+      - generic [ref=f3e10]:
+        - button "Prueba navegador" [ref=f3e134] [cursor=pointer]
+        - button "Guardar paleta" [ref=f3e12] [cursor=pointer]
+        - button "Nueva consulta" [ref=f3e13] [cursor=pointer]
+  - generic [ref=f3e14]:
+    - generic [ref=f3e15]:
+      - generic [ref=f3e16]: Dossier personalizado · Temporada 2024 / 2025
+      - heading "Prueba navegador — Atelier de Armonía Óptica" [level=1] [ref=f3e135]
+      - paragraph [ref=f3e18]: Tu análisis simulado está guardado en tu cuenta. Explora tu paleta, tu maquillaje y tu estilo de vestimenta.
+      - generic [ref=f3e19]:
+        - generic [ref=f3e20]: Primavera Cálida · Simulación guardada
+        - generic [ref=f3e21]: Cuenta activa · armario propio
+    - paragraph: stylingu
+  - main [ref=f3e26]:
+    - tabpanel "Color" [ref=f3e27]:
+      - generic [ref=f3e28]:
+        - generic [ref=f3e29]:
+          - heading "Mapeo de luz" [level=2] [ref=f3e30]
+          - img "Moodboard cálido terracota y miel" [ref=f3e31]: arcilla · miel · salvia
+          - generic [ref=f3e32]: "Subtono: cálido · Contraste: medio-bajo · Croma: suave"
+          - generic [ref=f3e34]:
+            - generic [ref=f3e35]:
+              - generic [ref=f3e36]: Croma suave vs puro
+              - generic [ref=f3e37]: Suave
+            - 'img "Croma: suave, 72 de 100 hacia puro" [ref=f3e38]'
+            - generic [ref=f3e40]:
+              - generic [ref=f3e41]: Temperatura frío vs cálido
+              - generic [ref=f3e42]: Cálido solar
+            - 'img "Temperatura: cálido solar, 84 de 100 hacia cálido" [ref=f3e43]'
+        - generic [ref=f3e45]:
+          - heading "Diagnóstico estacional" [level=2] [ref=f3e46]
+          - paragraph [ref=f3e47]: Primavera Cálida · 5 tonos · Simulación
+          - generic [ref=f3e48]:
+            - 'button "#865044 #865044, armonía 93%" [pressed] [ref=f3e136] [cursor=pointer]':
+              - generic [ref=f3e138]: "#865044"
+              - generic [ref=f3e139]: "#865044"
+              - generic [ref=f3e140]: 93%
+            - 'button "#58624B #58624B, armonía 93%" [ref=f3e141] [cursor=pointer]':
+              - generic [ref=f3e143]: "#58624B"
+              - generic [ref=f3e144]: "#58624B"
+              - generic [ref=f3e145]: 93%
+            - 'button "#D5B5AB #D5B5AB, armonía 93%" [ref=f3e146] [cursor=pointer]':
+              - generic [ref=f3e148]: "#D5B5AB"
+              - generic [ref=f3e149]: "#D5B5AB"
+              - generic [ref=f3e150]: 93%
+            - 'button "#C98A7B #C98A7B, armonía 93%" [ref=f3e151] [cursor=pointer]':
+              - generic [ref=f3e153]: "#C98A7B"
+              - generic [ref=f3e154]: "#C98A7B"
+              - generic [ref=f3e155]: 93%
+            - 'button "#C49A45 #C49A45, armonía 93%" [ref=f3e156] [cursor=pointer]':
+              - generic [ref=f3e158]: "#C49A45"
+              - generic [ref=f3e159]: "#C49A45"
+              - generic [ref=f3e160]: 93%
+          - generic [ref=f3e79]:
+            - generic [ref=f3e81]:
+              - strong [ref=f3e82]: "#865044 · #865044 · 93%"
+              - paragraph [ref=f3e83]: Tono del análisis simulado de tu cuenta.
+            - button "Copiar hex" [ref=f3e84] [cursor=pointer]
+      - generic [ref=f3e85]:
+        - generic [ref=f3e86]:
+          - heading "Tonos a distanciar del rostro" [level=2] [ref=f3e87]
+          - paragraph [ref=f3e88]: Longitudes de onda que crean refracciones desfavorables en tu fenotipo.
+          - generic [ref=f3e89]:
+            - generic [ref=f3e163]:
+              - strong [ref=f3e164]: Negro puro (#000000)
+              - paragraph [ref=f3e165]:
+                - text: Absorbe la luz facial y marca surcos.
+                - strong [ref=f3e166]: "Alternativa: Café espresso o carbón cálido."
+            - generic [ref=f3e169]:
+              - strong [ref=f3e170]: Azul glacial (#0033FF)
+              - paragraph [ref=f3e171]:
+                - text: Su frialdad apaga el subtono cálido.
+                - strong [ref=f3e172]: "Alternativa: Azul petróleo apagado."
+            - generic [ref=f3e175]:
+              - strong [ref=f3e176]: Fucsia neón (#FF007F)
+              - paragraph [ref=f3e177]:
+                - text: Contraste estridente que compite con la mirada.
+                - strong [ref=f3e178]: "Alternativa: Baya canela o coral empolvado."
+        - generic [ref=f3e108]:
+          - heading "Probador textil" [level=2] [ref=f3e109]
+          - paragraph [ref=f3e110]: El tejido cambia cómo se lee el color sobre la piel.
+          - group "Tejido" [ref=f3e111]:
+            - button "Seda" [ref=f3e112] [cursor=pointer]
+            - button "Lino" [ref=f3e113] [cursor=pointer]
+            - button "Lana" [ref=f3e114] [cursor=pointer]
+          - heading "Seda salvaje · terracota y nácar" [level=3] [ref=f3e115]
+          - paragraph [ref=f3e116]: Lustre suave que difumina el escote y potencia el subtono cálido sin destellos fríos.
+  - navigation "Navegación principal" [ref=f3e117]:
+    - tablist [ref=f3e118]:
+      - tab "Color" [selected] [ref=f3e119] [cursor=pointer]
+      - tab "Armario" [ref=f3e120] [cursor=pointer]
+      - tab "Makeup" [ref=f3e121] [cursor=pointer]
+      - tab "Piel" [ref=f3e122] [cursor=pointer]
+  - dialog "Tu análisis de imagen" [ref=f3e179]:
+    - generic [ref=f3e180]:
+      - heading "Tu análisis de imagen" [level=2] [ref=f3e181]
+      - status [ref=f3e182]: Tus fotos se guardan en tu cuenta. Resultado simulado.
+      - generic [ref=f3e183]:
+        - paragraph [ref=f3e184]: "Sube una foto de cara y otra de cuerpo. El resultado es una simulación: todavía no hay un agente conectado. Tus fotos y el resultado se guardan de forma privada en tu cuenta. PNG, JPEG o WebP, máximo 2 MB por foto."
+        - generic [ref=f3e185]:
+          - generic [ref=f3e186]:
+            - heading "Foto de cara" [level=3] [ref=f3e187]
+            - button "Foto de cara" [active] [ref=f3e188]
+            - img "Vista previa de la foto de cara" [ref=f3e189]
+          - generic [ref=f3e190]:
+            - heading "Foto de cuerpo" [level=3] [ref=f3e191]
+            - button "Foto de cuerpo" [ref=f3e192]
+            - img "Vista previa de la foto de cuerpo" [ref=f3e193]
+        - generic [ref=f3e194]:
+          - button "Analizar fotos" [ref=f3e195] [cursor=pointer]
+          - button "Cerrar" [ref=f3e196] [cursor=pointer]
+      - generic [ref=f3e197]:
+        - heading "Tu análisis está guardado · Simulación" [level=3] [ref=f3e198]
+        - generic [ref=f3e199]:
+          - heading "Colorimetría" [level=3] [ref=f3e200]
+          - paragraph [ref=f3e201]:
+            - strong [ref=f3e202]: "Temporada:"
+            - text: Primavera Cálida
+          - paragraph [ref=f3e203]:
+            - strong [ref=f3e204]: "Subtono:"
+            - text: cálido
+          - paragraph [ref=f3e205]:
+            - strong [ref=f3e206]: "Paleta:"
+            - text: "#865044 · #58624B · #D5B5AB · #C98A7B · #C49A45"
+          - paragraph [ref=f3e207]:
+            - strong [ref=f3e208]: "Colores a evitar:"
+            - text: "Negro puro #000000 · Azul glacial #0033FF · Fucsia neón #FF007F"
+        - generic [ref=f3e209]:
+          - heading "Maquillaje" [level=3] [ref=f3e210]
+          - paragraph [ref=f3e211]:
+            - strong [ref=f3e212]: "Forma de rostro:"
+            - text: carrucada
+          - paragraph [ref=f3e213]:
+            - strong [ref=f3e214]: "Forma de ojo:"
+            - text: aguila
+          - paragraph [ref=f3e215]:
+            - strong [ref=f3e216]: "Delineado:"
+            - text: catliner
+          - paragraph [ref=f3e217]:
+            - strong [ref=f3e218]: "Sombras:"
+            - text: difuminado entero
+          - paragraph [ref=f3e219]:
+            - strong [ref=f3e220]: "Colorete:"
+            - text: en nuca para redondear
+        - generic [ref=f3e221]:
+          - heading "Estilo de vestimenta" [level=3] [ref=f3e222]
+          - paragraph [ref=f3e223]:
+            - strong [ref=f3e224]: "Estilo:"
+            - text: Elegante
+          - paragraph [ref=f3e225]:
+            - strong [ref=f3e226]: "Silueta:"
+            - text: Escotes en V y tiro fluido
+        - button "Ver mi dossier" [ref=f3e227] [cursor=pointer]
+  - dialog "Mi cuenta":
+    - generic:
+      - heading "Mi cuenta" [level=2]
+      - paragraph: Sesión de Prueba navegador. Tu armario es solo tuyo.
+      - generic:
+        - button "Cerrar sesión"
+        - button "Seguir"
+      - generic:
+        - paragraph: Tu dossier viaja con tu cuenta.
+        - group "Objetivos":
+          - button "Mis colores"
+          - button "Comprar mejor"
+          - button "Maquillaje"
+        - group "Joyería":
+          - button "Oro"
+          - button "Plata"
+          - button "Ambos"
+        - group "Estilos":
+          - button "Elegante"
+          - button "Minimalista"
+          - button "Natural"
+        - generic:
+          - button "Guardar preferencias"
+  - status

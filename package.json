@@ -4,12 +4,26 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "node --input-type=module --experimental-vm-modules -e 'import app from \"./vercel/api/index.js\"; const t=8080; console.log(`listening on http://localhost:${t}`); require(\"node:http\").createServer((req,res)=>app.fetch(req,res)).listen(t);'"
+    "start": "npm --prefix backend start",
+    "serve": "npm --prefix backend start",
+    "jobs": "npm --prefix backend run jobs",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "dev:db": "node scripts/dev-db.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "deploy:dry": "wrangler deploy --dry-run --containers-rollout=none",
+    "deploy:preview": "wrangler deploy --name stylingu-preview --secrets-file .env.production",
+    "deploy": "wrangler deploy --secrets-file .env.production"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "hono": "^4.6.15",
-    "mongoose": "^8.12.2",
-    "lodash": "^4.17.21"
+    "@cloudflare/containers": "^0.3.7",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
+  },
+  "engines": {
+    "node": ">=22 <23"
   }
 }

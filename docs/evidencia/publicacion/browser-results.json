@@ -1,0 +1,6 @@
+{
+  "checks": 15,
+  "errors": [],
+  "mode": "local HTTP + ephemeral Postgres + explicit mock AI + synthetic camera",
+  "at": "2026-10-30T09:23:46.676Z"
+}

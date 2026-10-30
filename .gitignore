@@ -1,5 +1,7 @@
 # Entorno y secretos — nunca subir credenciales
 .env
+.env.*
+!.env.example
 .env.local
 *.local
 
@@ -13,6 +15,16 @@ frontend/dist/
 frontend/build/
 *.log
 
+# Datos locales (Postgres embebido y fotos de desarrollo)
+backend/.pgdata/
+backend/.pgdata-*/
+backend/.photos/
+
+# Artefactos de validación de despliegue
+.vercel-validate/
+vercel/mongo-uri.txt
+vercel/MONGODB_URI.txt
+
 # Capacitor / Android
 android/app/build/
 android/.gradle/
@@ -24,11 +36,23 @@ android/.gradle/
 .taste-skill/
 .tmp-ref/
 .playwright-cli/
+.superdesign/
+.tmp-preview/
+__pycache__/
+.next/
+.venv/
 
 # Worker (publicación por Sites)
 worker/.dev.vars
+worker/.wrangler/
+.tmp-flow/
 worker/mongodb-uri.txt
 deploy/
+
+# Cloudflare Containers / Wrangler
+.wrangler/
+.tmp-wrangler/
+.dev.vars
 
 # OS / editores
 .DS_Store

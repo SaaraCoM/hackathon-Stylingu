@@ -1,7 +1,7 @@
 # StylingU · freebuff Agent
 
 Asistente de belleza, armario virtual y maquillaje. PWA mobile-first con tabs
-(Colorimetría · Armario · Maquillaje · Skincare), pensada para empaquetar como APK con Capacitor.
+(Colorimetría · Maquillaje · Vestuario & Armario · Recomendación de Compras), pensada para empaquetar como APK con Capacitor.
 
 > Referencia visual: `DESIGN.md` (sistema Warm Editorial Quiet Luxury portado del ZIP `stitch_stylingu_beauty_styling_app.zip`).
 
@@ -16,29 +16,46 @@ docs/              # Notas de arquitectura
 
 ## Cómo correr
 
-Un solo comando (Node 20+): el backend sirve también el frontend, así que
-registro, login y armario funcionan sin configurar CORS ni puertos:
+Requisitos: Node 22. La base de datos es Postgres (Supabase en producción).
+
+> En PowerShell, `npm` está bloqueado por la política de ejecución de scripts.
+> Usa `npm.cmd` (o ejecuta los comandos en `cmd.exe`).
 
 ```bash
-cd backend
-npm install
-cp .env.example .env   # pon aquí tu MONGODB_URI de Atlas
-npm start
-# → http://localhost:3000  (app completa)
-# GET http://localhost:3000/api/health → {"ok":true,"db":"conectado"}
+npm.cmd ci --prefix backend
+npm.cmd ci --prefix frontend
+cp backend/.env.example backend/.env   # rellena DATABASE_URL y las claves de Storage
+npm.cmd start                          # → http://localhost:3000
+# GET http://localhost:3000/api/health → {"ok":true,"service":"stylingu"}
 ```
 
-Sin `MONGODB_URI` la app arranca igual pero guarda en localStorage (fallback
-visible). En desarrollo se acepta cualquier origen localhost, así que servir
-el frontend por separado (p. ej. `python -m http.server -d frontend/public 8099`)
-también funciona.
+Sin cuenta de Supabase, para desarrollo local:
+
+```bash
+npm.cmd run dev:db    # Postgres embebido en 127.0.0.1:5433 (datos en backend/.pgdata)
+npm.cmd start         # en otra terminal
+```
+
+`dev:db` es idempotente: si el Postgres local ya está arrancado, lo detecta y
+sale sin error. Si el puerto lo ocupa otro proceso, lo dice y sugiere
+`PG_PORT=5434`.
+
+`backend/.env` de desarrollo ya apunta a ese Postgres local. En producción,
+cambia `DATABASE_URL` por la cadena directa de Supabase y define
+`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` para las fotos.
+
+Migraciones: `npm run migrate --prefix backend` (idempotente; registra cada
+archivo en `schema_migrations`). Limpieza diaria de sesiones caducadas:
+`npm run prune --prefix backend`.
 
 ## Seguridad repo público
 
 - `.env` siempre ignorado; solo se versiona `backend/.env.example` sin secretos.
 - Rate-limit en `/api/*` (ver `backend/src/middleware/rateLimit.js`).
-- Sin connection strings ni API keys en el código.
-- Imágenes de usuario: no se versionan; en producción van a bucket privado con URLs firmadas.
+- Si una credencial llegó a publicarse, se rota: el historial de git no se
+  puede considerar privado.
+- Imágenes de usuario: no se versionan; en producción van a Supabase Storage
+  (bucket privado) y en desarrollo a `backend/.photos/`.
 
 ## Versionado
 

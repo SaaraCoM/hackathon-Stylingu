@@ -1,0 +1,151 @@
+- generic [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - link "Saltar al contenido" [ref=f6e3] [cursor=pointer]:
+      - /url: "#contenido"
+    - banner [ref=f6e5]:
+      - generic [ref=f6e6]:
+        - link "Stylingu Atelier Studio" [ref=f6e7] [cursor=pointer]:
+          - /url: "#inicio"
+          - text: Stylingu
+          - generic [ref=f6e9]: Atelier Studio
+        - navigation "Navegación principal" [ref=f6e10]:
+          - tablist [ref=f6e11]:
+            - tab "Colorimetría" [active] [selected] [ref=f6e12] [cursor=pointer]
+            - tab "Vestuario & Armario" [ref=f6e13] [cursor=pointer]
+            - tab "Maquillaje" [ref=f6e14] [cursor=pointer]
+            - tab "Piel" [ref=f6e15] [cursor=pointer]
+        - generic [ref=f6e16]:
+          - button "Foto & análisis" [ref=f6e17] [cursor=pointer]
+          - button "Prueba diseño" [ref=f6e18] [cursor=pointer]
+    - generic [ref=f6e19]:
+      - generic [ref=f6e20]:
+        - generic [ref=f6e21]:
+          - generic [ref=f6e22]: Otoño Cálido Suave · Simulación guardada
+          - generic [ref=f6e23]: Cuenta activa · armario propio
+        - heading "Tu armonía, en cada color" [level=1] [ref=f6e24]
+        - paragraph [ref=f6e25]: Descubre tu paleta, explora sus matices y encuentra nuevas formas de llevarla.
+        - paragraph [ref=f6e26]: Prueba diseño — Atelier de Armonía Óptica
+        - paragraph [ref=f6e27]: Tu análisis simulado está guardado en tu cuenta. Explora tu paleta, tu maquillaje y tu estilo de vestimenta.
+      - generic [ref=f6e28]:
+        - button "Guardar paleta" [ref=f6e29] [cursor=pointer]
+        - button "Exportar dossier" [ref=f6e30] [cursor=pointer]
+    - main [ref=f6e31]:
+      - tabpanel "Colorimetría" [ref=f6e32]:
+        - generic [ref=f6e33]:
+          - generic [ref=f6e34]:
+            - generic [ref=f6e35]:
+              - generic [ref=f6e36]: Tu referencia fotográfica
+              - generic [ref=f6e37]: Foto privada
+            - generic [ref=f6e38]:
+              - img "Tu foto de cara utilizada en el análisis" [ref=f6e39]
+              - generic [ref=f6e40]:
+                - generic [ref=f6e41]: Otoño Cálido Suave · Simulación
+                - generic [ref=f6e42]:
+                  - generic "#C98A7B" [ref=f6e43]
+                  - generic "#C49A45" [ref=f6e44]
+                  - generic "#865044" [ref=f6e45]
+                  - generic "#58624B" [ref=f6e46]
+                  - generic "#D5B5AB" [ref=f6e47]
+            - generic [ref=f6e48]:
+              - generic [ref=f6e49]: Guardada en tu cuenta
+              - button "Actualizar fotos ↗" [ref=f6e50] [cursor=pointer]
+          - generic [ref=f6e51]:
+            - generic [ref=f6e52]: Colorimetría · Simulación
+            - heading "Otoño Cálido Suave" [level=2] [ref=f6e53]
+            - paragraph [ref=f6e54]: Otoño Cálido Suave · 5 tonos · Simulación
+            - paragraph [ref=f6e55]: Una guía para explorar el color en tu ropa y maquillaje. Este resultado es simulado y no representa una medición de la imagen.
+            - generic [ref=f6e56]:
+              - generic [ref=f6e57]:
+                - term [ref=f6e58]: Contraste natural
+                - definition [ref=f6e59]: medio-bajo
+              - generic [ref=f6e60]:
+                - term [ref=f6e61]: Temperatura
+                - definition [ref=f6e62]: cálido
+              - generic [ref=f6e63]:
+                - term [ref=f6e64]: Intensidad cromática
+                - definition [ref=f6e65]: suave
+            - paragraph [ref=f6e66]: "Subtono: cálido · Contraste: medio-bajo · Croma: suave"
+        - region [ref=f6e67]:
+          - generic [ref=f6e68]:
+            - generic [ref=f6e69]:
+              - generic [ref=f6e70]: Gama cromática personal
+              - heading "Paleta Cromática Favorecedora" [level=2] [ref=f6e71]
+              - paragraph [ref=f6e72]: Tus tonos en un solo lugar. Selecciona un matiz para ver su detalle o copiar su código.
+            - generic [ref=f6e73]: 5 tonos
+          - generic [ref=f6e74]:
+            - 'button "Seleccionar #C98A7B #C98A7B" [pressed] [ref=f6e75] [cursor=pointer]':
+              - generic [ref=f6e76]:
+                - generic [ref=f6e77]: TONO 01
+                - generic [ref=f6e78]: "#C98A7B"
+              - generic [ref=f6e81]: Matiz 01
+              - generic [ref=f6e82]: Tono del análisis simulado de tu cuenta.
+              - generic [ref=f6e83]: Seleccionar color ↗
+            - 'button "Seleccionar #C49A45 #C49A45" [ref=f6e84] [cursor=pointer]':
+              - generic [ref=f6e85]:
+                - generic [ref=f6e86]: TONO 02
+                - generic [ref=f6e87]: "#C49A45"
+              - generic [ref=f6e90]: Matiz 02
+              - generic [ref=f6e91]: Tono del análisis simulado de tu cuenta.
+              - generic [ref=f6e92]: Seleccionar color ↗
+            - 'button "Seleccionar #865044 #865044" [ref=f6e93] [cursor=pointer]':
+              - generic [ref=f6e94]:
+                - generic [ref=f6e95]: TONO 03
+                - generic [ref=f6e96]: "#865044"
+              - generic [ref=f6e99]: Matiz 03
+              - generic [ref=f6e100]: Tono del análisis simulado de tu cuenta.
+              - generic [ref=f6e101]: Seleccionar color ↗
+            - 'button "Seleccionar #58624B #58624B" [ref=f6e102] [cursor=pointer]':
+              - generic [ref=f6e103]:
+                - generic [ref=f6e104]: TONO 04
+                - generic [ref=f6e105]: "#58624B"
+              - generic [ref=f6e108]: Matiz 04
+              - generic [ref=f6e109]: Tono del análisis simulado de tu cuenta.
+              - generic [ref=f6e110]: Seleccionar color ↗
+            - 'button "Seleccionar #D5B5AB #D5B5AB" [ref=f6e111] [cursor=pointer]':
+              - generic [ref=f6e112]:
+                - generic [ref=f6e113]: TONO 05
+                - generic [ref=f6e114]: "#D5B5AB"
+              - generic [ref=f6e117]: Matiz 05
+              - generic [ref=f6e118]: Tono del análisis simulado de tu cuenta.
+              - generic [ref=f6e119]: Seleccionar color ↗
+          - generic [ref=f6e120]:
+            - generic [ref=f6e122]:
+              - strong [ref=f6e123]: "#C98A7B"
+              - paragraph [ref=f6e124]: Tono del análisis simulado de tu cuenta.
+            - button "Copiar hex" [ref=f6e125] [cursor=pointer]
+        - generic [ref=f6e126]:
+          - generic [ref=f6e127]: Contrastes de tu paleta
+          - heading "Tonos a Distanciar del Rostro" [level=2] [ref=f6e128]
+          - paragraph [ref=f6e129]: Alternativas de color del análisis simulado para comparar junto a tu paleta.
+          - generic [ref=f6e130]:
+            - generic [ref=f6e133]:
+              - strong [ref=f6e134]: Negro puro (#000000)
+              - paragraph [ref=f6e135]:
+                - text: Absorbe la luz facial y marca surcos.
+                - strong [ref=f6e136]: "Alternativa: Café espresso o carbón cálido."
+            - generic [ref=f6e139]:
+              - strong [ref=f6e140]: Azul glacial (#0033FF)
+              - paragraph [ref=f6e141]:
+                - text: Su frialdad apaga el subtono cálido.
+                - strong [ref=f6e142]: "Alternativa: Azul petróleo apagado."
+            - generic [ref=f6e145]:
+              - strong [ref=f6e146]: Fucsia neón (#FF007F)
+              - paragraph [ref=f6e147]:
+                - text: Contraste estridente que compite con la mirada.
+                - strong [ref=f6e148]: "Alternativa: Baya canela o coral empolvado."
+        - generic [ref=f6e149]:
+          - generic [ref=f6e150]:
+            - generic [ref=f6e151]: Textura & color
+            - heading "Probador textil" [level=2] [ref=f6e152]
+            - paragraph [ref=f6e153]: Explora las notas de tejido del dossier de ejemplo.
+          - group "Tejido" [ref=f6e154]:
+            - button "Seda" [ref=f6e155] [cursor=pointer]
+            - button "Lino" [ref=f6e156] [cursor=pointer]
+            - button "Lana" [ref=f6e157] [cursor=pointer]
+          - generic [ref=f6e158]:
+            - heading "Seda salvaje · terracota y nácar" [level=3] [ref=f6e159]
+            - paragraph [ref=f6e160]: Lustre suave que difumina el escote y potencia el subtono cálido sin destellos fríos.
+      - generic [ref=f6e161]:
+        - text: StylingU Atelier · Tu espacio de color, maquillaje y estilo
+        - paragraph [ref=f6e162]: Fotos privadas · Análisis simulado guardado en tu cuenta
+  - status

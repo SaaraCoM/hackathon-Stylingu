@@ -3,209 +3,193 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StylingU Atelier — Colorimetría, Armario y Maquillaje</title>
-<meta name="description" content="StylingU Atelier: colorimetría Otoño Suave, armario virtual, maquillaje y skincare. Funciona en tu dispositivo, con cuenta opcional para tu armario." />
+<title>Stylingu — Asistente IA de Belleza</title>
+<meta name="description" content="Stylingu: colorimetría, maquillaje, vestuario y recomendación de compras, personalizados tras completar el análisis de tus fotos." />
 <link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#EFEAE2" />
+<meta name="theme-color" content="#f8faf7" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./styles.css" />
+<link rel="stylesheet" href="./figma.css" />
 </head>
 <body>
+<section id="analysisGate" class="analysis-gate" aria-labelledby="gateTitle">
+  <div class="card">
+    <img class="gate-logo" src="./assets/logo.jpg" alt="Stylingu — Asistente IA de Belleza" />
+    <h1 id="gateTitle">Primero, tu análisis</h1>
+    <p>Sube una foto de cara y otra de cuerpo. Tu espacio personalizado estará disponible cuando el análisis esté listo.</p>
+    <p id="gateStatus" role="status" aria-live="polite">Comprobando tu cuenta…</p>
+    <button id="gateContinueBtn" class="btn primary" type="button" disabled>Comprobando…</button>
+    <button id="gateAccountBtn" class="btn" type="button" hidden>Mi cuenta</button>
+    <noscript>Activa JavaScript para subir tus fotos y completar el análisis.</noscript>
+  </div>
+</section>
+<div id="appShell" hidden>
 <a class="skiplink" href="#contenido">Saltar al contenido</a>
 <div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="#inicio" translate="no">stylingu<small>Atelier</small></a>
-    <div>
-      <button class="btn" id="accountBtn" type="button">Mi cuenta</button>
-      <button class="btn" id="savePaletteBtn" type="button">Guardar paleta</button>
-      <button class="btn primary" id="newConsultBtn" type="button">Nueva consulta</button>
+    <a class="brand" href="#inicio" translate="no"><img class="brand-logo" src="./assets/logo.jpg" alt="Stylingu" /><small>Studio IA</small></a>
+    <nav class="bottomnav" aria-label="Navegación principal">
+  <div class="bottomnav-inner" role="tablist">
+    <button role="tab" id="nav-color" aria-selected="true" aria-controls="tab-color" data-tab="tab-color" type="button">Colorimetría</button>
+    <button role="tab" id="nav-makeup" aria-selected="false" aria-controls="tab-makeup" data-tab="tab-makeup" type="button" tabindex="-1">Maquillaje</button>
+    <button role="tab" id="nav-armario" aria-selected="false" aria-controls="tab-armario" data-tab="tab-armario" type="button" tabindex="-1">Vestuario &amp; Armario</button>
+    <button role="tab" id="nav-compras" aria-selected="false" aria-controls="tab-compras" data-tab="tab-compras" type="button" tabindex="-1">Recomendación de Compras</button>
+  </div>
+</nav>
+    <div class="header-actions">
+      <button class="btn primary" id="openConsultBtn" type="button"><img src="./assets/figma/c119c.svg" alt="" />Foto &amp; Escaneo IA<img src="./assets/figma/773fe.svg" alt="" /></button>
+      <button class="btn account-button" id="accountBtn" type="button">Mi cuenta</button>
     </div>
   </div>
 </header>
 
 <section class="hero" id="inicio">
   <div class="hero-card">
-    <span class="kicker">Dossier personalizado · Temporada 2024 / 2025</span>
-    <h1 id="heroTitle">Elena Vance — Atelier de Armonía Óptica</h1>
-    <p id="heroSub">Tu espectro responde a matices aterciopelados y cálidos. Todo vive en tu dispositivo: tu paleta, tu armario y tu progreso, con cuenta opcional.</p>
-    <div class="row hero-pills">
-      <span class="pill">Otoño Cálido Suave · Armonía 96%</span>
-      <span class="pill live"><span class="pulse" aria-hidden="true"></span><span id="heroMode">Modo local · este dispositivo</span></span>
-    </div>
+    <div class="row hero-pills"><span class="pill lavender" id="analysisSummary">Análisis pendiente</span><span class="fine" id="heroMode">Tu cuenta</span></div>
+    <h1 id="viewTitle">Tu armonía, en cada color</h1>
+    <p id="viewDescription">Descubre tu paleta, explora sus matices y encuentra nuevas formas de llevarla.</p>
+    <p id="heroTitle" class="fine"></p><p id="heroSub" class="visually-hidden"></p>
     <p class="dossier-line" id="dossierLine" hidden></p>
-    <svg class="hero-wave" viewBox="0 0 220 50" fill="none" aria-hidden="true">
-      <path d="M0 30 C10 30 12 45 18 45 C24 45 26 10 34 10 C42 10 44 40 52 40 C60 40 62 5 70 5 C78 5 80 42 88 42 C96 42 98 15 106 15 C114 15 116 38 124 38 C132 38 134 20 142 20 C150 20 152 35 160 35 C168 35 170 22 178 22 C186 22 188 32 196 32 C204 32 210 28 220 28"
-            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
-    </svg>
   </div>
-  <p class="wordmark" aria-hidden="true">stylingu</p>
-  <div class="fog" aria-hidden="true"></div>
+  <div class="hero-actions"><button class="btn" id="savePaletteBtn" type="button">Guardar paleta</button><button class="btn" id="exportAnalysisBtn" type="button"><img src="./assets/figma/c3fd6.svg" alt="" />Exportar dossier</button></div>
 </section>
 
 <main id="contenido">
   <section class="tab active" id="tab-color" role="tabpanel" aria-labelledby="nav-color" aria-label="Colorimetría" tabindex="0">
-    <div class="grid cols-5-7">
-      <div class="card">
-        <h2>Mapeo de luz</h2>
-        <div class="flatfield" role="img" aria-label="Moodboard cálido terracota y miel">arcilla · miel · salvia</div>
-        <div class="row">
-          <span class="pill">Subtono: cálido dorado</span>
-          <span class="pill">Contraste: medio-bajo</span>
-          <span class="pill">Croma: suave</span>
-        </div>
-        <div class="bars">
-          <div class="bar-row"><span>Croma suave vs puro</span><span>Suave</span></div>
-          <div class="track" role="img" aria-label="Croma: suave, 72 de 100 hacia puro"><div class="fill" style="width:72%"></div></div>
-          <div class="bar-row"><span>Temperatura frío vs cálido</span><span>Cálido solar</span></div>
-          <div class="track" role="img" aria-label="Temperatura: cálido solar, 84 de 100 hacia cálido"><div class="fill deep" style="width:84%"></div></div>
-        </div>
+    <div class="grid color-hero">
+      <div class="card photo-card" data-figma-node="3:64">
+        <div class="section-meta"><span class="eyebrow">Evaluación cromática visual</span><span class="pill">Foto privada</span></div>
+        <div class="photo-viewport"><img data-analysis-photo="face" alt="Tu foto de cara utilizada en el análisis" /><div class="photo-caption"><span id="photoSeason">Tu estación</span><div class="mini-palette" data-analysis-palette></div></div></div>
+        <div class="photo-footer"><span>Guardada en tu cuenta</span><button class="text-button" data-open-consult type="button">Actualizar fotos ↗</button></div>
       </div>
-      <div class="card">
-        <h2>Diagnóstico estacional</h2>
-        <p class="muted">Otoño Cálido Suave · <strong>6 tonos nucleares</strong>. Toca una muestra para ver su efecto en tez y copiar su hex.</p>
-        <div class="swatch-grid" id="swatches"></div>
-        <div class="detail" id="swatchDetailBox">
-          <span class="dot" id="swatchPreviewDot"></span>
-          <div><strong id="swatchName">Terracota</strong><p class="muted" id="swatchDesc">Eleva la calidez natural del rubor.</p></div>
-          <button class="btn" id="copyHexBtn" type="button">Copiar hex</button>
-        </div>
+      <div class="card diagnosis-card" data-figma-node="3:129">
+        <span class="pill rose">Colorimetría · Simulación</span>
+        <h2 id="seasonName">Tu estación</h2>
+        <p class="muted" id="seasonSummary"></p>
+        <p class="diagnosis-note">Una guía para explorar el color en tu ropa y maquillaje. Este resultado es simulado y no representa una medición de la imagen.</p>
+        <dl class="analysis-metrics"><div><dt>Contraste natural</dt><dd id="metricContrast"></dd></div><div><dt>Temperatura</dt><dd id="metricTemperature"></dd></div><div><dt>Intensidad cromática</dt><dd id="metricChroma"></dd></div></dl>
+        <p class="fine" id="colorSummary"></p>
       </div>
     </div>
-    <div class="grid cols-2">
-      <div class="card sand">
-        <h2>Tonos a distanciar del rostro</h2>
-        <p class="muted">Longitudes de onda que crean refracciones desfavorables en tu fenotipo.</p>
-        <div id="avoidList"></div>
-      </div>
-      <div class="card">
-        <h2>Probador textil</h2>
-        <p class="muted">El tejido cambia cómo se lee el color sobre la piel.</p>
-        <div class="row" role="group" aria-label="Tejido">
-          <button class="btn primary" data-fabric="seda" type="button">Seda</button>
-          <button class="btn" data-fabric="lino" type="button">Lino</button>
-          <button class="btn" data-fabric="lana" type="button">Lana</button>
-        </div>
-        <h3 id="fabricTitle">Seda salvaje · terracota y nácar</h3>
-        <p class="muted" id="fabricBody">Lustre suave que difumina el escote.</p>
-      </div>
-    </div>
+    <section class="palette-section" data-figma-node="3:193" aria-labelledby="paletteTitle">
+      <div class="section-heading"><div><span class="eyebrow">Gama cromática personal</span><h2 id="paletteTitle">Paleta Cromática Favorecedora</h2><p class="muted">Tus tonos en un solo lugar. Selecciona un matiz para ver su detalle o copiar su código.</p></div><div class="row filter-chips" role="group" aria-label="Filtrar paleta"><button class="btn primary" data-pfilter="todas" type="button">Todas</button><button class="btn" data-pfilter="base" type="button">Tonos Base</button><button class="btn" data-pfilter="media" type="button">Tonos Medios</button><button class="btn" data-pfilter="acento" type="button">Acento</button><span class="pill" id="paletteCount"></span></div></div>
+      <div class="swatch-grid" id="swatches"></div>
+      <div class="detail" id="swatchDetailBox"><span class="dot" id="swatchPreviewDot"></span><div><strong id="swatchName"></strong><p class="muted" id="swatchDesc"></p></div><button class="btn" id="copyHexBtn" type="button">Copiar hex</button></div>
+    </section>
+    <section aria-labelledby="comparadorTitle"><div class="section-heading"><div><span class="eyebrow">Comparador de reactividad</span><h2 id="comparadorTitle">Comparador de Reactancia Técnica en Piel</h2><p class="muted">Comparación de ejemplo entre tonos de base y tu paleta: una guía de color, no una medición de tu piel.</p></div></div><div class="grid cols-3" id="comparatorGrid"></div></section>
+    <section class="card avoid-section"><span class="eyebrow rose-text">Contrastes de tu paleta</span><h2>Tonos a Distanciar del Rostro</h2><p class="muted">Alternativas de color del análisis simulado para comparar junto a tu paleta.</p><div id="avoidList"></div></section>
+    <section aria-labelledby="inspiracionTitle"><div class="section-heading"><div><span class="eyebrow lavender-text">Inspiración</span><h2 id="inspiracionTitle">Inspiración &amp; Estilismos Recomendados</h2><p class="muted">Estilos de referencia con tu paleta asociada.</p></div></div><div class="swatch-grid" id="inspiracionGrid"></div></section>
   </section>
 
   <section class="tab" id="tab-armario" role="tabpanel" aria-labelledby="nav-armario" aria-label="Vestuario y armario" tabindex="0">
-    <div class="card">
-      <h2>Arquitectura de silueta</h2>
-      <p class="muted">Simetría natural hombro-cadera con cintura definida: acompañar la verticalidad, sin cortes abruptos.</p>
-      <div class="swatch-grid" id="silhouetteGrid" style="grid-template-columns:repeat(2,1fr)"></div>
+    <div class="grid wardrobe-hero">
+      <div class="card photo-card body-card" data-figma-node="3:1228"><div class="section-meta"><span class="eyebrow">Tu fotografía corporal</span><span class="pill">Privada</span></div><h2>Proporción Áurea</h2><div class="photo-viewport"><img data-analysis-photo="body" alt="Tu foto de cuerpo utilizada en el análisis" /></div><div class="photo-footer"><span>Referencia de estilo</span><button class="text-button" data-open-consult type="button">Actualizar toma ↗</button></div></div>
+      <div class="card silhouette-card" data-figma-node="3:1269"><span class="eyebrow"><img src="./assets/figma/50dcc.svg" alt="" />Análisis de estilo · Simulación</span><h2 id="outfitStyle">Tu estilo</h2><p class="muted" id="outfitSummary"></p><div class="swatch-grid" id="silhouetteGrid"></div><div class="linked-palette"><div class="mini-palette" data-analysis-palette></div><span>Paleta cromática vinculada a tu cuenta</span></div><p class="fine">La foto se conserva como referencia. No se han calculado medidas corporales ni proporciones.</p></div>
     </div>
-    <div class="card stack">
-      <h2>Generador de conjuntos</h2>
-      <p class="muted" id="outfitCounter">Combinación 1 de 3</p>
-      <ul class="outfit bare-list" id="outfitList"></ul>
-      <div class="row">
-        <button class="btn primary" id="shuffleBtn" type="button">Nueva combinación</button>
-        <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
+    <section aria-labelledby="estilismosTitle"><div class="section-heading"><div><span class="eyebrow">Conjuntos propuestos por IA</span><h2 id="estilismosTitle">Estilismos Completos Recomendados</h2><p class="muted">Tus combinaciones del dossier, con su paleta asociada.</p></div></div><div class="grid cols-3" id="estilismosGrid"></div></section>
+    <div class="grid cols-2">
+      <div class="card stack">
+        <span class="eyebrow">Tu armario, a tu ritmo</span><h2>Generador de Conjuntos IA</h2><p class="muted">Combinaciones del dossier de ejemplo que puedes guardar en tu cuenta.</p>
+        <p class="muted" id="outfitCounter">Combinación 1 de 3</p>
+        <ul class="outfit bare-list" id="outfitList"></ul>
+        <div class="row">
+          <button class="btn primary" id="shuffleBtn" type="button">Generar conjunto aleatorio</button>
+          <button class="btn" id="saveOutfitBtn" type="button">Guardar en armario</button>
+        </div>
+        <div class="empty" id="savedEmpty">
+          <strong>Tu armario empieza aquí</strong>
+          <p>Guarda la combinación actual para verla junto a tu paleta cada vez que abras el Atelier.</p>
+          <button class="btn primary" id="saveFirstBtn" type="button">Guardar mi primer conjunto</button>
+        </div>
       </div>
+      <div class="card stack">
+        <span class="eyebrow">Vista espejo</span><h2>Modo Probador Espejo</h2>
+        <p class="muted">Tu foto de cuerpo como referencia de espejo, sin cámara en vivo.</p>
+        <div class="photo-viewport"><img data-analysis-photo="body" alt="Tu foto de cuerpo como referencia de espejo" /></div>
+        <div class="row"><button class="btn" id="mirrorLooksBtn" type="button">Ver estilismos recomendados</button></div>
+      </div>
+    </div>
+    <section class="card stack" aria-labelledby="capsuleTitle">
+      <div class="section-heading"><div><span class="eyebrow">Inventario estratégico</span><h2 id="capsuleTitle">Tu Armario Cápsula Digitalizado</h2><p class="muted">Los conjuntos que has guardado en tu cuenta.</p></div><button class="btn" id="capsuleAddBtn" type="button">Recopilar nueva prenda</button></div>
       <p class="saved" id="savedCount">Armario local: 0 conjuntos</p>
-      <div class="empty" id="savedEmpty">
-        <strong>Tu armario empieza aquí</strong>
-        <p>Guarda la combinación actual para verla junto a tu paleta cada vez que abras el Atelier.</p>
-        <button class="btn primary" id="saveFirstBtn" type="button">Guardar mi primer conjunto</button>
-      </div>
       <ul class="outfit bare-list" id="savedList"></ul>
-    </div>
+    </section>
   </section>
 
   <section class="tab" id="tab-makeup" role="tabpanel" aria-labelledby="nav-makeup" aria-label="Maquillaje" tabindex="0">
-    <div class="card sand">
-      <h2>Pigmentos por ocasión</h2>
-      <div class="row" role="group" aria-label="Ocasión">
-        <button class="btn primary" data-look="diario" type="button">Diario</button>
-        <button class="btn" data-look="editorial" type="button">Editorial</button>
-        <button class="btn" data-look="reunion" type="button">Reunión</button>
-      </div>
-      <p><span class="pill" id="lookBadge">Diario luminoso</span></p>
-      <h3 id="lookTitle">Second skin + labio canela</h3>
-      <p class="muted" id="lookDesc">Base acuosa translúcida, rubor melocotón y nude con bálsamo.</p>
+    <div class="grid color-hero">
+      <section class="card makeup-diagnosis" data-figma-node="3:729"><span class="eyebrow">Evaluación óptica &amp; morfometría IA · Simulación</span><div class="makeup-face-grid"><div class="photo-viewport"><img data-analysis-photo="face" alt="Tu foto de cara como referencia de maquillaje" /></div><dl class="face-metrics"><div><dt>Forma del rostro</dt><dd id="faceShape"></dd></div><div><dt>Apertura ocular</dt><dd id="eyeShape"></dd></div><div><dt>Tipo de delineado</dt><dd id="eyelinerType"></dd></div><div><dt>Colocación de sombras</dt><dd id="shadowPlacement"></dd></div></dl></div></section>
+      <section class="card look-card"><span class="eyebrow">Probador</span><h2>Probador Virtual en Vivo</h2><p class="muted">Ajusta brillo, opacidad y sombra sobre la muestra de tu look. Sin cámara en vivo.</p><div class="slider-row"><label for="sliderBrillo">Labios: brillo</label><input id="sliderBrillo" type="range" min="0" max="100" value="50" /></div><div class="slider-row"><label for="sliderOpacidad">Labios: opacidad</label><input id="sliderOpacidad" type="range" min="0" max="100" value="80" /></div><div class="slider-row"><label for="sliderSombra">Sombra: intensidad</label><input id="sliderSombra" type="range" min="0" max="100" value="35" /></div><p><span class="pill" id="lookBadge"></span></p><h3 id="lookTitle"></h3><p class="muted" id="lookDesc"></p><div class="look-color-preview" id="lookColorPreview" aria-hidden="true"></div><p class="fine">Consulta de tonos, sin simulación sobre la foto ni cámara en vivo.</p><button class="btn" data-open-consult type="button">Actualizar mi análisis</button></section>
     </div>
-    <div class="grid cols-2">
-      <div class="card">
-        <h2>Labiales</h2>
-        <div id="lipList"></div>
-        <p class="muted fine">Evita frambuesas azulados: restan vitalidad a la sonrisa.</p>
-      </div>
-      <div class="card">
-        <h2>Colorete</h2>
-        <div id="blushList"></div>
-        <p class="muted fine">Difumina ascendente desde la manzana del pómulo.</p>
-      </div>
-    </div>
-    <div class="card stack">
-      <h2>Cuarteto de mirada</h2>
-      <p class="muted">Máscara recomendada: marrón chocolate.</p>
-      <div class="quad" id="eyesQuad"></div>
-    </div>
+    <section data-figma-node="3:871"><div class="section-heading"><div><span class="eyebrow rose-text"><img src="./assets/figma/eab97.svg" alt="" />Cromática personal</span><h2>Dossier de Labiales Personalizados IA</h2><p class="muted">Tu tono recomendado y referencias de acabado del diseño.</p></div></div><div id="lipList"></div><div class="lip-gallery">
+      <article class="card reference-card"><div class="reference-image lip-image"><img src="./assets/figma/5a6c4.jpg" alt="Referencia de labios nude con acabado brillante" loading="lazy" /></div><span class="pill">Referencia editorial</span><h3>Nude Cuarzo Translúcido</h3><p class="muted">Acabado luminoso y transparente.</p></article>
+      <article class="card reference-card"><div class="reference-image lip-image"><img src="./assets/figma/14224.jpg" alt="Referencia de labios en tono melocotón" loading="lazy" /></div><span class="pill">Referencia editorial</span><h3>Melocotón Jugoso</h3><p class="muted">Un velo de color con brillo suave.</p></article>
+      <article class="card reference-card"><div class="reference-image lip-image"><img src="./assets/figma/cbad2.jpg" alt="Referencia de labios malva suave" loading="lazy" /></div><span class="pill">Referencia editorial</span><h3>Malva Pétalo Suave</h3><p class="muted">Tono rosado con acabado satinado.</p></article>
+      <article class="card reference-card"><div class="reference-image lip-image"><img src="./assets/figma/d0b27.jpg" alt="Referencia de labios rosa vintage" loading="lazy" /></div><span class="pill">Referencia editorial</span><h3>Rosa Vintage</h3><p class="muted">Color aterciopelado de mayor intensidad.</p></article>
+    </div></section>
+    <section class="card blush-section"><span class="eyebrow rose-text">Colocación del color</span><h2>Mapeo de Colorete &amp; Iluminador Óptico</h2><div id="blushList"></div><p class="muted">Sugerencia del análisis simulado de tu cuenta.</p></section>
+    <section data-figma-node="3:1036"><div class="section-heading"><div><span class="eyebrow lavender-text"><img src="./assets/figma/ff99d.svg" alt="" />Armonía ocular</span><h2>Cuarteto de Sombras &amp; Mirada Editorial</h2><p class="muted">Tus colores del análisis y dos referencias visuales de acabado.</p></div></div><div class="quad" id="eyesQuad"></div><div class="grid cols-2 eye-gallery"><article class="card"><h3>Bruma &amp; Ciruela Etéreo</h3><div class="eye-reference-body"><div class="reference-image eye-image"><img src="./assets/figma/77c9e.jpg" alt="Referencia de maquillaje de ojos en malva y ciruela" loading="lazy" /></div><div class="reference-swatches"><div><span style="background:#fdfaf3"></span><strong>Velo Seda</strong></div><div><span style="background:#e8e0f0"></span><strong>Lila Prisma</strong></div><div><span style="background:#a38fa8"></span><strong>Malva Ceniza</strong></div><div><span style="background:#5d4d62"></span><strong>Ciruela Ahumado</strong></div></div></div><p class="muted">Referencia editorial · matices suaves y luminosos.</p></article><article class="card"><h3>Champaña Luma &amp; Salvia</h3><div class="eye-reference-body"><div class="reference-image eye-image eye-wide"><img src="./assets/figma/7d52b.jpg" alt="Referencia de maquillaje de ojos champaña y salvia" loading="lazy" /></div><div class="reference-swatches"><div><span style="background:#f9f3e3"></span><strong>Lino Glacé</strong></div><div><span style="background:#ecd5b2"></span><strong>Champaña Sol</strong></div><div><span style="background:#b9cbbd"></span><strong>Salvia Halo</strong></div><div><span style="background:#495c4e"></span><strong>Bosque Terciopelo</strong></div></div></div><p class="muted">Referencia editorial · contraste botánico satinado.</p></article></div></section>
+    <section aria-labelledby="looksTitle"><div class="section-heading"><div><span class="eyebrow">Tu guía de maquillaje</span><h2 id="looksTitle">Looks Editoriales Afinos</h2><p class="muted">Elige la ocasión para ver su guía de tonos.</p></div></div><div class="grid cols-3" id="looksGrid"></div></section>
   </section>
 
-  <section class="tab" id="tab-piel" role="tabpanel" aria-labelledby="nav-piel" aria-label="Skincare" tabindex="0">
-    <div class="card">
-      <h2>Mapa facial de zonas</h2>
-      <p class="muted">Toca una zona para ver su lectura y recomendación.</p>
-      <div class="row" role="group" aria-label="Zona facial">
-        <button class="btn primary" data-zone="zona-t" type="button">Zona T</button>
-        <button class="btn" data-zone="ojos" type="button">Ojos</button>
-        <button class="btn" data-zone="mejillas" type="button">Mejillas</button>
-        <button class="btn" data-zone="mandibula" type="button">Mandíbula</button>
+  <section class="tab" id="tab-compras" role="tabpanel" aria-labelledby="nav-compras" aria-label="Recomendación de Compras" tabindex="0">
+    <div class="grid compras-hero">
+      <div class="card">
+        <span class="eyebrow">Asesor en tiempo real</span>
+        <h2>Tomar foto &amp; analizar</h2>
+        <p class="muted">Sube una foto de cara y otra de cuerpo: la app genera tu análisis y a partir de ahí recomienda looks. El asesor trabaja sobre tus fotos guardadas, sin cámara en vivo.</p>
+        <div class="row">
+          <button class="btn primary" id="comprasShootBtn" type="button">Tomar foto &amp; analizar</button>
+          <button class="btn" id="comprasUploadBtn" type="button">Subir desde galería</button>
+        </div>
+        <p class="fine">La captura directa con cámara no está disponible: ambos botones abren tu flujo de fotos.</p>
       </div>
-      <div class="detail">
-        <div><strong id="zoneName">Zona T · frente y nariz</strong>
-        <p class="muted" id="zoneScore">Equilibrio 82%</p>
-        <p class="muted" id="zoneDesc">Leve brillo al mediodía. Tónico PHA + niacinamida.</p></div>
-      </div>
-    </div>
-    <div class="grid cols-2">
-      <div class="card sand">
-        <h2>Rutina AM · protección</h2>
-        <ol class="routine" id="routineAM"></ol>
-      </div>
-      <div class="card sand">
-        <h2>Rutina PM · reparación</h2>
-        <ol class="routine" id="routinePM"></ol>
+      <div class="card">
+        <div class="section-meta"><span class="eyebrow">Tu análisis</span><span class="pill">Simulación</span></div>
+        <h2 id="comprasStatus">Sin análisis todavía</h2>
+        <div class="photo-viewport"><img data-analysis-photo="body" alt="Tu foto de cuerpo como referencia de estilo" /></div>
+        <div class="row" style="margin-top:16px"><span class="pill lavender" id="comprasPrec">Lectura facial: pendiente</span><span class="pill rose" id="comprasColor">Estilo &amp; color: pendiente</span></div>
+        <div class="row thumb-row" role="group" aria-label="Valoración del resultado"><button class="btn" id="thumbUpBtn" type="button">Me gusta</button><button class="btn" id="thumbDownBtn" type="button">No me gusta</button></div>
       </div>
     </div>
-    <div class="card stack">
-      <h2>Check-in semanal</h2>
-      <p class="muted">Foto frontal los domingos con luz natural indirecta. El progreso se guarda en local.</p>
-      <div class="row">
-        <button class="btn primary" id="checkinBtn" type="button">Registrar check-in</button>
-      </div>
-      <p class="saved" id="checkinInfo">Sin check-ins todavía.</p>
-    </div>
+    <section aria-labelledby="comprasLooksTitle"><div class="section-heading"><div><span class="eyebrow">Integración con IA personal</span><h2 id="comprasLooksTitle">Looks Recomendados por la IA Basados en tu Foto</h2><p class="muted">Construidos con tu paleta y tu estilo. No son compras disponibles ni enlaces.</p></div><button class="btn" id="comprasFilterBtn" type="button">Ajustar selección de estilos</button></div><div class="grid cols-3" id="comprasLooks"></div></section>
+    <section aria-labelledby="diagTitle"><div class="section-heading"><div><span class="eyebrow lavender-text">Asistencia visual inmersiva</span><h2 id="diagTitle">Diagnóstico Fotográfico Inteligente</h2></div></div><div class="grid cols-3" id="comprasDiagnostico"></div></section>
+    <section aria-labelledby="feedTitle"><div class="section-heading"><div><span class="eyebrow rose-text">Exploración continua</span><h2 id="feedTitle">Feed de Referencias Visuales</h2><p class="muted">Referencias editoriales de ejemplo para inspirarte.</p></div></div><div class="row filter-chips" role="group" aria-label="Filtrar referencias"><button class="btn primary" data-feed="todas" type="button">Todas</button><button class="btn" data-feed="colorimetria" type="button">Colorimetría</button><button class="btn" data-feed="maquillaje" type="button">Maquillaje</button></div><div class="grid cols-3 feed-grid" id="comprasFeed"></div></section>
   </section>
+<footer class="studio-footer">StylingU es tu espacio de confianza para descubrir tu mejor versión<p>Las recomendaciones son de carácter informativo y no sustituyen el criterio de un profesional · Fotos privadas · Análisis guardado en tu cuenta</p></footer>
 </main>
 
-<nav class="bottomnav" aria-label="Navegación principal">
-  <div class="bottomnav-inner" role="tablist">
-    <button role="tab" id="nav-color" aria-selected="true" aria-controls="tab-color" data-tab="tab-color" type="button">Color</button>
-    <button role="tab" id="nav-armario" aria-selected="false" aria-controls="tab-armario" data-tab="tab-armario" type="button" tabindex="-1">Armario</button>
-    <button role="tab" id="nav-makeup" aria-selected="false" aria-controls="tab-makeup" data-tab="tab-makeup" type="button" tabindex="-1">Makeup</button>
-    <button role="tab" id="nav-piel" aria-selected="false" aria-controls="tab-piel" data-tab="tab-piel" type="button" tabindex="-1">Piel</button>
-  </div>
-</nav>
 
-<div class="modal" id="consultModal" role="dialog" aria-modal="true" aria-label="Nueva consulta">
+</div>
+
+<div class="modal" id="consultationModal" role="dialog" aria-modal="true" aria-label="Tu análisis de imagen" hidden>
   <div class="modal-box">
-    <h2>Nueva consulta</h2>
-    <p class="muted">Solo crea un dossier local de ejemplo.</p>
-    <label class="visually-hidden" for="consultName">Nombre del dossier</label>
-    <input id="consultName" name="consultName" type="text" placeholder="Nombre (ej. Elena Vance)…" autocomplete="name" maxlength="60" aria-describedby="consultError" />
-    <p class="error" id="consultError" role="alert" hidden>Escribe un nombre para crear el dossier.</p>
-    <div class="row">
-      <button class="btn primary" id="confirmConsultBtn" type="button">Crear dossier</button>
-      <button class="btn" id="closeConsultBtn" type="button">Cerrar</button>
+    <h2 id="consultationTitle">Tu análisis de imagen</h2>
+    <p class="muted" id="consultationState" role="status" aria-live="polite"></p>
+    <div id="consultationForm">
+      <p class="muted">Sube una foto de cara y otra de cuerpo. El resultado es una simulación: todavía no hay un agente conectado. Tus fotos y el resultado se guardan de forma privada en tu cuenta. PNG, JPEG o WebP, máximo 2 MB por foto.</p>
+      <div class="row">
+        <div class="card">
+          <h3><label for="faceInput">Foto de cara</label></h3>
+          <input id="faceInput" name="faceInput" type="file" accept="image/png,image/jpeg,image/webp" />
+          <img id="facePreview" class="thumb" alt="Vista previa de la foto de cara" hidden />
+        </div>
+        <div class="card">
+          <h3><label for="bodyInput">Foto de cuerpo</label></h3>
+          <input id="bodyInput" name="bodyInput" type="file" accept="image/png,image/jpeg,image/webp" />
+          <img id="bodyPreview" class="thumb" alt="Vista previa de la foto de cuerpo" hidden />
+        </div>
+      </div>
+      <p class="error" id="consultationError" role="alert" hidden></p>    <div class="row">
+      <button class="btn primary" id="analyzeBtn" type="button">Analizar fotos</button>
+      <button class="btn" id="consultationAccountBtn" type="button" hidden>Entrar o crear cuenta</button>
+      <button class="btn" id="closeConsultationBtn" type="button">Cerrar</button>
     </div>
+  </div>
+  <div id="consultationResults" class="results" tabindex="-1" hidden></div>
   </div>
 </div>
 
@@ -301,12 +285,15 @@
 <script src="./data.js"></script>
 <script src="./js/store.js"></script>
 <script src="./js/ui.js"></script>
+<script src="./js/access.js"></script>
 <script src="./js/color.js"></script>
 <script src="./js/wardrobe.js"></script>
 <script src="./js/makeup.js"></script>
-<script src="./js/skincare.js"></script>
+<script src="./js/compras.js"></script>
 <script src="./js/onboarding.js"></script>
+<script src="./js/design.js"></script>
 <script src="./js/account.js"></script>
+<script src="./js/consultation.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

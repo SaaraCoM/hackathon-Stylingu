@@ -1,0 +1,275 @@
+{
+  "base": "http://127.0.0.1:3000",
+  "at": "2026-10-30T09:06:31.324Z",
+  "userId": "4c13ffc8-8fde-4a87-9d3a-3095bc78eeb8",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/ready",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/registro",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/yo",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/analyze",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/personal/analyze",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "status": 200
+    },
+    {
+      "catalogVariants": 0,
+      "note": "catálogo vacío: no se inventan marcas"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/perfil",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/468159d697402590bce67791563527876e3d8e9da7ce26a142cf11cda720bbbf",
+      "status": 200,
+      "bytesVerified": 312919,
+      "magic": "jpeg"
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/468159d697402590bce67791563527876e3d8e9da7ce26a142cf11cda720bbbf",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/registro",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/468159d697402590bce67791563527876e3d8e9da7ce26a142cf11cda720bbbf",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    }
+  ],
+  "persistedAnalysis": {
+    "model": "muse-spark-1.3",
+    "notes": [
+      "Este análisis es orientativo y cosmético, no constituye diagnóstico dermatológico ni recomendación médica.",
+      "La luz cálida lateral puede intensificar el subtono cálido; el subtono se estima por contraste piel-cabello-iris.",
+      "No se observa cuerpo completo, por lo que la recomendación de siluetas es general y no a medida.",
+      "Tipo de piel autodeclarado como desconocido; usar fórmulas según preferencia personal y prueba de tolerancia.",
+      "No se declaran alergias; no se puede verificar aptitud para alergias sin composición completa."
+    ],
+    "makeup": {
+      "look": "Natural luminoso cálido efecto segunda piel",
+      "lipHex": "#C47A5E",
+      "blushHex": "#D98A6A",
+      "eyeShape": "almendrada",
+      "faceShape": "oval",
+      "eyelinerType": "Línea fina marrón pegada a pestañas superiores con micro-aleta corta",
+      "blushPlacement": "En lo alto de las mejillas, difuminado en diagonal hacia las sienes para alargar visualmente el rostro oval",
+      "shadowPlacement": "Tono transición cálido mate en cuenca y párpado móvil, punto de luz claro en lagrimal",
+      "applicationSteps": [
+        "Preparar piel con hidratante ligera y base de cobertura sheer para unificar tono desigual.",
+        "Aplicar corrector ligero solo donde se observe tono desigual, difuminar sin cubrir textura.",
+        "Aplicar sombra mate beige-caramelo en párpado móvil y difuminar en cuenca.",
+        "Delinear línea superior fina marrón pegada a pestañas con leve alargamiento.",
+        "Aplicar rubor melocotón en parte alta de mejillas hacia sienes y difuminar.",
+        "Peinar cejas y rellenar huecos con trazos finos marrones.",
+        "Aplicar labial nude terracota cremoso y difuminar bordes."
+      ]
+    },
+    "outfit": {
+      "style": "Elegante natural cálido minimalista",
+      "accent": "dorado mate, cuero camel y tonos tierra",
+      "silhouette": "Relajada semi-ajustada con escote en V para alargar cuello, tejidos fluidos de lino y algodón"
+    },
+    "photos": {
+      "body": "/api/personal/photos/084457cb0508afdc1e96d8aabacaf8cf44b733a9945d5575e523605d0e5c6a0d",
+      "face": "/api/personal/photos/468159d697402590bce67791563527876e3d8e9da7ce26a142cf11cda720bbbf",
+      "garments": []
+    },
+    "source": "meta",
+    "outfits": [
+      {
+        "acc": "Pendientes dorados pequeños y bolso camel",
+        "top": "Top crema de escote en V",
+        "bottom": "Pantalón recto beige claro de tiro alto",
+        "jacket": "Blazer terracota de lino con solapa",
+        "accDesc": "Complementos cálidos minimalistas que acompañan sin competir",
+        "topDesc": "Tono claro cálido bajo el blazer para suavizar contraste",
+        "bottomDesc": "Color crema de la paleta que alarga y aclara el conjunto terracota",
+        "jacketDesc": "Prenda observada en foto, tono principal cálido que armoniza con cabello y piel"
+      },
+      {
+        "acc": "Cinturón fino marrón y sandalias nude",
+        "top": "Blusa marfil de manga corta",
+        "bottom": "Pantalón wide-leg marrón chocolate",
+        "jacket": "Blazer terracota abierto",
+        "accDesc": "Accesorios tierra para mantener armonía otoñal",
+        "topDesc": "Tejido fluido claro que aporta luz al rostro",
+        "bottomDesc": "Tono profundo cálido que equilibra el contraste medio-bajo",
+        "jacketDesc": "Reutiliza la prenda observada como capa estructurada"
+      },
+      {
+        "acc": "Pañuelo estampado tierra y bailarinas beige",
+        "top": "Top de punto beige",
+        "bottom": "Falda midi camel plisada",
+        "jacket": "Chaqueta corta verde oliva suave",
+        "accDesc": "Toque suave y femenino en tonos de la paleta",
+        "topDesc": "Textura mate suave que mantiene calidez general",
+        "bottomDesc": "Silueta fluida que aporta movimiento sin ajustar",
+        "jacketDesc": "Verde cálido apagado alternativo dentro de paleta otoñal"
+      }
+    ],
+    "observed": {
+      "depth": "clara-media con apariencia luminosa cálida por luz solar",
+      "eyelid": "pliegue de párpado visible, párpado móvil estrecho",
+      "eyeColor": "marrón oscuro",
+      "hairColor": "castaño oscuro largo ondulado con reflejos cálidos",
+      "uncertain": [
+        "luz cálida lateral que altera percepción de subtono",
+        "encuadre medio sin cuerpo completo",
+        "face y body son la misma imagen"
+      ]
+    },
+    "protocol": "arquitectura_y_protocolo_de_ia_app_de_belleza",
+    "userMeta": {
+      "declared": {},
+      "skinType": "No lo sé",
+      "allergies": [],
+      "stylePreferences": ""
+    },
+    "analysisId": "1e97e193-4d4d-4b14-932b-23b924178816",
+    "analyzedAt": "2026-10-30T09:06:29.574Z",
+    "disclaimer": "Orientación cosmética, no diagnóstico médico. La iluminación puede alterar la lectura del color. Consulta a un dermatólogo para problemas de piel y revisa la composición de cada producto.",
+    "colorimetry": {
+      "avoid": [
+        {
+          "alt": "Usar solo como pequeño detalle si se desea contraste",
+          "hex": "#000000",
+          "why": "Endurece el contraste medio-bajo y enfría la armonía cálida",
+          "name": "Negro puro"
+        },
+        {
+          "alt": "Sustituir por azul petróleo o verde oliva",
+          "hex": "#1A3A8F",
+          "why": "Subtono frío que desentona con piel cálida observada",
+          "name": "Azul eléctrico frío"
+        },
+        {
+          "alt": "Sustituir por melocotón o coral cálido",
+          "hex": "#FF6EC7",
+          "why": "Saturación fría que compite con suavidad natural",
+          "name": "Rosa neón frío"
+        }
+      ],
+      "chroma": "suave y cálida",
+      "season": "Otoño suave cálido",
+      "harmony": 0,
+      "palette": [
+        "#B85C38",
+        "#D9A679",
+        "#F2E6D5",
+        "#7A6A4F",
+        "#8C5A3A",
+        "#C47A5E"
+      ],
+      "contrast": "medio-bajo",
+      "primaryHex": "#B85C38",
+      "temperature": "cálido"
+    },
+    "inputVersion": "85d771d1-8fed-42f3-97c5-bf26b4c1d541",
+    "schemaVersion": 2,
+    "visualVersion": 0,
+    "profileVersion": 0,
+    "agenticInstructions": {
+      "makeupPrompt": "Retrato beauty preservando identidad, facciones, textura de piel y fondo claro. Aplicar solo maquillaje natural calido: base ligera uniforme, rubor melocoton difuminado en mejillas altas, sombra mate calida suave en parpado movil y cuenca, delineado marron fino pegado a pestañas superiores, mascara ligera, cejas peinadas naturales, labial nude terracota cremoso. Iluminacion calida suave, acabado luminoso natural, sin cambiar rostro, cabello ni ropa.",
+      "outfitPrompt": "Generar 3 conjuntos estilo elegante natural calido sobre la persona preservando rostro, cabello, postura y fondo. Mantener proporciones corporales y textura. Cambiar solo ropa: blazer terracota, tops crema y verde oliva, pantalones beige y marron, falda midi camel. Tejidos lino y algodon, siluetas relajadas semi-ajustadas, accesorios minimalistas dorados. Luz calida diurna, fondo neutro claro."
+    }
+  }
+}

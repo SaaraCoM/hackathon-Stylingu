@@ -1,0 +1,63 @@
+// Ejecutar en sesión nueva: playwright-cli run-code --filename=tests/access-gate.cli.js
+async page => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', e => { if (e.type() === 'error') errors.push(e.text()); });
+  const origin = page.url().split('/').slice(0,3).join('/');
+  let releaseSession;
+  const sessionWait = new Promise(resolve => { releaseSession = resolve; });
+  await page.route('**/api/auth/yo', async route => { await sessionWait; await route.continue(); });
+  await page.goto(origin);
+  const locked = async () => {
+    if (await page.locator('#appShell').isVisible()) throw new Error('La app se mostró antes del análisis');
+    if (await page.locator('.bottomnav').isVisible()) throw new Error('Navegación accesible sin análisis');
+  };
+  await locked();
+  releaseSession();
+  await page.getByRole('button', { name: 'Entrar o crear cuenta', exact: true }).waitFor();
+  await locked();
+  await page.screenshot({ path:'docs/evidencia/flujo-personal/gate-initial.png' });
+  await page.getByRole('button', { name: 'Entrar o crear cuenta', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Nombre', exact:true }).fill('Prueba acceso');
+  await page.getByRole('textbox', { name: 'Email', exact:true }).fill('gate-'+Date.now()+'@example.test');
+  await page.getByRole('textbox', { name: 'Contraseña', exact:true }).fill('Gate-Test-'+Date.now());
+  await page.locator('#accountBirthDate').fill('1995-04-12');
+  await page.getByRole('button', { name:'Crear cuenta',exact:true }).click();
+  await page.locator('#consultationModal').waitFor({ state:'visible' });
+  await locked();
+  await page.getByRole('button', { name:'Cerrar',exact:true }).click();
+  await locked();
+  await page.getByRole('button', { name:'Subir mis fotos',exact:true }).click();
+  await page.getByLabel('Foto de cara',{exact:true}).setInputFiles('.tmp-flow/face.png');
+  await page.getByLabel('Foto de cuerpo',{exact:true}).setInputFiles('.tmp-flow/body.png');
+  await page.locator('#bodyPreview').waitFor({state:'visible'});
+  // Un resultado incompleto nunca permite entrar ni muestra éxito.
+  await page.route('**/api/personal/analyze', route => route.fulfill({json:{analysis:null}}));
+  await page.getByRole('button',{name:'Analizar fotos',exact:true}).click();
+  await page.locator('#consultationError').filter({hasText:'incompleto'}).waitFor();
+  await locked();
+  if (await page.locator('#consultationResults').isVisible()) throw new Error('Resultado falso visible');
+  await page.unroute('**/api/personal/analyze');
+  let releaseAnalysis;
+  const analysisWait = new Promise(resolve => { releaseAnalysis = resolve; });
+  await page.route('**/api/personal/analyze', async route => { await analysisWait; await route.continue(); });
+  await page.getByRole('button',{name:'Analizar fotos',exact:true}).click();
+  await page.locator('#consultationState').filter({hasText:'Generando'}).waitFor();
+  await locked();
+  releaseAnalysis();
+  await page.getByRole('heading',{name:'Tu análisis está guardado · Simulación'}).waitFor({timeout:30000});
+  await page.getByRole('button',{name:'Ver mi dossier',exact:true}).click();
+  if (!await page.locator('#appShell').isVisible()) throw new Error('No se abrió con análisis real');
+  await page.unroute('**/api/auth/yo');
+  await page.unroute('**/api/personal/analyze');
+  await page.reload();
+  await page.locator('#appShell').waitFor({state:'visible',timeout:30000});
+  await page.getByRole('button',{name:'Prueba acceso',exact:true}).click();
+  await page.getByRole('button',{name:'Cerrar sesión',exact:true}).click();
+  await page.getByRole('button',{name:'Entrar o crear cuenta',exact:true}).waitFor();
+  await locked();
+  await page.keyboard.press('Escape');
+  await locked();
+  if(errors.length) throw new Error(errors.join('\n'));
+  return { initialHidden:true, pendingSessionHidden:true, registeredWithoutAnalysisHidden:true, closeDoesNotBypass:true, incompleteAnalysisHidden:true, pendingAnalysisHidden:true, realAnalysisUnlocks:true, reloadRestores:true, logoutLocks:true, consoleErrors:0 };
+}

@@ -1,0 +1,124 @@
+- generic [ref=f2e1]:
+  - link "Saltar al contenido" [ref=f2e2] [cursor=pointer]:
+    - /url: "#contenido"
+  - banner [ref=f2e7]:
+    - generic [ref=f2e8]:
+      - link "stylinguAtelier" [ref=f2e9] [cursor=pointer]:
+        - /url: "#inicio"
+      - generic [ref=f2e10]:
+        - button "Prueba navegador Worker" [ref=f2e11] [cursor=pointer]
+        - button "Guardar paleta" [ref=f2e12] [cursor=pointer]
+        - button "Nueva consulta" [active] [ref=f2e13] [cursor=pointer]
+  - generic [ref=f2e14]:
+    - generic [ref=f2e15]:
+      - generic [ref=f2e16]: Dossier personalizado · Temporada 2024 / 2025
+      - heading "Prueba navegador Worker — Atelier de Armonía Óptica" [level=1] [ref=f2e17]
+      - paragraph [ref=f2e18]: Tu análisis simulado está guardado en tu cuenta. Explora tu paleta, tu maquillaje y tu estilo de vestimenta.
+      - generic [ref=f2e19]:
+        - generic [ref=f2e20]: Otoño Profundo · Simulación guardada
+        - generic [ref=f2e21]: Cuenta activa · armario propio
+    - paragraph: stylingu
+  - main [ref=f2e26]:
+    - tabpanel "Color" [ref=f2e27]:
+      - generic [ref=f2e28]:
+        - generic [ref=f2e29]:
+          - heading "Mapeo de luz" [level=2] [ref=f2e30]
+          - img "Moodboard cálido terracota y miel" [ref=f2e31]: arcilla · miel · salvia
+          - generic [ref=f2e32]: "Subtono: cálido · Contraste: medio-bajo · Croma: suave"
+          - generic [ref=f2e34]:
+            - generic [ref=f2e35]:
+              - generic [ref=f2e36]: Croma suave vs puro
+              - generic [ref=f2e37]: Suave
+            - 'img "Croma: suave, 72 de 100 hacia puro" [ref=f2e38]'
+            - generic [ref=f2e40]:
+              - generic [ref=f2e41]: Temperatura frío vs cálido
+              - generic [ref=f2e42]: Cálido solar
+            - 'img "Temperatura: cálido solar, 84 de 100 hacia cálido" [ref=f2e43]'
+        - generic [ref=f2e45]:
+          - heading "Diagnóstico estacional" [level=2] [ref=f2e46]
+          - paragraph [ref=f2e47]: Otoño Profundo · 5 tonos · Simulación
+          - generic [ref=f2e48]:
+            - 'button "#C49A45 #C49A45, armonía 94%" [pressed] [ref=f2e49] [cursor=pointer]':
+              - generic [ref=f2e51]: "#C49A45"
+              - generic [ref=f2e52]: "#C49A45"
+              - generic [ref=f2e53]: 94%
+            - 'button "#865044 #865044, armonía 94%" [ref=f2e54] [cursor=pointer]':
+              - generic [ref=f2e56]: "#865044"
+              - generic [ref=f2e57]: "#865044"
+              - generic [ref=f2e58]: 94%
+            - 'button "#58624B #58624B, armonía 94%" [ref=f2e59] [cursor=pointer]':
+              - generic [ref=f2e61]: "#58624B"
+              - generic [ref=f2e62]: "#58624B"
+              - generic [ref=f2e63]: 94%
+            - 'button "#D5B5AB #D5B5AB, armonía 94%" [ref=f2e64] [cursor=pointer]':
+              - generic [ref=f2e66]: "#D5B5AB"
+              - generic [ref=f2e67]: "#D5B5AB"
+              - generic [ref=f2e68]: 94%
+            - 'button "#C98A7B #C98A7B, armonía 94%" [ref=f2e69] [cursor=pointer]':
+              - generic [ref=f2e71]: "#C98A7B"
+              - generic [ref=f2e72]: "#C98A7B"
+              - generic [ref=f2e73]: 94%
+          - generic [ref=f2e74]:
+            - generic [ref=f2e76]:
+              - strong [ref=f2e77]: "#C49A45 · #C49A45 · 94%"
+              - paragraph [ref=f2e78]: Tono del análisis simulado de tu cuenta.
+            - button "Copiar hex" [ref=f2e79] [cursor=pointer]
+      - generic [ref=f2e80]:
+        - generic [ref=f2e81]:
+          - heading "Tonos a distanciar del rostro" [level=2] [ref=f2e82]
+          - paragraph [ref=f2e83]: Longitudes de onda que crean refracciones desfavorables en tu fenotipo.
+          - generic [ref=f2e84]:
+            - generic [ref=f2e87]:
+              - strong [ref=f2e88]: Negro puro (#000000)
+              - paragraph [ref=f2e89]:
+                - text: Absorbe la luz facial y marca surcos.
+                - strong [ref=f2e90]: "Alternativa: Café espresso o carbón cálido."
+            - generic [ref=f2e93]:
+              - strong [ref=f2e94]: Azul glacial (#0033FF)
+              - paragraph [ref=f2e95]:
+                - text: Su frialdad apaga el subtono cálido.
+                - strong [ref=f2e96]: "Alternativa: Azul petróleo apagado."
+            - generic [ref=f2e99]:
+              - strong [ref=f2e100]: Fucsia neón (#FF007F)
+              - paragraph [ref=f2e101]:
+                - text: Contraste estridente que compite con la mirada.
+                - strong [ref=f2e102]: "Alternativa: Baya canela o coral empolvado."
+        - generic [ref=f2e103]:
+          - heading "Probador textil" [level=2] [ref=f2e104]
+          - paragraph [ref=f2e105]: El tejido cambia cómo se lee el color sobre la piel.
+          - group "Tejido" [ref=f2e106]:
+            - button "Seda" [ref=f2e107] [cursor=pointer]
+            - button "Lino" [ref=f2e108] [cursor=pointer]
+            - button "Lana" [ref=f2e109] [cursor=pointer]
+          - heading "Seda salvaje · terracota y nácar" [level=3] [ref=f2e110]
+          - paragraph [ref=f2e111]: Lustre suave que difumina el escote y potencia el subtono cálido sin destellos fríos.
+  - navigation "Navegación principal" [ref=f2e112]:
+    - tablist [ref=f2e113]:
+      - tab "Color" [selected] [ref=f2e114] [cursor=pointer]
+      - tab "Armario" [ref=f2e115] [cursor=pointer]
+      - tab "Makeup" [ref=f2e116] [cursor=pointer]
+      - tab "Piel" [ref=f2e117] [cursor=pointer]
+  - dialog "Mi cuenta":
+    - generic:
+      - heading "Mi cuenta" [level=2]
+      - paragraph: Sesión de Prueba navegador Worker. Tu armario es solo tuyo.
+      - generic:
+        - button "Cerrar sesión"
+        - button "Seguir"
+      - generic:
+        - paragraph: Tu dossier viaja con tu cuenta.
+        - group "Objetivos":
+          - button "Mis colores"
+          - button "Comprar mejor"
+          - button "Maquillaje"
+        - group "Joyería":
+          - button "Oro"
+          - button "Plata"
+          - button "Ambos"
+        - group "Estilos":
+          - button "Elegante"
+          - button "Minimalista"
+          - button "Natural"
+        - generic:
+          - button "Guardar preferencias"
+  - status

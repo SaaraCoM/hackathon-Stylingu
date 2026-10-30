@@ -1,0 +1,181 @@
+{
+  "base": "http://localhost:8787",
+  "at": "2026-10-28T08:20:26.761Z",
+  "userId": "6ae1b03c967fd57c32024dae",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/registro",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/yo",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/analyze",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/personal/photos",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/personal/analyze",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/perfil",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/f408d61a545037588637055dcb7b35ec384a183b8a8e2ccc1719c2d408ec7c97",
+      "status": 200,
+      "bytesVerified": 68
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/f408d61a545037588637055dcb7b35ec384a183b8a8e2ccc1719c2d408ec7c97",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/registro",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/personal/photos/f408d61a545037588637055dcb7b35ec384a183b8a8e2ccc1719c2d408ec7c97",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/perfil",
+      "status": 200
+    }
+  ],
+  "persistedAnalysis": {
+    "photos": {
+      "face": "/api/personal/photos/f408d61a545037588637055dcb7b35ec384a183b8a8e2ccc1719c2d408ec7c97",
+      "body": "/api/personal/photos/f3a64a8714f6b0b57f5e81f9fafa733267a277466cf823dfade964e6d11970da"
+    },
+    "colorimetry": {
+      "season": "Invierno Clarito",
+      "temperature": "cálido",
+      "contrast": "medio-bajo",
+      "chroma": "suave",
+      "harmony": 94,
+      "palette": [
+        "#58624B",
+        "#D5B5AB",
+        "#C98A7B",
+        "#C49A45",
+        "#865044"
+      ],
+      "primaryHex": "#58624B",
+      "avoid": [
+        {
+          "name": "Negro puro",
+          "hex": "#000000",
+          "why": "Absorbe la luz facial y marca surcos.",
+          "alt": "Café espresso o carbón cálido."
+        },
+        {
+          "name": "Azul glacial",
+          "hex": "#0033FF",
+          "why": "Su frialdad apaga el subtono cálido.",
+          "alt": "Azul petróleo apagado."
+        },
+        {
+          "name": "Fucsia neón",
+          "hex": "#FF007F",
+          "why": "Contraste estridente que compite con la mirada.",
+          "alt": "Baya canela o coral empolvado."
+        }
+      ]
+    },
+    "makeup": {
+      "faceShape": "corazón",
+      "eyeShape": "entrópion",
+      "eyelinerType": "sin delineado",
+      "shadowPlacement": "foco en cuenca",
+      "blushPlacement": "en pómulo alto",
+      "look": "Desfile",
+      "lipHex": "#58624B",
+      "blushHex": "#E29B88"
+    },
+    "outfit": {
+      "style": "Natural",
+      "silhouette": "Sastrería desestructurada",
+      "accent": "miel"
+    },
+    "source": "mock",
+    "analyzedAt": "2026-10-28T08:20:18.173Z"
+  }
+}
