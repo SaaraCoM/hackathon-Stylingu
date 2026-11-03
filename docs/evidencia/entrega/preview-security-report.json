@@ -1,0 +1,42 @@
+{
+  "base": "https://stylingu-free-preview.castellanomateossara.workers.dev",
+  "at": "2026-11-03T22:48:43.892Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/client.css",
+      "status": 200
+    },
+    {
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "path": "/api/ready",
+      "status": 200
+    },
+    {
+      "path": "/api/profile",
+      "status": 401
+    },
+    {
+      "path": "/.env",
+      "status": 404
+    }
+  ],
+  "release": "710a65688cbd7981",
+  "directBackend": 403,
+  "crossOrigin": 403,
+  "turnstileHuman": "Usuaria confirma registro real completo hasta la subida de fotos",
+  "rateLimits": {
+    "configurationVerified": true,
+    "sqlConcurrencyTestPassed": true,
+    "http429TestLocal": true,
+    "remote429Observed": false,
+    "note": "La muestra controlada de peticiones sin captcha fue rechazada con 403. El limite nativo es aproximado por centro de datos."
+  },
+  "passed": true
+}

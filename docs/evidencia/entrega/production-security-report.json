@@ -1,0 +1,40 @@
+{
+  "base": "https://hackathon-stylingu.castellanomateossara.workers.dev",
+  "at": "2026-11-03T22:50:17.866Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/client.css",
+      "status": 200
+    },
+    {
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "path": "/api/ready",
+      "status": 200
+    },
+    {
+      "path": "/api/profile",
+      "status": 401
+    },
+    {
+      "path": "/.env",
+      "status": 404
+    }
+  ],
+  "release": "710a65688cbd7981",
+  "directBackend": 403,
+  "missingCaptcha": 403,
+  "accessibility": [],
+  "browser": {
+    "responsive": true,
+    "noJavaScriptErrors": true,
+    "registrationSlides": true
+  },
+  "passed": true
+}

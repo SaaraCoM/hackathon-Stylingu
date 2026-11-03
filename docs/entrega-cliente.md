@@ -34,3 +34,35 @@ RLS en 16 tablas, sin grants de tabla a anon/authenticated/service_role; bucket 
 No es una certificación ni una prueba de penetración independiente. La protección limita abuso y protege la propiedad de datos, sin prometer ausencia absoluta de bots o vulnerabilidades. La clave Meta encontrada en una plantilla histórica debe rotarse en el proveedor antes de una entrega comercial; retirarla del archivo actual no invalida copias anteriores.
 
 Fuentes técnicas: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/ y https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/.
+
+## Resultado publicado
+
+URL: https://hackathon-stylingu.castellanomateossara.workers.dev
+
+Release: 710a65688cbd7981. Worker 2e5ea37c-a825-4a5c-9cb1-73ed4f854a58, desplegado al 100 %. Supabase stylingu-api versión 2, ACTIVE. Preview stylingu-preview-api versión 5.
+
+27 grupos de backend (incluyen integración HTTP, almacenamiento y controles nuevos), 24 comprobaciones DOM y 18 flujos de navegador locales correctos. Build comprimido 1,92 MB. Auditoría all-deploy sin bloqueos; aviso no bloqueante de localhost corresponde a URLs de desarrollo. El proceso Edge escucha en 3000.
+
+Producción: home, CSS, health y ready 200; perfil sin sesión 401; llamada directa a Edge sin firma 403; login sin captcha 403; /.env 404. CSP, frame-ancestors y secretos Worker confirmados. Registro publicado en móvil/escritorio sin errores JavaScript y sin infracciones automáticas A/AA. La usuaria confirmó el registro real de preview hasta llegar a subir fotos. El navegador automatizado recibió un reto humano y no lo resolvió.
+
+La muestra controlada sin captcha fue rechazada con 403. No se observó un 429 remoto en esa muestra: los límites nativos de Cloudflare son aproximados y por centro de datos. La configuración remota está activa y los rechazos 429, la firma y los contadores SQL se prueban localmente; no se presenta como una prueba de carga distribuida.
+
+La inferencia real Meta fue verificada en la publicación anterior; en esta entrega se comprobaron la integración y el nuevo cuestionario con IA simulada explícita en local. No se enviaron fotos personales del cliente durante las pruebas ni se modificaron sus cuentas.
+
+Evidencia: [preview](evidencia/entrega/preview-security-report.json), [producción](evidencia/entrega/production-security-report.json), [registro móvil](evidencia/entrega/produccion-registro-movil.png), [registro escritorio](evidencia/entrega/produccion-registro-escritorio.png). Los prompts y las rutas de los recursos creados están en [imagen-prompts.json](evidencia/entrega/imagen-prompts.json).
+
+## Requisitos externos para cerrar la entrega
+
+- La usuaria confirma que todavía no hay proveedor SMTP. La recuperación por email queda deshabilitada e indicada en la interfaz. Al contratar/configurar el proveedor: añadir SMTP_URL y MAIL_FROM a los secretos de Supabase, comprobar un email real y habilitar el botón con una nueva release.
+- Rotar la clave Meta que estuvo en una plantilla versionada: generar una nueva en el proveedor, sustituir META_AI_API_KEY en Supabase Edge Functions > Secrets, comprobar un análisis y revocar la anterior. No pegar claves en el chat. Esta operación requiere acceso al proveedor; los conectores actuales no administran esos secretos.
+- Confirmar titularidad y accesos de Cloudflare/Supabase con el cliente; realizar las invitaciones desde cada panel. No compartir archivos .env ni la clave privada del proxy.
+
+## Operación y reversión
+
+Logs: npx.cmd wrangler tail --config wrangler.free.jsonc. Para restaurar esta versión del Worker: npx.cmd wrangler rollback 2e5ea37c-a825-4a5c-9cb1-73ed4f854a58 --config wrangler.free.jsonc.
+
+Una reversión al Worker antiguo sin firma exige coordinar también la versión de Edge; de lo contrario se rechazará su tráfico. Preferir una release corregida que mantenga las protecciones. No revertir SQL ni borrar datos para deshacer una interfaz.
+
+La clave pública del proxy está en edge/proxy-key.js; la privada se conserva solo como secreto EDGE_SIGNING_KEY en Workers y en el artefacto local ignorado deploy/free/proxy-private.json. Para reconstruir basta la pública; no hace falta exportar la privada. El MCP debe conservar las vinculaciones secret_text y durable_object_namespace y la exportación legacy StylinguContainer, sin invocarla. TURNSTILE_SECRET es secreto; TURNSTILE_SITE_KEY es público.
+
+Los recursos locales de datos no se han copiado. Se conservan las cuentas creadas por personas en preview/producción. No se han activado planes de pago.
