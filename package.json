@@ -12,9 +12,10 @@
     "check": "node scripts/check.mjs",
     "dev:db": "node scripts/dev-db.mjs",
     "migrate": "node scripts/migrate.mjs",
-    "deploy:dry": "wrangler deploy --dry-run --containers-rollout=none",
-    "deploy:preview": "wrangler deploy --name stylingu-preview --secrets-file .env.production",
-    "deploy": "wrangler deploy --secrets-file .env.production"
+    "deploy:dry": "npm run build:free && wrangler deploy --config wrangler.free.jsonc --dry-run",
+    "deploy:preview": "npm run build:free && wrangler deploy --config wrangler.free.jsonc --name stylingu-free-preview --var BACKEND_URL:https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-preview-api",
+    "deploy": "npm run build:free && wrangler deploy --config wrangler.free.jsonc",
+    "build:free": "node scripts/build-free.mjs"
   },
   "dependencies": {
     "@cloudflare/containers": "^0.3.7",

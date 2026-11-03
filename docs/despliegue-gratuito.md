@@ -7,7 +7,7 @@ Se conservan la SPA editorial, navegación, contratos /api, sesiones de Express,
 modelo Postgres y fotos privadas ya creados en el proyecto Stylingu. La base
 empieza vacía. El staging existente con Supabase Auth queda independiente.
 
-Cloudflare Worker sirve los 35 archivos públicos y reenvía /api a una Edge
+Cloudflare Worker sirve los 36 archivos públicos y reenvía /api a una Edge
 Function de Supabase. No se usan Containers, Hyperdrive de pago ni Docker.
 El build empaqueta los recursos del frontend; verifica tamaño comprimido dentro
 del límite gratuito antes de desplegar. El Worker conserva el dominio propio
@@ -69,3 +69,13 @@ Fuentes:
 ## Estado de datos
 
 La copia de usuarios, sesiones, trabajos y fotografías locales está cancelada por instrucción de la usuaria. No ejecutar scripts/transfer-to-supabase.mjs --apply. El entorno publicado empieza con la base remota vacía. Las cuentas sintéticas utilizadas en la preview se eliminan al finalizar las pruebas.
+
+## Verificación local
+
+- Backend: 22 grupos de pruebas pasan con SQL, aislamiento y adaptadores gratuitos.
+- Interfaz: 24/24 comprobaciones DOM y 15/15 en navegador real.
+- Worker: 1,23 MB comprimido tras optimizar las fotos editoriales en el build.
+- Meta: la usuaria confirma el secreto guardado en Supabase; se verificará en la preview.
+- La auditoría exige documentar SUPABASE_DB_URL en la plantilla aunque la inyecte Supabase. Diff mostrado y aprobación pendiente.
+
+Los comandos npm deploy, deploy:preview y deploy:dry usan wrangler.free.jsonc y ya no envían el archivo de secretos a Cloudflare. El despliegue de Edge Functions se realiza por MCP con los paquetes de deploy/free. Estos paquetes contienen código, nunca valores privados.
