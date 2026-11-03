@@ -16,7 +16,8 @@ outer.use(async(req,res,next)=>{
   const prefix='/'+functionName;if(req.url!==prefix&&!req.url.startsWith(prefix+'/'))return res.status(404).json({code:'NOT_FOUND'});
   const body=Buffer.isBuffer(req.body)?req.body:Buffer.alloc(0);
   const origin=req.get('X-Stylingu-Origin'),ip=req.get('X-Stylingu-IP');
-  const valid=origin===publicOrigin&&ip&&await verifyProxy({method:req.method,path:req.originalUrl,origin,ip,time:req.get('X-Stylingu-Time'),body,cookie:req.get('Cookie')||'',contentType:req.get('Content-Type')||''},req.get('X-Stylingu-Signature'),proxyPublicKey);
+  // Supabase retira /functions/v1 antes de entregar la ruta a Express.
+  const valid=origin===publicOrigin&&ip&&await verifyProxy({method:req.method,path:'/functions/v1'+req.originalUrl,origin,ip,time:req.get('X-Stylingu-Time'),body,cookie:req.get('Cookie')||'',contentType:req.get('Content-Type')||''},req.get('X-Stylingu-Signature'),proxyPublicKey);
   if(!valid)return res.status(403).set('Cache-Control','no-store').json({code:'PROXY_DENIED',error:'Acceso no permitido.'});
   req.verifiedClientIp=ip;req.url=req.url.slice(prefix.length)||'/';
   if(!['GET','HEAD','OPTIONS'].includes(req.method)&&req.get('Origin')!==publicOrigin)return res.status(403).json({code:'ORIGIN_DENIED'});
