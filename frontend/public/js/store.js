@@ -26,7 +26,7 @@ function clearPersonalState() {
  personalState.tutorials=[];personalState.catalog=[];personalState.scanner=null;
 }
 clearPersonalData();
-function requestTimeout(path) {return LONG_REQUEST.test(path)?CLIENT_TIMEOUT.long:CLIENT_TIMEOUT.short;}
+function requestTimeout(path) {return LONG_REQUEST.test(path)||/^\/auth\/(registro|login|forgot-password|reset-password)$/.test(path)?CLIENT_TIMEOUT.long:CLIENT_TIMEOUT.short;}
 async function apiFetch(path,opts={}) {
  const epoch=accountEpoch;
  const release=typeof requestScreen==='undefined'?()=>{}:requestScreen.begin(path.includes('/personal/')?'Cuidando tu análisis personal…':'Conectando con tu espacio…');

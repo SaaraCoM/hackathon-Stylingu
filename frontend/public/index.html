@@ -618,10 +618,11 @@
       <p class="error" id="accountError" role="alert" hidden></p>
       <div class="row">
         <button class="btn primary" id="loginBtn" type="button">Entrar</button>
-        <button class="btn" id="forgotPasswordBtn" type="button">Recuperar contraseña</button><button class="btn" id="registerBtn" type="button">Crear cuenta</button>
+        <button class="btn" id="forgotPasswordBtn" type="button" disabled aria-describedby="recoveryPending">Recuperar contraseña</button><button class="btn" id="registerBtn" type="button">Crear cuenta</button>
         <button class="btn" id="closeAccountBtn" type="button">Cerrar</button>
       </div>
     </div>
+    <p class="fine" id="recoveryPending">La recuperación por email aún no está disponible. Conserva tu contraseña en un gestor seguro.</p>
     <div class="row" id="accountOut" hidden>
       <label>Escribe ELIMINAR para borrar tu cuenta y sus datos<input id="deleteConfirmation" autocomplete="off" /></label><button class="btn" id="deleteAccountBtn" type="button">Eliminar cuenta y datos</button><button class="btn" id="logoutBtn" type="button">Cerrar sesión</button>
       <button class="btn primary" id="closeAccountBtn2" type="button">Seguir</button>

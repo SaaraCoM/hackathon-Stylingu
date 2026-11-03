@@ -24,6 +24,7 @@ const localDate=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padSt
   assert.equal(w.testStore.requestTimeout('/scans'),125000);
   assert.ok(w.testStore.requestTimeout('/personal/analyze')>120000);
   assert.equal(w.testStore.requestTimeout('/garments'),20000);
+  assert.equal(w.testStore.requestTimeout('/auth/registro'),125000);
  });
 
  /* --- Perfil versionado y conjuntos externos --- */
