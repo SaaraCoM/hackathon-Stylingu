@@ -79,3 +79,41 @@ La copia de usuarios, sesiones, trabajos y fotografías locales está cancelada 
 - La auditoría exige documentar SUPABASE_DB_URL en la plantilla aunque la inyecte Supabase. Diff aprobado y aplicado.
 
 Los comandos npm deploy, deploy:preview y deploy:dry usan wrangler.free.jsonc y ya no envían el archivo de secretos a Cloudflare. El despliegue de Edge Functions se realiza por MCP con los paquetes de deploy/free. Estos paquetes contienen código, nunca valores privados.
+
+## Producci?n publicada el 3 de noviembre de 2026
+
+URL: https://hackathon-stylingu.castellanomateossara.workers.dev
+
+- Release del backend: 4dbdf0bfdb32aeba. C?digo validado: bcba012.
+- Worker: d237082c-aabd-4a4c-8c81-4f4e03eddef2 (100 %).
+- Funci?n stylingu-api: versi?n 1, ACTIVE, proyecto zbfxwbuuuzjzmsrraxkf.
+- Home, cuatro hojas CSS, health y ready: HTTP 200. Rutas privadas sin sesi?n: 401; origen ajeno: 403; /.env: 404.
+- Preview: 40 peticiones de prueba, fotos privadas, aislamiento, an?lisis real Meta, calendario persistente y accesibilidad sin infracciones detectadas.
+- No se importaron datos locales ni se activaron planes de pago. Las cuentas sint?ticas se eliminan; las dem?s cuentas se conservan.
+- SMTP pendiente: la recuperaci?n de contrase?a necesita un transporte real.
+
+### Operaci?n
+
+Logs, desde este repositorio con Wrangler autenticado:
+
+```powershell
+npx.cmd wrangler tail --config wrangler.free.jsonc
+```
+
+Reversi?n del Worker (sintaxis comprobada con la CLI local):
+
+```powershell
+npx.cmd wrangler rollback 906549ca-a1ed-4c90-80ce-1778a72c3765 --config wrangler.free.jsonc
+```
+
+La versi?n anterior era el scaffold de Containers y no presta el backend gratuito: esta reversi?n deshace c?digo pero no garantiza servicio funcional. Preferir redesplegar una release gratuita conocida. Ninguna reversi?n del Worker elimina tablas o fotos. La funci?n de producci?n es su primera versi?n; conservar deploy/free/stylingu-api.json para restaurarla por MCP.
+
+Para futuras subidas por MCP al Worker existente, incluir en metadata `exports: {StylinguContainer: {type: "durable-object", storage: "sqlite"}}` y conservar la vinculaci?n durable_object_namespace. Se mantiene el namespace anterior sin invocarlo ni borrarlo. BACKEND_URL apunta a stylingu-api; las claves permanecen solo en Supabase.
+
+### Resultado final comprobado
+
+Registro, login, logout desde la UI, recarga sin sesion y acceso autenticado: correctos en produccion. Fotos privadas entre dos cuentas: correcto. Inferencia Meta real y calendario persistente: correctos. Cuentas QA eliminadas al terminar.
+
+La prueba integral de produccion se detuvo en accesibilidad: axe detecto color-contrast serio en 36 nodos una vez cargadas imagenes y fuentes. Es un pendiente visual confirmado; el informe no declara passed=true. El informe previo sin infracciones se obtuvo antes de completar la animacion y no demuestra conformidad de contraste. SMTP y esta correccion de contraste quedan pendientes.
+
+Evidencia: [informe integral](evidencia/despliegue/production-report.json), [autenticacion](evidencia/despliegue/production-auth-report.json), [movil](evidencia/despliegue/production-mobile.png), [escritorio](evidencia/despliegue/production-desktop.png). Las capturas muestran una cuenta sintetica y fotografias ficticias generadas para pruebas.

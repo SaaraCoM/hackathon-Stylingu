@@ -1,5 +1,7 @@
 # Despliegue en Cloudflare Containers
 
+Documento hist?rico. La publicaci?n activa usa Worker gratuito y Supabase Edge: ver [despliegue-gratuito.md](despliegue-gratuito.md).
+
 Estado: scaffolding listo y validado con `wrangler deploy --dry-run --containers-rollout=none`.
 No se ha desplegado todavía: faltan Docker, sesión de Wrangler, plan Workers Paid y
 las credenciales remotas de Postgres/Storage.

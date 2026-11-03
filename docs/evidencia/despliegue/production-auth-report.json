@@ -1,0 +1,43 @@
+{
+  "base": "https://hackathon-stylingu.castellanomateossara.workers.dev",
+  "checks": [
+    {
+      "method": "POST",
+      "path": "/api/auth/registro",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/account",
+      "status": 200
+    }
+  ],
+  "browser": {
+    "newAccountGate": true,
+    "logoutViaUI": true,
+    "reloadLoggedOut": true,
+    "noJavaScriptErrors": true
+  },
+  "passed": true,
+  "syntheticAccountDeleted": true
+}
