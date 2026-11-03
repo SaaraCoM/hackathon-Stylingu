@@ -6,3 +6,7 @@ Licencia: MIT. Si redistribuyes, modificas o publicas una versión derivada
 de este proyecto, debes conservar este aviso, el aviso de copyright y el
 crédito visible al autor original.
 <!-- marca-agua:fin -->
+
+Adaptación local: se describe en prosa el ejemplo Python del docstring de
+env_extract.py para que el extractor no identifique su propio ejemplo como una
+variable requerida. No se modifican patrones, comprobaciones ni niveles de bloqueo.

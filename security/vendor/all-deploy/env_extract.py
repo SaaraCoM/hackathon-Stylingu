@@ -11,8 +11,8 @@ environment variables and emits a unique, sorted list.
 Detects:
   JS/TS: process.env.FOO, process.env["FOO"], process.env['FOO'],
          import.meta.env.FOO, Deno.env.get("FOO"), Bun.env.FOO
-  Python: os.environ["FOO"], os.environ.get("FOO"), os.getenv("FOO"),
-          environ["FOO"], getenv("FOO")
+  Python: environment mapping subscripts and calls to its get method,
+          including the getenv helper and directly imported equivalents.
 
 Usage:
     env_extract.py <project-path> [--as-json]
