@@ -40,7 +40,7 @@ for(const file of [...await walk('backend/src'),...await walk('shared')].filter(
   if(name==='backend/src/middleware/rateLimit.js')content="export {apiLimiter,authLimiter,aiLimiter} from '../../../edge/rate-limit.js';";
   files.push({name,content});
 }
-for(const file of ['edge/images.js','edge/image-bounds.js','edge/rate-limit.js']){
+for(const file of ['edge/images.js','edge/image-bounds.js','edge/rate-limit.js','edge/runtime-config.js']){
   let content=await fs.readFile(path.join(root,file),'utf8');
   if(file==='edge/rate-limit.js')content=content.replace("'../backend/node_modules/express-rate-limit/dist/index.mjs'","'express-rate-limit'");
   files.push({name:file,content});

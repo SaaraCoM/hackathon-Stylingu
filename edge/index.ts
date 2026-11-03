@@ -3,22 +3,11 @@ import {Buffer} from 'node:buffer';
 globalThis.Buffer??=Buffer;
 globalThis.process??=process;
 import express from 'express';
+import {configureNodeRuntime} from './edge/runtime-config.js';
 
 const functionName='__FUNCTION_NAME__';
 const publicOrigin='__PUBLIC_ORIGIN__';
-process.env.NODE_ENV='production';
-process.env.DATABASE_URL=Deno.env.get('SUPABASE_DB_URL')||'';
-process.env.SUPABASE_URL=Deno.env.get('SUPABASE_URL')||'';
-process.env.SUPABASE_SERVICE_ROLE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
-process.env.META_AI_API_KEY=Deno.env.get('META_AI_API_KEY')||Deno.env.get('MODEL_API_KEY')||'';
-process.env.MODEL_API_KEY=process.env.META_AI_API_KEY;
-process.env.SMTP_URL=Deno.env.get('SMTP_URL')||'';
-process.env.MAIL_FROM=Deno.env.get('MAIL_FROM')||'';
-process.env.PUBLIC_ORIGIN=publicOrigin;
-process.env.TRUST_PROXY='0';
-process.env.PG_POOL_MAX='2';
-process.env.AI_PROVIDER='meta';
-process.env.RELEASE_VERSION='free-edge-v1';
+configureNodeRuntime(process,name=>Deno.env.get(name),{publicOrigin,release:'free-edge-v1'});
 
 const {default:api}=await import('./backend/src/index.js');
 const {products}=await import('./backend/src/product.js');
