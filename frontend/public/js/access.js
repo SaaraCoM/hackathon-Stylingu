@@ -12,7 +12,7 @@ function renderAccess() {
   document.getElementById('gateStatus').textContent = accessChecking ? 'Comprobando tu cuenta…'
     : accessError || (logged ? 'Necesitamos completar el análisis de tus fotos para continuar.' : 'Entra o crea tu cuenta para empezar.');
   document.getElementById('gateAccountBtn').hidden = !logged || accessChecking;
-  document.getElementById('accountPrefs').hidden = !ready;
+  document.getElementById('accountPrefs').hidden = !logged;
 }
 document.getElementById('gateContinueBtn').addEventListener('click', () => {
   if (accessError) { restoreAccount(); return; }

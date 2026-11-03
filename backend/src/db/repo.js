@@ -49,10 +49,10 @@ export async function credentialsByEmail(email) {
   return rows[0] || null;
 }
 
-export async function createUser({ name, email, passwordHash, birthDate }) {
+export async function createUser({ name, email, passwordHash, birthDate, preferences={goals:[],jewelry:'',styles:[]}, profile={version:0,visualVersion:0,declared:{},corrections:[]} }) {
   const { rows } = await query(
-    `insert into users (name, email, password_hash, birth_date) values ($1,$2,$3,$4) returning ${USER_FIELDS}`,
-    [name, email, passwordHash, birthDate]
+    `insert into users (name, email, password_hash, birth_date, preferences, profile) values ($1,$2,$3,$4,$5::jsonb,$6::jsonb) returning ${USER_FIELDS}`,
+    [name, email, passwordHash, birthDate, JSON.stringify(preferences), JSON.stringify(profile)]
   );
   return rows[0];
 }

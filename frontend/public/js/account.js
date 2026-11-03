@@ -29,10 +29,10 @@ function renderAccount() {
   const logged = !!currentUser;
   accountForm.hidden = logged;
   accountOut.hidden = !logged;
-  if (accountPrefs) accountPrefs.hidden = !logged || !store.getAnalysis();
+  if (accountPrefs) accountPrefs.hidden = !logged;
   accountError.hidden = true;
   if (logged) renderPrefs();
-  document.getElementById("accountBtn").textContent = logged ? currentUser.name : "Mi cuenta";
+  document.getElementById("accountBtn").textContent = "Mi perfil";
   accountState.textContent = logged
     ? `Sesión de ${currentUser.name}. Tu armario es solo tuyo.`
     : "Entra o crea tu cuenta para guardar tus fotos y completar el análisis.";
@@ -59,12 +59,15 @@ function openAccount() {
     birth.min = "1900-01-01";
   }
   renderAccount();
+  if(currentUser && typeof loadPersonal==='function')loadPersonal();
   accountModal.classList.add("open");
+  document.getElementById("appShell").inert=true;document.getElementById("analysisGate").inert=true;
   (currentUser ? document.getElementById("logoutBtn") : document.getElementById("accountEmail")).focus();
 }
 
 function closeAccount() {
   accountModal.classList.remove("open");
+  document.getElementById("appShell").inert=false;document.getElementById("analysisGate").inert=false;
   if (accountLastFocus && accountLastFocus.focus) accountLastFocus.focus();
 }
 
@@ -174,7 +177,7 @@ function ageFromBirthDate(value) {
   return age >= 0 ? age : null;
 }
 
-async function submitAuth(path) {
+async function submitAuth(path, registration={}) {
   accountError.hidden = true;
   const name = document.getElementById("accountName").value.trim().slice(0, 60);
   const email = document.getElementById("accountEmail").value.trim();
@@ -208,7 +211,7 @@ async function submitAuth(path) {
     accessError = '';
     renderAccess();
     const body = path === "/auth/registro"
-      ? { name, email, password, birthDate }
+      ? { name, email, password, birthDate, ...registration }
       : { email, password };
     const { user } = await api(path, { method: "POST", body: JSON.stringify(body) });
     currentUser = user;
@@ -228,7 +231,8 @@ async function submitAuth(path) {
       toast("Sesión lista. Tu armario sigue en local.");
     }
     closeAccount();
-    if (!accessError && (consultationPending || !store.getAnalysis())) showConsultation();
+    if(path!=='/auth/registro' && !accessError && (consultationPending || !store.getAnalysis())) showConsultation();
+    return true;
   } catch (err) {
     accountError.textContent = err.message;
     accountError.hidden = false;
@@ -246,7 +250,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && accountModal.classList.contains("open")) closeAccount();
 });
 document.getElementById("loginBtn").addEventListener("click", () => submitAuth("/auth/login"));
-document.getElementById("registerBtn").addEventListener("click", () => submitAuth("/auth/registro"));
+document.getElementById("registerBtn").addEventListener("click", () => openJourney());
 
 // Edición del dossier desde Mi cuenta (chips con aria-pressed).
 document.querySelectorAll("[data-pgoal]").forEach((b) => b.addEventListener("click", () => {

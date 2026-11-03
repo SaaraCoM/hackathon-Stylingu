@@ -15,8 +15,11 @@ export class DatabaseStore{
   async decrement(key){await query('update private_runtime.request_limits set hits=greatest(1,hits-1) where key=$1',[this.key(key)]);}
   async resetKey(key){await query('delete from private_runtime.request_limits where key=$1',[this.key(key)]);}
 }
-// Los límites anónimos son compartidos: no se confía en IPs reenviadas por clientes.
+// La IP solo se usa tras verificar la firma del Worker; nunca viene del navegador.
 const common={windowMs:60000,standardHeaders:true,legacyHeaders:false};
-export const apiLimiter=rateLimit({...common,max:180,keyGenerator:()=> 'global',store:new DatabaseStore('api'),message:{code:'RATE_LIMITED',error:'Demasiadas solicitudes. Espera un minuto.'}});
-export const authLimiter=rateLimit({...common,max:10,keyGenerator:()=> 'global',store:new DatabaseStore('auth'),message:{code:'RATE_LIMITED',error:'Demasiados intentos. Espera un minuto.'}});
+const perIpLimiter=rateLimit({...common,max:120,keyGenerator:req=>req.verifiedClientIp||'unverified',store:new DatabaseStore('api'),message:{code:'RATE_LIMITED',error:'Demasiadas solicitudes. Espera un minuto.'}});
+export const authLimiter=rateLimit({...common,max:10,keyGenerator:req=>req.verifiedClientIp||'unverified',store:new DatabaseStore('auth'),message:{code:'RATE_LIMITED',error:'Demasiados intentos. Espera un minuto.'}});
 export const aiLimiter=rateLimit({...common,max:5,keyGenerator:req=>req.sessionUser||'anonymous',store:new DatabaseStore('ai'),message:{code:'RATE_LIMITED',error:'Demasiadas solicitudes IA. Reintenta en un minuto.'}});
+
+const globalLimiter=rateLimit({...common,max:1200,keyGenerator:()=> 'all',store:new DatabaseStore('api-global'),message:{code:'RATE_LIMITED',error:'Servicio ocupado. Reintenta en un minuto.'}});
+export const apiLimiter=[globalLimiter,perIpLimiter];

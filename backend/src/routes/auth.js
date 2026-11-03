@@ -8,6 +8,7 @@ import { authLimiter } from "../middleware/rateLimit.js";
 import { ageFromBirthDate, MIN_AGE } from "../age.js";
 
 import { cleanPrefs, analysisForProfile } from '../../../shared/personal-service.js';
+import {cleanProfile,nextProfile} from '../../../shared/product-domain.js';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const router = express.Router();
 router.use(async (req, res, next) => {
@@ -38,8 +39,9 @@ router.post("/registro", async (req, res) => {
     return res.status(503).json({ error: "Sin base de datos: el registro llegará con tu cuenta." });
   }
   const { name, email, password, birthDate, analysis } = req.body ?? {};
-  const emailStr = String(email ?? "").toLowerCase().trim();
-  if (!name || !email || !password) {
+  if(typeof email!=='string'||typeof password!=='string'||email.length>160)return res.status(400).json({error:'Credenciales no válidas.'});
+  const emailStr = email.toLowerCase().trim();
+  if (typeof name!=='string'||!name.trim()||name.length>60||/[<>\u0000]/.test(name)||!email||!password) {
     return res.status(400).json({ error: "name, email y password son requeridos." });
   }
   if (!EMAIL_RE.test(emailStr)) return res.status(400).json({ error: "Email no válido." });
@@ -61,11 +63,13 @@ router.post("/registro", async (req, res) => {
   const exists = await repo.userByEmail(emailStr);
   if (exists) return res.status(409).json({ error: "Ese email ya tiene cuenta." });
 
+  const preferences=cleanPrefs(req.body.preferences||{});
+  const profile=nextProfile({version:0,visualVersion:0,declared:{},corrections:[]},cleanProfile(req.body.declared||{}));
   const user = await repo.createUser({
     name: String(name).slice(0, 60),
     email: emailStr,
     passwordHash: await bcrypt.hash(String(password), 12),
-    birthDate
+    birthDate, preferences, profile
   });
   await createSession(req, res, user._id);
   return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email } });

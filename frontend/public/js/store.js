@@ -29,9 +29,15 @@ clearPersonalData();
 function requestTimeout(path) {return LONG_REQUEST.test(path)?CLIENT_TIMEOUT.long:CLIENT_TIMEOUT.short;}
 async function apiFetch(path,opts={}) {
  const epoch=accountEpoch;
- const response=await fetch(API+'/api'+path,{credentials:'include',...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout(path))});
+ const release=typeof requestScreen==='undefined'?()=>{}:requestScreen.begin(path.includes('/personal/')?'Cuidando tu análisis personal…':'Conectando con tu espacio…');
+ const controller=new AbortController();if(typeof requestScreen!=='undefined')requestScreen.controllers.add(controller);
+ const signal=AbortSignal.any([controller.signal,opts.signal||AbortSignal.timeout(requestTimeout(path))]);
+ try{const headers=new Headers(opts.headers||{});
+ if(/^\/auth\/(registro|login|forgot-password|reset-password)$/.test(path)&&typeof botToken==='function'){const token=await botToken(path,signal);if(token)headers.set('X-Turnstile-Token',token);}
+ const response=await fetch(API+'/api'+path,{credentials:'include',...opts,headers,signal});
  if(epoch!==accountEpoch)throw new Error('La cuenta cambió durante la solicitud.');
  return response;
+ }finally{if(typeof requestScreen!=='undefined')requestScreen.controllers.delete(controller);release();}
 }
 function hasCompleteAnalysis(a) {
  return !!(a?.analyzedAt&&Number.isFinite(Date.parse(a.analyzedAt))&&a.photos?.face&&a.photos?.body&&a.colorimetry?.season&&Array.isArray(a.colorimetry.palette)&&a.colorimetry.palette.length&&a.colorimetry.palette.every(h=>/^#[a-f0-9]{6}$/i.test(h))&&Array.isArray(a.colorimetry.avoid)&&['faceShape','eyeShape','eyelinerType','shadowPlacement','blushPlacement'].every(k=>typeof a.makeup?.[k]==='string'&&a.makeup[k])&&a.outfit?.style&&a.outfit?.silhouette);

@@ -7,8 +7,7 @@ const require=createRequire(new URL('../backend/package.json',import.meta.url));
 const sharp=require('sharp');
 const root=fileURLToPath(new URL('../',import.meta.url)),pub=path.join(root,'frontend/public');
 await build({entryPoints:[path.join(root,'frontend/barcode-entry.js')],bundle:true,minify:true,format:'iife',outfile:path.join(pub,'js/barcode.js'),legalComments:'linked'});
-const svg=Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="112" fill="#865044"/><text x="256" y="340" text-anchor="middle" font-family="Georgia,serif" font-size="290" fill="#fff8f6">S</text></svg>');
-for(const size of [192,512])await sharp(svg).resize(size,size).png().toFile(path.join(pub,`assets/icon-${size}.png`));
+// Los iconos son recursos originales de la marca; el build no los sustituye.
 const walk=async dir=>(await Promise.all((await fs.readdir(dir,{withFileTypes:true})).map(async e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]))).flat();
 const files=await walk(pub);const cacheFiles=files.filter(p=>/\.(css|js|png|svg|jpg|json)$/.test(p)&&!p.endsWith('sw.js')).map(p=>'/'+path.relative(pub,p).split(path.sep).join('/'));
 const version=process.env.RELEASE_VERSION||new Date().toISOString().replace(/\W/g,'');

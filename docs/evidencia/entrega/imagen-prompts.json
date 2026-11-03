@@ -1,0 +1,42 @@
+{
+  "tool": "image_gen integrado",
+  "assets": [
+    [
+      "hero-portrait",
+      "Original bespoke still life for StylingU, a feminine personal style atelier: dusty rose satin ribbon, folded burgundy silk, unbranded curved hand mirror reflecting only light, handmade paper with subtle hand-drawn face outline, three cosmetic pigment strokes in rose/peach/mauve. Top-down editorial product photograph, warm ivory background, soft natural daylight, tactile luxurious but approachable composition, portrait canvas. No text no brands no watermark no people. Leave calm negative space upper third for white brand lettering."
+    ],
+    [
+      "lip-peach",
+      "Bespoke StylingU editorial macro beauty photograph of the lower half of an entirely fictional adult woman's face, medium warm skin with natural texture, soft coral-peach lipstick, neutral ivory background, diffused daylight. Refined non-sexual cosmetics education photography. No text no branding no watermark. Square crop. Distinct artistic study of peach color, not a product claim."
+    ],
+    [
+      "lip-mauve",
+      "Bespoke StylingU editorial macro beauty photograph of the lower half of an entirely fictional adult woman's face, rich brown skin with natural texture, muted mauve satin lipstick, dusty rose background, diffused daylight. Refined non-sexual cosmetics education photograph. No text no brands no watermark. Square composition."
+    ],
+    [
+      "lip-rose",
+      "Bespoke StylingU editorial macro beauty photograph of the lower half of an entirely fictional adult woman's face, olive skin with natural texture and understated deep rose lipstick, warm ivory backdrop, diffuse light. Artistic cosmetic color study, non-sexual, no text no brands no watermark. Square composition."
+    ],
+    [
+      "eye-lavender",
+      "Original StylingU beauty editorial close-up of one eye and eyebrow of a wholly fictional adult woman with medium skin, subtle lavender and taupe eyeshadow, precise soft plum eyeliner. Natural believable texture, neutral diffuse daylight, warm paper background. Educational cosmetic color reference only. No text no brands no watermark. Square composition."
+    ],
+    [
+      "eye-sage",
+      "Original StylingU beauty editorial close-up of one eye and eyebrow of a wholly fictional adult woman with deep brown skin, subtle sage and champagne eye makeup, realistic lashes and skin texture. Warm ivory studio background, soft diffuse daylight. Artistic educational color reference, no text no brands no watermark. Square composition."
+    ],
+    [
+      "skin-peach",
+      "Original StylingU beauty editorial crop of the cheek and jaw of a wholly fictional adult woman with freckles, natural warm medium skin texture, subtle peach blush applied high on cheekbone with soft natural glow. Muted warm ivory background, diffuse studio light. Cosmetics education photo, non-sexual, no text no brands no watermark. Square composition."
+    ],
+    [
+      "brand",
+      "Create an original brand monogram app icon for StylingU, a feminine personal style atelier. A single graceful lowercase letter s drawn with one continuous ribbon stroke, deep burgundy on a uniform warm blush ivory square field. The ribbon subtly suggests a draped fabric curve without extra objects. Crisp refined flat graphic, bold enough to read at 32 pixels, centered with generous margin, no words, no metallic gradients, no shadows, no stock symbols, no watermark. Square canvas."
+    ],
+    [
+      "preview",
+      "High fidelity UI design preview for StylingU, a Spanish personal style and color analysis web application. Show a polished desktop registration wizard and a mobile version alongside it on a single landscape canvas. A distinct feminine editorial atelier, warm ivory paper, dusty rose, deep burgundy high contrast text and buttons, existing refined serif headings and clean sans-serif UI. Desktop: left third an original artistic still-life composition of rose fabric ribbon, folded satin, carefully arranged makeup swatches, small curved mirror, no stock photos; right form with small stylingu wordmark, progress '02 / 05', title '¿Qué te gustaría descubrir?', supporting text 'Tu respuesta nos ayuda a dar prioridad a lo que te importa.', three selectable large rounded cards 'Mis colores', 'Maquillaje para mí', 'Vestir con intención', one visibly selected, clear burgundy 'Continuar' button and subtle 'Volver'. Phone same question stacked, no device branding. Add a small unobtrusive link 'Ya tengo cuenta'. Beautiful custom editorial spacing, usable accessible typography, no generic dashboard, no purple gradients, no fake charts. This is a design preview image only, keep Spanish copy legible."
+    ]
+  ],
+  "note": "Imágenes editoriales originales para StylingU. No sustituyen fotografías personales ni acreditan resultados o productos."
+}

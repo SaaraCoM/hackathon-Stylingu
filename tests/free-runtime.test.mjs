@@ -29,12 +29,13 @@ test('imágenes Edge: rechaza dimensiones excesivas y animación antes de descom
   await assert.rejects(()=>normalizePhoto({bytes:Buffer.from('<svg></svg>')}),e=>e.code==='INVALID_IMAGE');
 });
 test('Worker: recursos públicos, proxy de cookies y cabeceras reconstruidas',async()=>{
+  const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);const signingKey=JSON.stringify(await crypto.subtle.exportKey('jwk',pair.privateKey));
   const seen=[];const worker=createWorker({'/index.html':{type:'text/html',base64:Buffer.from('<h1>StylingU</h1>').toString('base64')}},async req=>{
     seen.push(req);assert.equal(await req.text(),'{}');return Response.json({ok:true},{headers:{'Set-Cookie':'stylingu_sid=test; HttpOnly; Secure; Path=/'}});
   });
   const root=await worker.fetch(new Request('https://stylingu-free-preview.castellanomateossara.workers.dev/'),{});assert.match(await root.text(),/StylingU/);
-  const response=await worker.fetch(new Request('https://stylingu-free-preview.castellanomateossara.workers.dev/api/auth/login?x=1',{method:'POST',body:'{}',headers:{Cookie:'stylingu_sid=existing','X-Stylingu-Origin':'https://attacker.test','X-Forwarded-For':'fake',Origin:'https://stylingu-free-preview.castellanomateossara.workers.dev'}}),{BACKEND_URL:'https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-preview-api'});
-  assert.equal(seen[0].url,'https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-preview-api/api/auth/login?x=1');
+  const response=await worker.fetch(new Request('https://stylingu-free-preview.castellanomateossara.workers.dev/api/garments?x=1',{method:'POST',body:'{}',headers:{Cookie:'stylingu_sid=existing','X-Stylingu-Origin':'https://attacker.test','X-Forwarded-For':'fake','CF-Connecting-IP':'192.0.2.4','Content-Type':'application/json',Origin:'https://stylingu-free-preview.castellanomateossara.workers.dev'}}),{EDGE_SIGNING_KEY:signingKey,API_GUARD:{limit:async()=>({success:true})},AUTH_GUARD:{limit:async()=>({success:true})},BACKEND_URL:'https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-preview-api'});
+  assert.equal(seen[0].url,'https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-preview-api/api/garments?x=1');
   assert.equal(seen[0].headers.get('X-Stylingu-Origin'),'https://stylingu-free-preview.castellanomateossara.workers.dev');assert.equal(seen[0].headers.get('X-Forwarded-For'),null);
   assert.equal(seen[0].headers.get('Cookie'),'stylingu_sid=existing');assert.match(response.headers.get('Set-Cookie'),/HttpOnly/);assert.match(response.headers.get('Cache-Control'),/no-store/);
   assert.equal((await worker.fetch(new Request('https://example.test/.env'),{})).status,404);

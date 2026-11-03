@@ -8,6 +8,7 @@ const consultationAccountBtn = document.getElementById('consultationAccountBtn')
 let consultationPending = false;
 let consultationLastFocus;
 let consultationBusy = false;
+let analysisAbort=null;
 const photoValues = { face: null, body: null };
 
 function clearConsultation() {
@@ -28,6 +29,7 @@ function showConsultation() {
   consultationState.textContent = currentUser ? 'Tus fotos se guardan en tu cuenta. Comprobando el proveedor…' : 'Selecciona tus fotos e inicia sesión para guardarlas y analizarlas.';
   consultationAccountBtn.hidden = !!currentUser;
   analyzeBtn.disabled = !currentUser;
+  document.getElementById('photoConsent').checked=false;
   const saved = store.getAnalysis();
   if (saved) {
     renderAnalysis(saved);
@@ -97,7 +99,8 @@ async function resumeAnalysisJob(id) {
  const epoch=accountEpoch;
  try {
   for(let poll=0;poll<240;poll++) {
-   const job=await api('/jobs/'+id);
+   if(analysisAbort?.signal.aborted)throw new Error('Consulta cancelada. El trabajo guardado se puede retomar.');
+   const job=await api('/jobs/'+id,{signal:analysisAbort?.signal});
    if(epoch!==accountEpoch)return;
    if(job.state==='completed') {
     const analysis=job.result?.analysis;
@@ -116,22 +119,25 @@ async function resumeAnalysisJob(id) {
 }
 analyzeBtn.addEventListener('click',async()=>{
  if(consultationBusy)return;
+ if(!document.getElementById('photoConsent').checked){showConsultationError('Confirma el envío a Meta antes de analizar tus fotos.');return;}
  if(!currentUser){showConsultationError('Inicia sesión para guardar tu análisis.');return;}
  const previous=store.getJob();if(previous?.id){resumeAnalysisJob(previous.id);return;}
  if((!photoValues.face||!photoValues.body)&&!store.getAnalysis()){showConsultationError('Sube una foto de cara y otra de cuerpo.');return;}
  if(!!photoValues.face!==!!photoValues.body){showConsultationError('Selecciona ambas fotos para sustituirlas.');return;}
+ analysisAbort=new AbortController();requestScreen.controllers.add(analysisAbort);
+ const releaseLoading=requestScreen.begin('Preparando tus fotos y tu análisis. Puede tardar hasta dos minutos…');
  consultationBusy=true;analyzeBtn.disabled=true;consultationError.hidden=true;
  try {
   if(photoValues.face&&photoValues.body){consultationState.textContent='Normalizando y guardando fotos…';await api('/personal/photos',{method:'POST',body:JSON.stringify(photoValues)});}
-  const userMeta={skinType:document.getElementById('consultSkin').value,stylePreferences:document.getElementById('consultStyle').value,allergies:document.getElementById('consultAllergies').value.split(',').map(s=>s.trim()).filter(Boolean)};
+  const userMeta={};
   const key=previous?.key||crypto.randomUUID();store.saveJob({key});
   const job=await api('/personal/analysis-jobs',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify({userMeta})});
   store.saveJob({key,id:job.id});consultationBusy=false;await resumeAnalysisJob(job.id);
  } catch(e){consultationState.textContent='No se ha completado la solicitud; el resultado anterior se conserva.';showConsultationError(e.message);}
- finally{consultationBusy=false;analyzeBtn.disabled=!currentUser;}
+ finally{requestScreen.controllers.delete(analysisAbort);analysisAbort=null;releaseLoading();consultationBusy=false;analyzeBtn.disabled=!currentUser;}
 });
 consultationAccountBtn.addEventListener('click', () => { hideConsultation(); consultationPending = true; openAccount(); });
-document.getElementById('openConsultBtn').addEventListener('click', showConsultation);
+document.getElementById('openConsultBtn').addEventListener('click', ()=>{closeAccount();showConsultation();});
 document.getElementById('closeConsultationBtn').addEventListener('click', hideConsultation);
 consultationModal.addEventListener('click', e => { if (e.target === consultationModal) hideConsultation(); });
 consultationModal.addEventListener('keydown', e => {

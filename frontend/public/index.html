@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="./figma.css" />
 <link rel="stylesheet" href="./product.css" />
 <link rel="stylesheet" href="./editorial.css" />
+<link rel="stylesheet" href="./client.css" />
 </head>
 <body>
 <section id="analysisGate" class="analysis-gate" aria-labelledby="gateTitle">
@@ -53,8 +54,8 @@
       </div>
     </nav>
     <div class="header-actions">
-      <button class="btn primary" id="openConsultBtn" type="button">Actualizar análisis</button>
-      <button class="btn account-button" id="accountBtn" type="button">Mi cuenta</button>
+
+      <button class="btn account-button" id="accountBtn" type="button">Mi perfil</button>
     </div>
   </div>
 </header>
@@ -131,7 +132,7 @@
         <div class="card photo-card" data-figma-node="3:64">
           <div class="section-meta"><span class="eyebrow">Evaluación cromática visual</span><span class="pill">Foto privada</span></div>
           <div class="photo-viewport"><img data-analysis-photo="face" alt="Tu foto de cara utilizada en el análisis" /><div class="photo-caption"><span id="photoSeason">Tu estación</span><div class="mini-palette" data-analysis-palette aria-hidden="true"></div></div></div>
-          <div class="photo-footer"><span>Guardada en tu cuenta</span><button class="text-button" data-open-consult type="button">Actualizar fotos ↗</button></div>
+          <div class="photo-footer"><span>Guardada en tu cuenta</span><button class="text-button" data-open-consult type="button" hidden>Actualizar fotos ↗</button></div>
         </div>
         <div class="card diagnosis-card" data-figma-node="3:129">
           <span class="pill rose"><span data-analysis-source>Sin análisis</span></span>
@@ -148,36 +149,7 @@
       </div>
     </section>
 
-    <section class="section" aria-labelledby="profileTitle">
-      <div class="section-head">
-        <div>
-          <p class="section-index">03 / Tu perfil</p>
-          <h2 id="profileTitle">Tu perfil, revisado por ti.</h2>
-          <p class="section-lede">El análisis propone; tú confirmas. Estos datos afinan las recomendaciones sin pedir nuevas fotos.</p>
-        </div>
-      </div>
-      <div class="card product-panel profile-panel">
-        <p id="profileVersion"></p>
-        <p id="profileObserved"></p>
-        <p id="analysisLimitations"></p>
-        <form id="profileForm" class="product-form">
-          <label>Cabello declarado<input id="profileHair" maxlength="100" placeholder="No determinado" /></label>
-          <label>Color de ojos declarado<input id="profileEyes" maxlength="100" placeholder="No determinado" /></label>
-          <label>Párpado (independiente de la forma del ojo)<input id="profileEyelid" maxlength="100" placeholder="No determinado" /></label>
-          <label>Cabello teñido<select id="profileDyed"><option value="">No determinado</option><option value="yes">Sí</option><option value="no">No</option></select></label>
-          <label>Estilo preferido<input id="profileStyle" maxlength="500" /></label>
-          <label>Acabado<select id="profileFinish"><option value="">Sin preferencia</option><option>brillo</option><option>mate</option><option>satinado</option></select></label>
-          <label>Intensidad<select id="profileIntensity"><option>no determinado</option><option>suave</option><option>media</option><option>intensa</option></select></label>
-          <label>Tipo de piel declarado<select id="profileSkin"><option>No lo sé</option><option>Seca</option><option>Grasa</option><option>Mixta</option><option>Normal</option></select></label>
-          <label>Presupuesto por producto<input id="profileBudget" type="number" min="0" max="100000" step="0.01" /></label>
-          <label>Moneda<select id="profileCurrency"><option>EUR</option><option>USD</option><option>GBP</option></select></label>
-          <label>Marcas preferidas, separadas por comas<input id="profileBrands" maxlength="500" /></label>
-          <label>Restricciones declaradas, separadas por comas<input id="profileRestrictions" maxlength="500" /></label>
-          <button class="btn primary" type="submit">Guardar cambios</button>
-        </form>
-        <p class="fine">Las fichas incompletas no permiten comprobar alergias. Un cambio de presupuesto no requiere nuevas fotos.</p>
-      </div>
-    </section>
+
 
     <section class="section" aria-labelledby="avoidTitle">
       <div class="section-head">
@@ -303,7 +275,7 @@
           <div class="section-meta"><span class="eyebrow">Tu fotografía corporal</span><span class="pill">Privada</span></div>
           <h2>Tu fotografía de referencia</h2>
           <div class="photo-viewport"><img data-analysis-photo="body" alt="Tu foto de cuerpo utilizada en el análisis" /></div>
-          <div class="photo-footer"><span>Referencia de estilo</span><button class="text-button" data-open-consult type="button">Actualizar toma ↗</button></div>
+          <div class="photo-footer"><span>Referencia de estilo</span><button class="text-button" data-open-consult type="button" hidden>Actualizar toma ↗</button></div>
         </div>
       </div>
     </section>
@@ -409,7 +381,7 @@
             <div class="look-swatch" id="lookBlushPreview" aria-hidden="true"></div>
           </div>
           <p class="fine">Consulta de tonos, sin simulación sobre la foto ni cámara en vivo.</p>
-          <button class="btn" data-open-consult type="button">Actualizar mi análisis</button>
+          <button class="btn" data-open-consult type="button" hidden>Actualizar mi análisis</button>
         </div>
       </div>
     </section>
@@ -613,7 +585,8 @@
           <img id="bodyPreview" class="thumb" alt="Vista previa de la foto de cuerpo" hidden />
         </div>
       </div>
-      <div class="product-form"><label>Tipo de piel<select id="consultSkin"><option>No lo sé</option><option>Seca</option><option>Grasa</option><option>Mixta</option><option>Normal</option></select></label><label>Preferencias de estilo<input id="consultStyle" maxlength="500" /></label><label>Restricciones o sensibilidades (separadas por comas)<input id="consultAllergies" maxlength="500" /></label></div>
+      <p class="fine">Tus respuestas se guardan en Mi perfil. Puedes revisarlas allí antes de actualizar el análisis.</p>
+      <label class="journey-privacy"><input id="photoConsent" type="checkbox" />Autorizo el envío de estas dos fotos y de mis preferencias a Meta para este análisis. No es un diagnóstico médico. Puedo eliminar mi cuenta y mis fotos desde Mi perfil.</label>
       <p class="error" id="consultationError" role="alert" hidden></p>
       <div class="row">
         <button class="btn primary" id="analyzeBtn" type="button">Analizar fotos</button>
@@ -625,63 +598,23 @@
   </div>
 </div>
 
-<div class="sheet" id="onboardSheet" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden>
-  <div class="sheet-box">
-    <p class="kicker" id="obStep" aria-live="polite">Paso 1 de 4 · Tu nombre</p>
-    <h2 id="obTitle">¿Cómo te llamamos?</h2>
-    <div class="ob-body">
-      <label class="visually-hidden" for="obName">Tu nombre</label>
-      <input id="obName" name="obName" type="text" placeholder="Tu nombre…" autocomplete="given-name" maxlength="60" />
-      <div class="ob-step" data-step="2" hidden>
-        <p class="muted">¿Qué quieres lograr?</p>
-        <div class="row" role="group" aria-label="Objetivos">
-          <button class="btn chip" data-goal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
-          <button class="btn chip" data-goal="compras" type="button" aria-pressed="false">Comprar mejor</button>
-          <button class="btn chip" data-goal="maquillaje" type="button" aria-pressed="false">Maquillaje</button>
-        </div>
-      </div>
-      <div class="ob-step" data-step="3" hidden>
-        <p class="muted">Sol y joyas: ¿qué te sienta?</p>
-        <div class="row" role="group" aria-label="Joyería">
-          <button class="btn chip" data-jewelry="dorado" type="button" aria-pressed="false">Dorado</button>
-          <button class="btn chip" data-jewelry="plateado" type="button" aria-pressed="false">Plateado</button>
-          <button class="btn chip" data-jewelry="ambos" type="button" aria-pressed="false">Ambos</button>
-        </div>
-        <div class="row" role="group" aria-label="Estilos" style="margin-top:8px">
-          <button class="btn chip" data-style="Elegante" type="button" aria-pressed="false">Elegante</button>
-          <button class="btn chip" data-style="Minimalista" type="button" aria-pressed="false">Minimalista</button>
-          <button class="btn chip" data-style="Natural" type="button" aria-pressed="false">Natural</button>
-        </div>
-      </div>
-      <div class="ob-step" data-step="4" hidden>
-        <p class="muted">Tu dossier de ejemplo ya está listo con la paleta Otoño Cálido Suave. Podrás cambiarlo cuando quieras.</p>
-        <p><span class="pill">Otoño Cálido Suave · 6 tonos</span></p>
-      </div>
-      <p class="error" id="obError" role="alert" hidden></p>
-    </div>
-    <div class="row">
-      <button class="btn primary" id="obNextBtn" type="button">Continuar</button>
-      <button class="btn" id="obBackBtn" type="button" disabled>Atrás</button>
-      <button class="btn link" id="obSkipBtn" type="button">Omitir</button>
-    </div>
-  </div>
-</div>
+<div id="onboardSheet" hidden></div>
 
-<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Mi cuenta">
+<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Mi perfil">
   <div class="modal-box">
     <p class="eyebrow">Tu cuenta</p>
-    <h2>Mi cuenta</h2>
+    <h2>Mi perfil</h2>
     <p class="muted" id="accountState">Tu armario vive en este dispositivo.</p>
     <div id="accountForm">
-      <label class="visually-hidden" for="accountName">Nombre</label>
-      <input id="accountName" name="accountName" type="text" placeholder="Nombre" autocomplete="given-name" maxlength="60" />
+      <label hidden class="visually-hidden" for="accountName">Nombre</label>
+      <input hidden id="accountName" name="accountName" type="text" placeholder="Nombre" autocomplete="given-name" maxlength="60" />
       <label class="visually-hidden" for="accountEmail">Email</label>
       <input id="accountEmail" name="accountEmail" type="email" placeholder="Email" autocomplete="email" maxlength="160" />
       <label class="visually-hidden" for="accountPassword">Contraseña</label>
       <input id="accountPassword" name="accountPassword" type="password" placeholder="Contraseña (8+ caracteres)" autocomplete="current-password" maxlength="200" />
-      <label class="account-birth" for="accountBirthDate"><span>Fecha de nacimiento · solo al crear cuenta</span></label>
-      <input id="accountBirthDate" name="accountBirthDate" type="date" autocomplete="bday" aria-describedby="accountBirthHelp" />
-      <p class="account-birth-help" id="accountBirthHelp">Debes tener al menos 16 años para registrarte. La fecha no se muestra en tu perfil.</p>
+      <label hidden class="account-birth" for="accountBirthDate"><span>Fecha de nacimiento · solo al crear cuenta</span></label>
+      <input hidden id="accountBirthDate" name="accountBirthDate" type="date" autocomplete="bday" aria-describedby="accountBirthHelp" />
+      <p hidden class="account-birth-help" id="accountBirthHelp">Debes tener al menos 16 años para registrarte. La fecha no se muestra en tu perfil.</p>
       <p class="error" id="accountError" role="alert" hidden></p>
       <div class="row">
         <button class="btn primary" id="loginBtn" type="button">Entrar</button>
@@ -693,7 +626,36 @@
       <label>Escribe ELIMINAR para borrar tu cuenta y sus datos<input id="deleteConfirmation" autocomplete="off" /></label><button class="btn" id="deleteAccountBtn" type="button">Eliminar cuenta y datos</button><button class="btn" id="logoutBtn" type="button">Cerrar sesión</button>
       <button class="btn primary" id="closeAccountBtn2" type="button">Seguir</button>
     </div>
-    <div id="accountPrefs" hidden>
+    <div id="accountPrefs" hidden><div id="profilePhotoActions"><button class="btn primary" id="openConsultBtn" type="button">Actualizar mis fotos y análisis</button></div><details><summary>Mis datos y preferencias de análisis</summary>    <section class="section" aria-labelledby="profileTitle">
+      <div class="section-head">
+        <div>
+          <p class="section-index">03 / Tu perfil</p>
+          <h2 id="profileTitle">Tu perfil, revisado por ti.</h2>
+          <p class="section-lede">El análisis propone; tú confirmas. Estos datos afinan las recomendaciones sin pedir nuevas fotos.</p>
+        </div>
+      </div>
+      <div class="card product-panel profile-panel">
+        <p id="profileVersion"></p>
+        <p id="profileObserved"></p>
+        <p id="analysisLimitations"></p>
+        <form id="profileForm" class="product-form">
+          <label>Cabello declarado<input id="profileHair" maxlength="100" placeholder="No determinado" /></label>
+          <label>Color de ojos declarado<input id="profileEyes" maxlength="100" placeholder="No determinado" /></label>
+          <label>Párpado (independiente de la forma del ojo)<input id="profileEyelid" maxlength="100" placeholder="No determinado" /></label>
+          <label>Cabello teñido<select id="profileDyed"><option value="">No determinado</option><option value="yes">Sí</option><option value="no">No</option></select></label>
+          <label>Estilo preferido<input id="profileStyle" maxlength="500" /></label>
+          <label>Acabado<select id="profileFinish"><option value="">Sin preferencia</option><option>brillo</option><option>mate</option><option>satinado</option></select></label>
+          <label>Intensidad<select id="profileIntensity"><option>no determinado</option><option>suave</option><option>media</option><option>intensa</option></select></label>
+          <label>Tipo de piel declarado<select id="profileSkin"><option>No lo sé</option><option>Seca</option><option>Grasa</option><option>Mixta</option><option>Normal</option></select></label>
+          <label>Presupuesto por producto<input id="profileBudget" type="number" min="0" max="100000" step="0.01" /></label>
+          <label>Moneda<select id="profileCurrency"><option>EUR</option><option>USD</option><option>GBP</option></select></label>
+          <label>Marcas preferidas, separadas por comas<input id="profileBrands" maxlength="500" /></label>
+          <label>Restricciones declaradas, separadas por comas<input id="profileRestrictions" maxlength="500" /></label>
+          <button class="btn primary" type="submit">Guardar cambios</button>
+        </form>
+        <p class="fine">Las fichas incompletas no permiten comprobar alergias. Un cambio de presupuesto no requiere nuevas fotos.</p>
+      </div>
+    </section><p id="profileSaveStatus" role="status" aria-live="polite"></p></details><details><summary>Mis objetivos y estilo</summary>
       <p class="muted">Tu dossier viaja con tu cuenta.</p>
       <div class="row" role="group" aria-label="Objetivos">
         <button class="btn chip" data-pgoal="saber_colores" type="button" aria-pressed="false">Mis colores</button>
@@ -717,11 +679,32 @@
   </div>
 </div>
 
+<dialog id="journeyDialog" hidden aria-labelledby="journeyTitle"><div class="journey-layout">
+<aside class="journey-art" aria-hidden="true">Un espacio<br />que empieza en ti.</aside><div class="journey-content">
+<div class="journey-top"><span class="journey-word" translate="no">stylingu</span><button class="btn" id="journeyClose" type="button" aria-label="Cerrar registro">Cerrar</button></div>
+<div class="journey-progress"><span id="journeyProgress">01 / 05</span><progress id="journeyMeter" max="5" value="1" aria-label="Progreso del registro"></progress></div>
+<h2 id="journeyTitle" tabindex="-1">Empecemos por ti.</h2>
+<section class="journey-step" data-journey-step><p>Queremos llamarte por tu nombre. Tu fecha de nacimiento solo comprueba que tienes al menos 16 años.</p><label>¿Cómo te llamas?<input id="journeyName" autocomplete="given-name" maxlength="60" required /></label><label>Tu fecha de nacimiento<input id="journeyBirth" type="date" autocomplete="bday" required /></label></section>
+<section class="journey-step" data-journey-step hidden><p>Elige lo que te importa. Orientaremos las sugerencias a tus objetivos; puedes escoger varios.</p><div class="journey-choices" data-choice-group="goals" data-multiple="true">
+<button class="journey-choice" data-journey-choice="saber_colores" aria-pressed="false" type="button">Mis colores<small>Comprender qué tonos acompañan mi rostro.</small></button>
+<button class="journey-choice" data-journey-choice="maquillaje" aria-pressed="false" type="button">Maquillaje para mí<small>Explorar acabados y técnicas que me apetezcan.</small></button>
+<button class="journey-choice" data-journey-choice="compras" aria-pressed="false" type="button">Vestir con intención<small>Orientar mis looks y mis próximas compras.</small></button></div></section>
+<section class="journey-step" data-journey-step hidden><p>Tu estilo lo decides tú. Es opcional y podrás cambiarlo cuando quieras.</p><div class="journey-choices" data-choice-group="style" data-multiple="true">
+<button class="journey-choice" data-journey-choice="Elegante" aria-pressed="false" type="button">Elegante<small>Líneas cuidadas y detalles especiales.</small></button><button class="journey-choice" data-journey-choice="Minimalista" aria-pressed="false" type="button">Minimalista<small>Pocas piezas, muchas combinaciones.</small></button><button class="journey-choice" data-journey-choice="Natural" aria-pressed="false" type="button">Natural<small>Comodidad y una expresión sencilla.</small></button></div>
+<label>Presupuesto por producto en euros · opcional<input id="journeyBudget" type="number" min="0" max="100000" step="0.01" placeholder="Sin límite indicado" /></label></section>
+<section class="journey-step" data-journey-step hidden><p>Estas respuestas se declaran: no intentaremos deducirlas de tu foto. Todo es opcional.</p><label>¿Cómo describirías tu piel?<select id="journeySkin"><option>No lo sé</option><option>Seca</option><option>Grasa</option><option>Mixta</option><option>Normal</option></select></label>
+<label>Acabado que te apetece<select id="journeyFinish"><option value="">Sin preferencia</option><option>mate</option><option>satinado</option><option>brillo</option></select></label><label>Intensidad de maquillaje<select id="journeyIntensity"><option value="no determinado">Sin preferencia</option><option>suave</option><option>media</option><option>intensa</option></select></label>
+<label>Ingredientes que prefieres evitar o sensibilidades · opcional<input id="journeyRestrictions" maxlength="500" placeholder="Separados por comas" /></label><p>No garantizamos la seguridad de un producto ante alergias. Revisa su composición con un profesional.</p></section>
+<section class="journey-step" data-journey-step hidden><p>Tus respuestas quedan en tu cuenta. Después te guiaremos para subir las dos fotos que necesita tu análisis.</p><label>Email<input id="journeyEmail" type="email" autocomplete="email" maxlength="160" required /></label><label>Contraseña · entre 8 y 72 caracteres<input id="journeyPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" required /></label>
+<label class="journey-privacy"><input id="journeyPrivacy" type="checkbox" />He leído que mis respuestas y fotos son privadas, que las fotos se enviarán a Meta solo al solicitar un análisis y que puedo eliminar mis datos desde Mi perfil. Confirmaré ese envío antes de analizar.</label><p>El acceso incluye una verificación antibots. Nunca publiques una contraseña o una clave en tus respuestas.</p></section>
+<p id="journeyError" class="error" role="alert" tabindex="-1" hidden></p><div class="journey-actions"><button class="btn" id="journeyBack" type="button">Volver</button><button class="btn primary" id="journeyNext" type="button">Continuar</button></div></div></div></dialog>
+<dialog id="requestLoading" hidden aria-labelledby="requestLoadingTitle" aria-describedby="requestLoadingText"><div class="loading-ribbon" aria-hidden="true"></div><h2 id="requestLoadingTitle">Un momento para ti.</h2><p id="requestLoadingText" role="status" aria-live="polite">Preparando tu espacio…</p><div id="requestChallenge"></div><button class="btn" id="cancelRequest" type="button">Cancelar solicitud</button></dialog>
 <dialog id="scannerDialog" class="scanner-dialog" aria-labelledby="scanTitle"><div class="row"><h2 id="scanTitle">Escanear producto</h2><button id="scanClose" class="btn" type="button">Cerrar</button></div><p>Enfoca el envase, la marca y el tono. La imagen de producto se procesa sin guardarla.</p><div class="camera-frame"><video id="scanVideo" playsinline muted aria-label="Vista de cámara trasera"></video></div><div class="row"><button id="scanCamera" type="button" class="btn">Activar cámara</button><button id="scanCapture" type="button" class="btn primary">Capturar</button><label>Subir foto<input id="scanFile" type="file" accept="image/jpeg,image/png,image/webp" /></label></div><form id="scanSearch"><label for="scanQuery">Marca, tono o código de barras</label><input id="scanQuery" maxlength="120" required /><button class="btn" type="submit">Buscar</button></form><p id="scanStatus" role="status" aria-live="polite"></p><div id="scanResults" class="scan-result"></div></dialog>
 <dialog id="resetDialog" class="scanner-dialog" aria-labelledby="resetTitle"><h2 id="resetTitle">Nueva contraseña</h2><form id="resetForm"><label>Nueva contraseña<input id="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" required /></label><p id="resetError" role="alert"></p><button class="btn primary">Guardar contraseña</button></form></dialog>
 <p class="toast" id="toast" role="status" aria-live="polite"></p>
 <script src="./data.js"></script>
 <script src="./js/store.js"></script>
+<script src="./js/loading.js"></script>
 <script src="./js/ui.js"></script>
 <script src="./js/access.js"></script>
 <script src="./js/color.js"></script>
@@ -731,6 +714,7 @@
 <script src="./js/onboarding.js"></script>
 <script src="./js/design.js"></script>
 <script src="./js/account.js"></script>
+<script src="./js/journey.js"></script>
 <script src="./js/image-input.js"></script>
 <script src="./js/consultation.js"></script>
 <script src="./js/barcode.js"></script>

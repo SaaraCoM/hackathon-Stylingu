@@ -14,9 +14,11 @@ export function productService({repo, personal, env={}}) {
   return {profile:updated.profile,analysisStale:(u.analysis?.visualVersion||0)!==(p.visualVersion||0)};
  }
  async function requestAnalysis(id,payload,key) {
-  payload={userMeta:cleanUserMeta(payload?.userMeta)};
   await user(id);if(!/^[a-zA-Z0-9_-]{8,100}$/.test(key||''))fail('Falta clave de idempotencia.','IDEMPOTENCY_REQUIRED');
   const u=await user(id),input=u.photoInput||u.analysis;
+  const d=u.profile?.declared||{},prefs=u.preferences||{};
+  const declaredMeta={skinType:d.skinType||'No lo sé',allergies:d.restrictions||[],stylePreferences:[d.style,...(prefs.styles||[]),...(prefs.goals||[]).map(g=>({saber_colores:'Priorizar mi paleta',compras:'Comprar con intención',maquillaje:'Priorizar maquillaje'}[g]||''))].filter(Boolean).join('; ').slice(0,500)};
+  payload={userMeta:cleanUserMeta({...declaredMeta,...(payload?.userMeta||{})})};
   if(!input?.photos?.face||!input?.photos?.body)fail('Sube las dos fotografías.','PHOTOS_REQUIRED');
   const fingerprint=digest({inputVersion:input.inputVersion,profileVersion:u.profile?.version||0,payload});
   const previous=await repo.jobByKey(id,key);

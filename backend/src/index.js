@@ -19,7 +19,9 @@ app.use((req,res,next)=>{
  }
  next();
 });
-app.use(express.json({limit:'12mb'}));
+app.use('/api',apiLimiter);
+app.use(express.json({limit:'6mb'}));
+app.get('/api/public-config',(_req,res)=>res.json({turnstileRequired:process.env.NODE_ENV==='production'}));
 app.get('/api/health',(_req,res)=>res.json({ok:true,service:'stylingu',version:process.env.RELEASE_VERSION||'development'}));
 app.get('/api/ready',async(_req,res)=>{try{await connectDB();if(dbState()!=='conectado')throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}});
 app.use('/api',apiLimiter);

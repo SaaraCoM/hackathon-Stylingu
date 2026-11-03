@@ -1,3 +1,4 @@
+import {Script} from 'node:vm';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -24,7 +25,8 @@ const codeHash=createHash('sha256').update(JSON.stringify(assets));
 for(const file of [...await walk('backend/src'),...await walk('shared'),...await walk('edge'),'worker/free.js'].sort())codeHash.update(await fs.readFile(path.join(root,file)));
 const release=codeHash.digest('hex').slice(0,16);
 const cachePaths=Object.keys(assets).filter(k=>k!=='/sw.js'&&k!=='/index.html');
-const sw=`const CACHE=${JSON.stringify('stylingu-public-'+release)};const ASSETS=${JSON.stringify(cachePaths)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('stylingu-public-')&&k!==CACHE).map(k=>caches.delete(k))))));self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==self.location.origin||u.pathname.startsWith('/api/')||!ASSETS.includes(u.pathname))return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)));});`;
+const sw='const CACHE='+JSON.stringify('stylingu-public-'+release)+';const ASSETS='+JSON.stringify(cachePaths)+';self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));});self.addEventListener("activate",e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("stylingu-public-")&&k!==CACHE).map(k=>caches.delete(k))))])));self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(e.request.method!=="GET"||u.origin!==self.location.origin||u.pathname.startsWith("/api/")||!ASSETS.includes(u.pathname))return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)));});';
+new Script(sw);
 assets['/sw.js']={type:mime['.js'],base64:Buffer.from(sw).toString('base64')};
 await fs.writeFile(path.join(output,'free-assets.mjs'),'export default '+JSON.stringify(assets)+';');
 await fs.writeFile(path.join(output,'free-entry.mjs'),"import assets from './free-assets.mjs';import {createWorker} from '../../worker/free.js';export {StylinguContainer} from '../../worker/free.js';export default createWorker(assets);");
@@ -40,7 +42,7 @@ for(const file of [...await walk('backend/src'),...await walk('shared')].filter(
   if(name==='backend/src/middleware/rateLimit.js')content="export {apiLimiter,authLimiter,aiLimiter} from '../../../edge/rate-limit.js';";
   files.push({name,content});
 }
-for(const file of ['edge/images.js','edge/image-bounds.js','edge/rate-limit.js','edge/runtime-config.js']){
+for(const file of ['edge/images.js','edge/image-bounds.js','edge/rate-limit.js','edge/runtime-config.js','edge/proxy-key.js']){
   let content=await fs.readFile(path.join(root,file),'utf8');
   if(file==='edge/rate-limit.js')content=content.replace("'../backend/node_modules/express-rate-limit/dist/index.mjs'","'express-rate-limit'");
   files.push({name:file,content});

@@ -6,6 +6,33 @@
     "enabled": true
   },
   "vars": {
-    "BACKEND_URL": "https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-api"
+    "BACKEND_URL": "https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-api",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFyiycbgRQEQ11_9"
+  },
+  "ratelimits": [
+    {
+      "name": "API_GUARD",
+      "namespace_id": "7101",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    },
+    {
+      "name": "AUTH_GUARD",
+      "namespace_id": "7102",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STYLINGU_CONTAINER",
+        "class_name": "StylinguContainer"
+      }
+    ]
   }
 }
