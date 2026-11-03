@@ -18,10 +18,11 @@ en producción. La guía de ejecución es [despliegue-seguro.md](despliegue-segu
 | Compose | Configuración válida | Ambos perfiles pasan `docker compose ... config --quiet`; no equivale a haber arrancado el stack completo de Supabase CLI |
 | Wrangler | Dry run del enrutador de staging correcto | Compilación y bindings; no publica Workers ni acredita acceso al registro o a Containers |
 | Actionlint 1.7.12 | Correcto | Los cuatro workflows pasan su validación estática |
-| Gitleaks 8.30.1 | Sin hallazgos pendientes | Escaneo redactado del contenido actual; las excepciones históricas exactas están en `security/accepted-findings.md` |
+| Gitleaks 8.30.1 | Sin hallazgos pendientes | Escaneo redactado del contenido actual y de todo el historial; las excepciones históricas exactas están en `security/accepted-findings.md` |
 | Trivy 0.76.1, imagen | 0 vulnerabilidades altas/críticas y 0 secretos detectados | Imagen local `stylingu:security-review`; resultado válido para el análisis y base consultados en esta fecha |
 | Trivy 0.76.1, filesystem | 0 vulnerabilidades altas/críticas, 0 errores de configuración altos/críticos y 0 secretos detectados | Configuración y dependencias locales |
 | Dependencias npm | Sin alertas altas/críticas | Backend conserva 5 alertas moderadas en herramientas de desarrollo; la imagen de runtime analizada no contiene esas herramientas |
+| Auditoría completa `all-deploy` | Correcta, sin bloqueos | Ejecutada con Node, npm, Python y Git disponibles; advierte de 140 archivos previos sin seguimiento, correspondientes a skills y a la propuesta UX ajena a esta entrega |
 | Supabase staging | Esquema y función desplegados | Proyecto `ckcszhdhgwytiaxapike`, organización `cpqfpksdwjhtkesvgwns`, región `eu-west-1`; cotización de 0 al mes confirmada antes de crearlo |
 | Asesor de seguridad de staging | Sin avisos de nivel warning/error | Un aviso informativo por `public.schema_migrations`: RLS activo sin políticas, denegación deliberada para roles de aplicación |
 
@@ -51,8 +52,8 @@ para cada release; no reutilizan estos resultados para autorizar una promoción.
   la ventana mínima de 24 horas, la convergencia de consumidores y la denegación
   de la credencial revocada. Las pruebas locales verifican el protocolo de
   estados; no sustituyen esa prueba de integración.
-- Completar auditoría `all-deploy` sobre un commit limpio y preview saludable.
-  La promoción a producción sigue siendo manual y conserva el digest probado.
+- Repetir la auditoría en CI y obtener una preview saludable. La promoción a
+  producción sigue siendo manual y conserva el digest probado.
 
 Producción no se ha migrado ni promocionado. Los datos locales originales
 permanecen intactos. Los archivos previos de skills y la propuesta UX del armario

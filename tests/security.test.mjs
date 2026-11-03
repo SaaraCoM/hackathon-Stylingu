@@ -29,8 +29,9 @@ test('RLS real: dos identidades, no acceso anónimo, sesión revocada y rol de t
     delete process.env.DB_ROLE;
     const j=randomUUID();await query("insert into analysis_jobs(id,user_id,key,hash,state)values($1,$2,'key','hash','queued')",[j,a]);
     process.env.DB_ROLE='stylingu_jobs';
-    const claimed=await query('select * from private.claim_analysis_job()');assert.equal(claimed.rows[0].id,j);
-    assert.equal((await query('select * from private.claim_analysis_job()')).rowCount,0);
+    const claims=await Promise.all([1,2].map(()=>query('select * from private.claim_analysis_job()')));
+    assert.equal(claims.reduce((count,result)=>count+result.rowCount,0),1,'two concurrent workers claim the job only once');
+    assert.equal(claims.flatMap(result=>result.rows)[0].id,j);
     await runAsUser(a,async()=>{
       assert.equal((await query('select * from users')).rowCount,1);
       await assert.rejects(()=>query("insert into garments(user_id,name,category)values($1,'No','top')",[a]),e=>e.code==='42501');
