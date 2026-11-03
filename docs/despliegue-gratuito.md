@@ -76,6 +76,6 @@ La copia de usuarios, sesiones, trabajos y fotografías locales está cancelada 
 - Interfaz: 24/24 comprobaciones DOM y 15/15 en navegador real.
 - Worker: 1,23 MB comprimido tras optimizar las fotos editoriales en el build.
 - Meta: la usuaria confirma el secreto guardado en Supabase; se verificará en la preview.
-- La auditoría exige documentar SUPABASE_DB_URL en la plantilla aunque la inyecte Supabase. Diff mostrado y aprobación pendiente.
+- La auditoría exige documentar SUPABASE_DB_URL en la plantilla aunque la inyecte Supabase. Diff aprobado y aplicado.
 
 Los comandos npm deploy, deploy:preview y deploy:dry usan wrangler.free.jsonc y ya no envían el archivo de secretos a Cloudflare. El despliegue de Edge Functions se realiza por MCP con los paquetes de deploy/free. Estos paquetes contienen código, nunca valores privados.
