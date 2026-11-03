@@ -1,0 +1,11 @@
+{
+  "name": "hackathon-stylingu",
+  "main": "frontend/dist/free-worker.mjs",
+  "compatibility_date": "2026-11-03",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "BACKEND_URL": "https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-api"
+  }
+}
