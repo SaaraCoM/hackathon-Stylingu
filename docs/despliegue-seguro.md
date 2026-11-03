@@ -49,8 +49,11 @@ facturación de la cuenta; los scripts no cambian planes ni contratan recursos.
 | Excepciones de análisis documentadas | `.gitleaks.toml`, `security/accepted-findings.md` |
 
 No se mantienen dos configuraciones Wrangler equivalentes: la del enrutador es
-TOML y la de cada contenedor se genera bajo `.wrangler/deploy`, excluida de Git,
-con metadatos públicos y nombres de bindings. Nunca incluye valores secretos.
+TOML. `configure-router.mjs` sustituye solo el ID público de Secrets Store para
+desplegarlo; la configuración de cada contenedor también se genera bajo
+`.wrangler/deploy`, excluida de Git, con metadatos públicos y nombres de bindings.
+Nunca incluye valores secretos. El ID de ceros del TOML fuente solo permite
+compilar un dry run; se rechaza para un despliegue real desde el generador.
 
 ## Desarrollo local
 
@@ -170,6 +173,15 @@ Cada slot tiene cuatro secretos, con nombres
 `model-key`. Los valores se recuperan mediante bindings durante la ejecución.
 Las contraseñas de la cuenta administrativa de PostgreSQL nunca se rotan como
 sustituto de los logins de runtime.
+El enrutador obtiene `stylingu-ENTORNO-ops-token` del mismo Secrets Store mediante
+su binding `OPS_TOKEN`. El valor coincide con el secreto cifrado del runner y
+nunca se transmite al contenedor. Para desplegar el enrutador, generar primero
+su configuración pública y mantener visible el comando Wrangler:
+
+```bash
+node scripts/configure-router.mjs
+npx wrangler deploy --config .wrangler/deploy/router.toml --env staging
+```
 
 ### Verificación de correo con Supabase
 
@@ -231,7 +243,9 @@ Flujo:
    que proceden de un push de `main`, y promociona el **mismo digest**, sin rebuild.
 
 La primera instalación requiere `bootstrap=true`: crea ambos slots antes de
-publicar el enrutador y configurar `OPS_TOKEN`. Para staging automático, establecer
+publicar el enrutador con su binding de operaciones. El enrutador se actualiza
+también en cada despliegue posterior, conservando el estado de sus Durable Objects.
+Para staging automático, establecer
 la variable de repositorio `STAGING_BOOTSTRAP=true` únicamente en esa instalación
 y retirarla después. No utilizar bootstrap para reparar un despliegue existente.
 

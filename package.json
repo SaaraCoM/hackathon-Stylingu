@@ -13,7 +13,7 @@
     "dev:db": "node scripts/dev-db.mjs",
     "migrate": "node scripts/migrate.mjs",
     "deploy:dry": "wrangler deploy --env=\"\" --dry-run",
-    "deploy:preview": "wrangler deploy --env staging",
+    "deploy:preview": "node scripts/configure-router.mjs && wrangler deploy --config .wrangler/deploy/router.toml --env staging",
     "deploy": "node -e \"throw new Error('Use the manual Promote workflow after a verified preview.')\""
   },
   "dependencies": {

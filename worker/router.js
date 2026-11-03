@@ -1,6 +1,8 @@
 import { DurableObject } from 'cloudflare:workers';
 
 async function authorized(request, secret) {
+  secret = await secret?.get();
+  if (typeof secret !== 'string') return false;
   if (!secret || request.headers.get('Authorization')?.length > 1000) return false;
   const supplied = request.headers.get('Authorization') || '';
   const [a,b] = await Promise.all([supplied,'Bearer '+secret].map(s=>crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))));

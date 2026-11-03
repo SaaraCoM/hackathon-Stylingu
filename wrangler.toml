@@ -9,6 +9,11 @@ head_sampling_rate = 0.1
 [observability.logs]
 enabled = true
 invocation_logs = false
+# configure-router.mjs substitutes the public store ID before a real deployment.
+[[secrets_store_secrets]]
+binding = "OPS_TOKEN"
+store_id = "00000000000000000000000000000000"
+secret_name = "stylingu-production-ops-token"
 [[services]]
 binding = "BLUE"
 service = "stylingu-production-blue"
@@ -29,6 +34,10 @@ type = "durable-object"
 storage = "sqlite"
 [env.staging]
 name = "hackathon-stylingu-staging"
+[[env.staging.secrets_store_secrets]]
+binding = "OPS_TOKEN"
+store_id = "00000000000000000000000000000000"
+secret_name = "stylingu-staging-ops-token"
 [[env.staging.services]]
 binding = "BLUE"
 service = "stylingu-staging-blue"

@@ -15,9 +15,11 @@ test('Worker real: rate limits, protected operations, candidate proxy and atomic
   if(path==='/internal/ready')return Response.json({storage:true});
   return Response.json({slot,authorization:request.headers.get('Authorization'),method:request.method,body:request.method==='POST'?await request.text():null});
  };
- const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'router',modules:true,script:built.outputFiles[0].text,compatibilityDate:'2026-10-30',compatibilityFlags:['nodejs_compat'],bindings:{OPS_TOKEN:'test-operations-token'},durableObjects:{DEPLOYMENT_CONTROL:{className:'DeploymentControl',useSQLite:true},RATE_COUNTER:{className:'RateCounter',useSQLite:true}},serviceBindings:{BLUE:target('blue'),GREEN:target('green')}}]}));
+ const mf=new Miniflare(convertV4MiniflareOptions({workers:[{name:'router',modules:true,script:built.outputFiles[0].text,compatibilityDate:'2026-10-30',compatibilityFlags:['nodejs_compat'],secretsStoreSecrets:{OPS_TOKEN:{store_id:'test-store',secret_name:'operations'}},durableObjects:{DEPLOYMENT_CONTROL:{className:'DeploymentControl',useSQLite:true},RATE_COUNTER:{className:'RateCounter',useSQLite:true}},serviceBindings:{BLUE:target('blue'),GREEN:target('green')}}]}));
  const ops=async(path,body)=>mf.dispatchFetch('https://example.test/__ops/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer test-operations-token','Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
  try{
+  const secretAPI=await mf.getSecretsStoreSecretAPI('OPS_TOKEN','router');
+  await secretAPI().create('test-operations-token');
   assert.equal((await mf.dispatchFetch('https://example.test/__ops/status')).status,404);
   assert.equal((await mf.dispatchFetch('https://example.test/internal/ready')).status,404);
   assert.equal((await (await ops('status')).json()).active,'blue');

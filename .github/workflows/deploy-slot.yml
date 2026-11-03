@@ -78,12 +78,12 @@ jobs:
         run: |
           DEPLOY_SLOT=green node scripts/configure-container.mjs
           npx wrangler deploy --config .wrangler/deploy/container.toml --containers-rollout=immediate
+      - run: node scripts/configure-router.mjs
+      - run: |
           if [ "$DEPLOY_ENV" = staging ]; then
-            npx wrangler deploy --env staging
-            node -e 'process.stdout.write(process.env.OPS_TOKEN)' | npx wrangler secret put OPS_TOKEN --env staging
+            npx wrangler deploy --config .wrangler/deploy/router.toml --env staging
           else
-            npx wrangler deploy --env=""
-            node -e 'process.stdout.write(process.env.OPS_TOKEN)' | npx wrangler secret put OPS_TOKEN --env=""
+            npx wrangler deploy --config .wrangler/deploy/router.toml --env=""
           fi
       - run: node scripts/ops.mjs check
         env:
