@@ -29,7 +29,7 @@ clearPersonalData();
 function requestTimeout(path) {return LONG_REQUEST.test(path)?CLIENT_TIMEOUT.long:CLIENT_TIMEOUT.short;}
 async function apiFetch(path,opts={}) {
  const epoch=accountEpoch;
- const response=await fetch(API+'/api'+path,{credentials:'include',...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout(path))});
+ const response=await fetch(API+'/api'+path,{credentials:'include',...opts,headers:{...opts.headers,'X-Stylingu-Request':'1'},signal:opts.signal||AbortSignal.timeout(requestTimeout(path))});
  if(epoch!==accountEpoch)throw new Error('La cuenta cambió durante la solicitud.');
  return response;
 }

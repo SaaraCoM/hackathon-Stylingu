@@ -5,11 +5,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+let identityProvider = () => null;
+export function configureStorageIdentity(provider) { identityProvider = provider; }
 const LOCAL_DIR = fileURLToPath(new URL('../backend/.photos/', import.meta.url));
 
 function supabaseConfig() {
+  if (process.env.NODE_ENV === 'test' && process.env.SUPABASE_URL === 'http://supabase.test') return null;
   const url = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'stylingu-photos';
   return url && key ? { url, key, bucket } : null;
 }
@@ -17,11 +20,9 @@ function supabaseConfig() {
 export const storageMode = () => (supabaseConfig() ? 'supabase' : 'local');
 
 function headers(config, extra = {}) {
-  return {
-    apikey: config.key,
-    Authorization: 'Bearer ' + config.key,
-    ...extra
-  };
+  const token = identityProvider()?.accessToken;
+  const key = token ? process.env.SUPABASE_PUBLISHABLE_KEY : config.key;
+  return { apikey: key, ...(token ? { Authorization: 'Bearer ' + token } : key.startsWith('eyJ') ? { Authorization: 'Bearer ' + key } : {}), ...extra };
 }
 
 function assertKey(key) {

@@ -1,0 +1,16 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Figma document identifier (not an authentication credential); exact JSON field and reference metadata path only"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/evidencia/figma/assets\.json$''']
+regexes = ['''^\s*"fileKey": "[A-Za-z0-9]{22}",?\s*$''']
+
+[[allowlists]]
+description = "Verified third-party JavaScript identifier in historical Wrangler bundles; no literal key value"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^worker/\.wrangler/tmp/dev-[A-Za-z0-9]+/index\.js$''']
+regexes = ['''^\s*const utf8ValidatedKeys = validation\.utf8;\s*$''']

@@ -210,7 +210,15 @@ async function submitAuth(path) {
     const body = path === "/auth/registro"
       ? { name, email, password, birthDate }
       : { email, password };
-    const { user } = await api(path, { method: "POST", body: JSON.stringify(body) });
+    const result = await api(path, { method: "POST", body: JSON.stringify(body) });
+    document.getElementById("accountPassword").value = "";
+    if (result.confirmationRequired) {
+      accountError.textContent = result.message;
+      accountError.hidden = false;
+      toast(result.message);
+      return;
+    }
+    const { user } = result;
     currentUser = user;
     store.setUser(user);
     localStorage.removeItem("stylingu-session-locked");

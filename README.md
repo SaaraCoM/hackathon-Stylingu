@@ -14,7 +14,20 @@ DESIGN.md          # Tokens de diseño propios
 docs/              # Notas de arquitectura
 ```
 
-## Cómo correr
+## Despliegue seguro
+
+La configuración vigente usa Supabase Auth con confirmación de correo, PostgreSQL
+con RLS, Storage privado y despliegue azul/verde en Cloudflare Containers.
+Consulta [la guía operativa](docs/despliegue-seguro.md) para desarrollo local,
+bootstrap sin archivos de secretos, CI/CD, rotación y rollback.
+Los [resultados de verificación](docs/verificacion-despliegue-seguro.md) distinguen
+las pruebas locales de las comprobaciones remotas pendientes.
+
+Los datos locales legacy no se importan automáticamente. Las instrucciones
+históricas que siguen corresponden al arranque anterior; para una instalación
+nueva utiliza el perfil Docker/Supabase local de la guía vigente.
+
+## Cómo correr (histórico)
 
 Requisitos: Node 22. La base de datos es Postgres (Supabase en producción).
 

@@ -4,7 +4,7 @@ import { fail, cleanProfile, nextProfile, cleanGarment, dateKey, planWeek, purch
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUnique = error => error?.code === '23505';
 
-export function productService({repo, personal, env={}}) {
+export function productService({repo, personal, env={}, withIdentity=(_id, fn)=>fn()}) {
  async function user(id) {const u=await repo.userById(id);if(!u)fail('Cuenta no disponible.','UNAUTHORIZED',401);return u;}
  async function profile(id) {return (await user(id)).profile||{version:0,declared:{}};}
  async function updateProfile(id,raw) {
@@ -41,12 +41,14 @@ export function productService({repo, personal, env={}}) {
   await repo.expireStaleJobs(new Date(Date.now()-5*60000));
   const j=await repo.claimNextJob();
   if(!j)return false;
+  await withIdentity(j.userId, async () => {
   try {
    const u=await user(j.userId),input=u.photoInput||u.analysis;
    if(input.inputVersion!==j.inputVersion||(u.profile?.version||0)!==j.profileVersion)fail('Las fotos o el perfil han cambiado.','STALE_INPUT',409);
    const result=await personal.analyze(j.userId,{...j.payload,expectedInputVersion:j.inputVersion,expectedProfileVersion:j.profileVersion},env);
    await repo.finishJob(j._id,{state:'completed',result});
   } catch(e) {await repo.finishJob(j._id,{state:'failed',error:{code:e.code||'ANALYSIS_FAILED',message:e.status?e.message:'No se pudo completar el análisis.'}});}
+  }, {jobId:j._id});
   return true;
  }
  async function garments(id) {return repo.listGarments(id);}

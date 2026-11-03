@@ -1,0 +1,12 @@
+import {environmentTarget} from './environment.mjs';
+import {readFile} from 'node:fs/promises';
+import {jsonRequest} from './security/platform-api.mjs';
+const env=process.env;environmentTarget(env);
+for(const key of ['SUPABASE_ACCESS_TOKEN','SUPABASE_PROJECT_REF','PUBLIC_ORIGIN','AUTH_HOOK_SECRET'])if(!env[key])throw new Error('Missing '+key);
+if(env.DEPLOY_ENV==='production'&&!env.SMTP_HOST)throw new Error('Production email delivery requires custom SMTP; built-in Supabase delivery is restricted to organization members.');
+const project='https://api.supabase.com/v1/projects/'+env.SUPABASE_PROJECT_REF;
+await jsonRequest(project+'/secrets',env.SUPABASE_ACCESS_TOKEN,{method:'POST',body:[{name:'AUTH_HOOK_SECRET',value:env.AUTH_HOOK_SECRET}]});
+const body={site_url:env.PUBLIC_ORIGIN,uri_allow_list:new URL('/api/auth/callback',env.PUBLIC_ORIGIN).href,mailer_autoconfirm:false,external_email_enabled:true,hook_before_user_created_enabled:true,hook_before_user_created_uri:'https://'+env.SUPABASE_PROJECT_REF+'.supabase.co/functions/v1/before-user-created',hook_before_user_created_secrets:env.AUTH_HOOK_SECRET,mailer_templates_confirmation_content:await readFile('supabase/templates/confirmation.html','utf8'),mailer_templates_recovery_content:await readFile('supabase/templates/recovery.html','utf8')};
+if(env.SMTP_HOST)Object.assign(body,{smtp_host:env.SMTP_HOST,smtp_port:env.SMTP_PORT||'587',smtp_user:env.SMTP_USER,smtp_pass:env.SMTP_PASSWORD,smtp_admin_email:env.SMTP_FROM,smtp_sender_name:'StylingU'});
+await jsonRequest(project+'/config/auth',env.SUPABASE_ACCESS_TOKEN,{method:'PATCH',body});
+console.log('Auth confirmation, recovery and signed hook configured.');

@@ -1,0 +1,10 @@
+{
+  "production": {
+    "supabaseProjectRef": "zbfxwbuuuzjzmsrraxkf",
+    "publicOrigin": "https://hackathon-stylingu.castellanomateossara.workers.dev"
+  },
+  "staging": {
+    "supabaseProjectRef": "ckcszhdhgwytiaxapike",
+    "publicOrigin": "https://hackathon-stylingu-staging.castellanomateossara.workers.dev"
+  }
+}

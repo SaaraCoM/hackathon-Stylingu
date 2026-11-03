@@ -41,9 +41,11 @@ export async function testDatabase(name = 'stylingu') {
   const client = new pg.Client({ connectionString: url });
   await client.connect();
   try {
+    await client.query(readFileSync(new URL('./fixtures/supabase-platform.sql', import.meta.url), 'utf8'));
     const dir = fileURLToPath(new URL('../db/migrations/', import.meta.url));
     for (const file of readdirSync(dir).filter(f => f.endsWith('.sql')).sort()) {
       await client.query(readFileSync(dir + file, 'utf8'));
+      await client.query('insert into schema_migrations(name)values($1) on conflict do nothing',[file]);
     }
   } finally {
     await client.end();

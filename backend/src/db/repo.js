@@ -39,24 +39,6 @@ export async function userByEmail(email) {
   return rows[0] || null;
 }
 
-// Credenciales para login: el hash nunca sale de aquí hacia una respuesta HTTP.
-export async function credentialsByEmail(email) {
-  const { rows } = await query(
-    `select id as "_id", name, email, password_hash as "passwordHash", deleting
-     from users where lower(email) = lower($1)`,
-    [email]
-  );
-  return rows[0] || null;
-}
-
-export async function createUser({ name, email, passwordHash, birthDate }) {
-  const { rows } = await query(
-    `insert into users (name, email, password_hash, birth_date) values ($1,$2,$3,$4) returning ${USER_FIELDS}`,
-    [name, email, passwordHash, birthDate]
-  );
-  return rows[0];
-}
-
 export async function saveUser(id, patch = {}) {
   const sets = [];
   const values = [];
@@ -69,7 +51,6 @@ export async function saveUser(id, patch = {}) {
   put('analysis', patch.analysis);
   put('photo_input', patch.photoInput);
   put('profile', patch.profile);
-  put('password_hash', patch.passwordHash);
   if (!sets.length) return userById(id, { includeDeleting: true });
   values.push(id);
   const { rows } = await query(
@@ -147,37 +128,6 @@ export async function photoForUser(id, userId) {
 export async function photoKeysForUser(userId) {
   const { rows } = await query('select storage_key as "storageKey" from photos where user_id = $1', [userId]);
   return rows.map(row => row.storageKey);
-}
-
-/* --------------------------------------------------------------- sessions */
-export async function createSessionRow({ tokenHash, userId, expiresAt }) {
-  await query('insert into sessions (token_hash, user_id, expires_at) values ($1,$2,$3)', [tokenHash, userId, expiresAt]);
-}
-
-export async function sessionByToken(tokenHash) {
-  const { rows } = await query(
-    `select user_id as "userId", expires_at as "expiresAt" from sessions
-     where token_hash = $1 and expires_at > now()`,
-    [tokenHash]
-  );
-  return rows[0] || null;
-}
-
-export async function deleteSessionRow(tokenHash) {
-  await query('delete from sessions where token_hash = $1', [tokenHash]);
-}
-
-export async function deleteSessionsForUser(userId) {
-  await query('delete from sessions where user_id = $1', [userId]);
-}
-
-export async function pruneExpired() {
-  const { rows } = await query(
-    `with s as (delete from sessions where expires_at < now() returning 1),
-          r as (delete from reset_tokens where expires_at < now() returning 1)
-     select (select count(*) from s)::int as sessions, (select count(*) from r)::int as tokens`
-  );
-  return rows[0];
 }
 
 /* ---------------------------------------------------------------- outfits */
@@ -444,6 +394,10 @@ export async function latestJobMatching(userId, key, hash) {
 }
 
 export async function claimNextJob() {
+  if (process.env.DB_ROLE === 'stylingu_jobs') {
+    const {rows} = await query(`select ${JOB_FIELDS} from private.claim_analysis_job()`);
+    return rows[0] || null;
+  }
   const { rows } = await query(
     `update analysis_jobs set state = 'processing', started_at = now()
      where id = (
@@ -456,6 +410,10 @@ export async function claimNextJob() {
 }
 
 export async function expireStaleJobs(cutoff) {
+  if (process.env.DB_ROLE === 'stylingu_jobs') {
+    await query('select private.expire_analysis_jobs($1)', [cutoff]);
+    return;
+  }
   await query(
     `update analysis_jobs set state = 'uncertain',
             error = $2::jsonb, finished_at = now()
@@ -491,41 +449,6 @@ export async function refundQuota(userId, day) {
   );
 }
 
-/* --------------------------------------------------------------- recovery */
-export async function createResetToken({ userId, hash, expiresAt }) {
-  const { rows } = await query(
-    'insert into reset_tokens (user_id, hash, expires_at) values ($1,$2,$3) returning id',
-    [userId, hash, expiresAt]
-  );
-  return rows[0];
-}
-
-export async function consumeResetToken(hash) {
-  const { rows } = await query(
-    `delete from reset_tokens where hash = $1 and expires_at > now()
-     returning user_id as "userId"`,
-    [hash]
-  );
-  return rows[0] || null;
-}
-
-export async function deleteResetToken(id) {
-  await query('delete from reset_tokens where id = $1', [id]);
-}
-
-export async function deleteResetTokensForUser(userId) {
-  await query('delete from reset_tokens where user_id = $1', [userId]);
-}
-
-export async function updatePassword(userId, passwordHash) {
-  const { rows } = await query(
-    `update users set password_hash = $2, updated_at = now()
-     where id = $1 and deleting = false returning id`,
-    [userId, passwordHash]
-  );
-  return rows.length > 0;
-}
-
 /* -------------------------------------------------------- baja de cuenta */
 // Las claves foráneas son `on delete cascade`: borrar la fila de `users`
 // elimina fotos, sesiones, armario, planes, progreso y trabajos de golpe.
@@ -539,7 +462,7 @@ export async function deleteAccount(userId) {
 
 export async function countRows(table, userId) {
   const allowed = ['users', 'photos', 'outfits', 'garments', 'outfit_plans', 'owned_cosmetics',
-    'recommendation_feedback', 'tutorial_progress', 'analysis_jobs', 'quotas', 'sessions'];
+    'recommendation_feedback', 'tutorial_progress', 'analysis_jobs', 'quotas'];
   if (!allowed.includes(table)) throw new Error('Tabla no permitida: ' + table);
   const column = table === 'users' ? 'id' : 'user_id';
   const { rows } = await query(`select count(*)::int as total from ${table} where ${column} = $1`, [userId]);

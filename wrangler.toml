@@ -1,0 +1,49 @@
+name = "hackathon-stylingu"
+main = "worker/router.js"
+compatibility_date = "2026-10-30"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+[observability]
+enabled = true
+head_sampling_rate = 0.1
+[observability.logs]
+enabled = true
+invocation_logs = false
+[[services]]
+binding = "BLUE"
+service = "stylingu-production-blue"
+[[services]]
+binding = "GREEN"
+service = "stylingu-production-green"
+[[durable_objects.bindings]]
+name = "DEPLOYMENT_CONTROL"
+class_name = "DeploymentControl"
+[[durable_objects.bindings]]
+name = "RATE_COUNTER"
+class_name = "RateCounter"
+[exports.DeploymentControl]
+type = "durable-object"
+storage = "sqlite"
+[exports.RateCounter]
+type = "durable-object"
+storage = "sqlite"
+[env.staging]
+name = "hackathon-stylingu-staging"
+[[env.staging.services]]
+binding = "BLUE"
+service = "stylingu-staging-blue"
+[[env.staging.services]]
+binding = "GREEN"
+service = "stylingu-staging-green"
+[[env.staging.durable_objects.bindings]]
+name = "DEPLOYMENT_CONTROL"
+class_name = "DeploymentControl"
+[[env.staging.durable_objects.bindings]]
+name = "RATE_COUNTER"
+class_name = "RateCounter"
+[env.staging.exports.DeploymentControl]
+type = "durable-object"
+storage = "sqlite"
+[env.staging.exports.RateCounter]
+type = "durable-object"
+storage = "sqlite"

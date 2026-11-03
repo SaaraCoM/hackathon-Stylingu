@@ -59,3 +59,6 @@ deploy/
 Thumbs.db
 .vscode/
 .idea/
+
+# Security verification artifacts (never contain private images or credentials)
+.tmp-security/

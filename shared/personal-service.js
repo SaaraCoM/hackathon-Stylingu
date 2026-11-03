@@ -33,7 +33,7 @@ export function personalService({ repo, storage, normalizePhoto = async value =>
     await findUser(id);
     const { bytes, mime } = decoded;
     const key = createHash('sha256').update(String(id)).update(kind).update(bytes).digest('hex');
-    const storageKey = 'photos/' + key;
+    const storageKey = String(id) + '/photos/' + key;
     await storage.put(storageKey, bytes, mime);
     try {
       await repo.upsertPhoto({ id: key, userId: id, mime, storageKey, bytes: bytes.length });
@@ -44,7 +44,7 @@ export function personalService({ repo, storage, normalizePhoto = async value =>
     try {
       await findUser(id);
     } catch (error) {
-      await repo.deleteAccount(id).then(keys => storage.remove(keys)).catch(() => {});
+      await storage.remove([storageKey]).catch(() => {});
       throw error;
     }
     return '/api/personal/photos/' + key;

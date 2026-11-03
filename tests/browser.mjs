@@ -6,19 +6,20 @@ const require=createRequire(new URL('../backend/package.json',import.meta.url));
 const {chromium}=require('@playwright/test'),sharp=require('sharp'),{default:AxeBuilder}=require('@axe-core/playwright');
 const {testDatabase,stopCluster}=await import('./pg.mjs');
 await testDatabase('browser');process.env.NODE_ENV='test';process.env.AI_PROVIDER='mock';delete process.env.PUBLIC_ORIGIN;
+const {installAuthFixture}=await import('./auth-fixture.mjs');const auth=await installAuthFixture();
 const {default:app}=await import('../backend/src/index.js');const {products,repo}=await import('../backend/src/product.js');const {query,closeDB}=await import('../backend/src/db/pool.js');const {seedCatalog}=await import('../shared/catalog-seed.js');
 await seedCatalog(repo);
 const server=app.listen(0),url='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
 const context=await browser.newContext({viewport:{width:390,height:844},permissions:['camera']});const page=await context.newPage();
 const errors=[];page.on('pageerror',e=>errors.push(e.message));let checks=0;const ok=s=>{checks++;console.log('ok - '+s);};
-const out=new URL('../docs/evidencia/publicacion/',import.meta.url);await fs.mkdir(out,{recursive:true});
+const out=new URL('../.tmp-security/browser/',import.meta.url);await fs.mkdir(out,{recursive:true});
 const shot=name=>fileURLToPath(new URL(name,out));
 try{
  await page.goto(url);await page.locator('#gateContinueBtn').waitFor({state:'visible'});await page.waitForFunction(()=>!document.getElementById('gateContinueBtn').disabled);
  await page.locator('#gateContinueBtn').click();await page.locator('#accountName').fill('Prueba local');await page.locator('#accountEmail').fill('browser@example.test');await page.locator('#accountPassword').fill('Example-Password-123');
  await page.locator('#accountBirthDate').fill('2016-01-01');await page.locator('#registerBtn').click();await page.locator('#accountError').filter({hasText:'16'}).waitFor();assert.equal(await page.locator('#appShell').isVisible(),false);ok('registro bloquea a menores de 16');
- await page.locator('#accountBirthDate').fill('1995-04-12');await page.locator('#registerBtn').click();await page.locator('#consultationModal').waitFor({state:'visible'});ok('registro y entrada a consulta');
+ await page.locator('#accountBirthDate').fill('1995-04-12');await page.locator('#registerBtn').click();await page.locator('#accountError').filter({hasText:'Revisa tu correo'}).waitFor();await auth.confirm('browser@example.test');await page.locator('#accountPassword').fill('Example-Password-123');await page.locator('#loginBtn').click();await page.locator('#consultationModal').waitFor({state:'visible'});ok('registro y entrada a consulta');
  const buffer=await sharp({create:{width:80,height:80,channels:3,background:'#BBAA88'}}).png().toBuffer();for(const id of ['faceInput','bodyInput'])await page.locator('#'+id).setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer});
  await page.waitForFunction(()=>!document.getElementById('analyzeBtn').disabled);await page.locator('#consultStyle').fill('Natural');await page.locator('#analyzeBtn').click();
  for(let i=0;i<50;i++){if((await query("select 1 from analysis_jobs where state='queued' limit 1")).rowCount){await products.runOne();break;}await new Promise(r=>setTimeout(r,100));}
@@ -44,4 +45,4 @@ try{
  await page.locator('#accountBtn').click();await page.route('**/api/auth/logout',route=>route.abort());await page.locator('#logoutBtn').click();await page.locator('#analysisGate').waitFor({state:'visible'});assert.match(await page.locator('#gateStatus').textContent(),/No se pudo revocar/);await page.reload();await page.waitForFunction(()=>!document.getElementById('gateContinueBtn').disabled);assert.equal(await page.locator('#appShell').isVisible(),false);ok('logout fallido bloquea datos y no anuncia revocación');
  assert.deepEqual(errors,[]);ok('sin errores JavaScript en los flujos');
  await fs.writeFile(new URL('browser-results.json',out),JSON.stringify({checks,errors,mode:'local HTTP + ephemeral Postgres + explicit mock AI + synthetic camera',at:new Date().toISOString()},null,2));console.log('BROWSER: '+checks+' checks passed');
-}catch(e){console.error('UI diagnostics',await page.locator('#scanStatus').textContent(),JSON.stringify(errors));await page.screenshot({path:shot('failure.png')});throw e;}finally{await browser.close();await new Promise(r=>server.close(r));await closeDB();await stopCluster();}
+}catch(e){console.error('UI diagnostics',await page.locator('#scanStatus').textContent(),JSON.stringify(errors));await page.screenshot({path:shot('failure.png')});throw e;}finally{await browser.close();await new Promise(r=>server.close(r));await closeDB();await stopCluster();auth.reset();}

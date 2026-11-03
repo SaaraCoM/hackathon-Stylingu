@@ -1,27 +1,37 @@
 import express from 'express';
 import { fileURLToPath } from 'node:url';
-import { connectDB,dbState } from './config/db.js';
+import { connectDB,dbState,query } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import { armario } from './routes/armario.js';
 import { mountPersonal } from './personal.js';
 import { productRoutes } from './routes/product.js';
 import { recoveryRoutes } from './routes/recovery.js';
+import { securityHeaders, csrfGuard } from './middleware/security.js';
+import { workerHealthy } from './worker-health.js';
 import { apiLimiter } from './middleware/rateLimit.js';
+import * as photoStorage from '../../shared/storage.js';
+import sharp from 'sharp';
+import {randomUUID,createHash} from 'node:crypto';
 const app=express();
 app.disable('x-powered-by');
 if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);
-app.use((req,res,next)=>{
- res.set('X-Content-Type-Options','nosniff').set('Referrer-Policy','same-origin').set('Permissions-Policy','camera=(self)');
- if(req.path.startsWith('/api/'))res.set('Cache-Control','private, no-store');
- if(!['GET','HEAD','OPTIONS'].includes(req.method)&&req.get('Origin')) {
-  const expected=process.env.PUBLIC_ORIGIN||req.protocol+'://'+req.get('host');
-  if(req.get('Origin')!==expected)return res.status(403).json({code:'ORIGIN_DENIED',error:'Origen no permitido.'});
- }
- next();
-});
+app.use(securityHeaders);
+app.use('/api', csrfGuard);
 app.use(express.json({limit:'12mb'}));
 app.get('/api/health',(_req,res)=>res.json({ok:true,service:'stylingu',version:process.env.RELEASE_VERSION||'development'}));
-app.get('/api/ready',async(_req,res)=>{try{await connectDB();if(dbState()!=='conectado')throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}});
+app.get('/api/ready',async(_req,res)=>{try{await query('select 1');if(dbState()!=='conectado')throw new Error();if(!workerHealthy())throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}});
+// Reachable through private service bindings only; the public router denies /internal/*.
+app.post('/internal/ready',async(_req,res)=>{
+ if(_req.get('X-Stylingu-Internal')!=='1'||_req.get('Origin'))return res.status(404).end();
+ const key='healthchecks/'+randomUUID();
+ try {
+  const bytes=await sharp({create:{width:16,height:16,channels:3,background:'#fff'}}).jpeg().toBuffer();
+  await photoStorage.put(key,bytes,'image/jpeg');
+  const read=await photoStorage.get(key);
+  if(!read?.equals(bytes))throw new Error();
+  await photoStorage.remove([key]);res.json({storage:true,keyFingerprint:createHash('sha256').update(process.env.SUPABASE_SECRET_KEY||'').digest('hex')});
+ }catch{await photoStorage.remove([key]).catch(()=>{});res.status(503).json({storage:false});}
+});
 app.use('/api',apiLimiter);
 app.use('/api/auth',authRoutes);
 app.use('/api/auth',recoveryRoutes);

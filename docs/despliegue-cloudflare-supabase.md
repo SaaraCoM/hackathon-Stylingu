@@ -1,3 +1,5 @@
+> **Guía histórica:** sustituida por [Despliegue seguro](despliegue-seguro.md). No usar las instrucciones antiguas de credenciales o promoción.
+
 # StylingU: Cloudflare y Supabase
 
 Estado: preparación local. El scaffolding de Cloudflare Containers está creado y

@@ -1,21 +1,143 @@
-name: ci
-on: [push, pull_request]
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
 jobs:
-  check:
+  checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: 22
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.23.4
           cache: npm
           cache-dependency-path: |
+            package-lock.json
             backend/package-lock.json
             frontend/package-lock.json
-      - run: npm ci --prefix backend
-      - run: npm ci --prefix frontend
-      - run: npm run check
-      - run: npm test
-      - run: npm run build
+      - run: npm ci && npm ci --prefix backend && npm ci --prefix frontend
+      - run: npm run check && npm test
+      - run: node scripts/security/audit.mjs
       - run: npx --prefix backend playwright install --with-deps chromium
       - run: node tests/browser.mjs
+      - run: npx wrangler deploy --env staging --dry-run
+      - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_ENABLE_COMMENTS: false
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        with:
+          version: v0.76.1
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+  sast:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: github/codeql-action/init@5c8ea125689a2c5ae2672d1d914ac4bcd95d1b4b
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@5c8ea125689a2c5ae2672d1d914ac4bcd95d1b4b
+  image:
+    needs: [checks, sast]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          load: true
+          platforms: linux/amd64
+          build-args: RELEASE_VERSION=${{ github.sha }}
+          tags: stylingu:${{ github.sha }}
+          provenance: false
+      - run: docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp:rw,noexec,nosuid,size=16m,uid=65532,gid=65532 --entrypoint /nodejs/bin/node stylingu:${{ github.sha }} -e "if(process.getuid()===0)throw Error('root');const fs=require('fs');let denied=false;try{fs.writeFileSync('/app/check','x')}catch{denied=true}if(!denied)throw Error('writable');const sharp=require('/app/backend/node_modules/sharp');sharp({create:{width:16,height:16,channels:3,background:'#fff'}}).png().toBuffer().then(()=>console.log('nonroot, readonly, sharp OK'));"
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
+        with:
+          version: v0.76.1
+          image-ref: stylingu:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
+        with:
+          version: v0.76.1
+          image-ref: stylingu:${{ github.sha }}
+          format: spdx-json
+          output: sbom.spdx.json
+      - run: docker save stylingu:${{ github.sha }} -o image.tar && sha256sum image.tar sbom.spdx.json > artifact.sha256
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: image-${{ github.sha }}
+          path: |
+            image.tar
+            sbom.spdx.json
+            artifact.sha256
+          retention-days: 7
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: image
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      DOCKER_CONFIG: /dev/shm/stylingu-docker
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.4
+      - run: npm ci && mkdir -p "$DOCKER_CONFIG" && chmod 700 "$DOCKER_CONFIG"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: image-${{ github.sha }}
+      - run: sha256sum --check artifact.sha256 && docker load -i image.tar
+      - run: npx wrangler containers push stylingu:${{ github.sha }}
+      - id: image
+        run: |
+          ref="registry.cloudflare.com/$CLOUDFLARE_ACCOUNT_ID/stylingu:${GITHUB_SHA}"
+          image=$(docker image inspect "$ref" --format '{{index .RepoDigests 0}}')
+          test -n "$image"
+          printf 'image=%s\n' "$image" >> "$GITHUB_OUTPUT"
+          IMAGE="$image" node -e 'require("fs").writeFileSync("release.json",JSON.stringify({image:process.env.IMAGE,commit:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID}))'
+      - uses: sigstore/cosign-installer@f713795cb21599bc4e5c4b58cbad1da852d7eeb9
+        with:
+          cosign-release: v3.1.4
+      - run: cosign sign --yes "${{ steps.image.outputs.image }}" && cosign attest --yes --predicate sbom.spdx.json --type spdxjson "${{ steps.image.outputs.image }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-${{ github.sha }}
+          path: |
+            release.json
+            sbom.spdx.json
+          retention-days: 90
+      - if: always()
+        run: rm -rf "$DOCKER_CONFIG"
+  staging:
+    needs: publish
+    uses: ./.github/workflows/deploy-slot.yml
+    with:
+      target: staging
+      image: ${{ needs.publish.outputs.image }}
+      release: ${{ github.sha }}
+      bootstrap: ${{ vars.STAGING_BOOTSTRAP == 'true' }}
+    secrets: inherit

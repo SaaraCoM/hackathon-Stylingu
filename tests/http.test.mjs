@@ -5,11 +5,13 @@ import {createRequire} from 'node:module';
 const require=createRequire(new URL('../backend/package.json',import.meta.url));
 const sharp=require('sharp');
 import {testDatabase,stopCluster} from './pg.mjs';
+import {installAuthFixture} from './auth-fixture.mjs';
 import {seedCatalog} from '../shared/catalog-seed.js';
 test('integración HTTP: sesiones, aislamiento, perfil, tareas, armario, compras y eliminación', {timeout:180000},async t=>{
  await testDatabase('http');process.env.NODE_ENV='test';process.env.AI_PROVIDER='mock';delete process.env.PUBLIC_ORIGIN;
+ const auth=await installAuthFixture();
  const {default:app}=await import('../backend/src/index.js');const {products,repo}=await import('../backend/src/product.js');
- const server=app.listen(0);const a=request.agent(server),b=request.agent(server);
+ const server=app.listen(0);const a=request.agent(server).set('X-Stylingu-Request','1'),b=request.agent(server).set('X-Stylingu-Request','1');
  try {
   await seedCatalog(repo);
   let aid,bid,garmentId,jobId;
@@ -20,7 +22,17 @@ test('integración HTTP: sesiones, aislamiento, perfil, tareas, armario, compras
     const under=await a.post('/api/auth/registro').send({...base,birthDate:`${new Date().getFullYear()-10}-01-01`}).expect(403);assert.equal(under.body.code,'UNDERAGE');
     assert.equal(await repo.userByEmail('menor@example.test'),null);
   });
-  await t.test('registro de dos cuentas con cookies HttpOnly',async()=>{const birthDate='1995-04-12';const ar=await a.post('/api/auth/registro').send({name:'Ana',email:'ana@example.test',password:'Password-123',birthDate}).expect(201);aid=ar.body.user.id;assert.ok(ar.headers['set-cookie'][0].includes('HttpOnly'));const br=await b.post('/api/auth/registro').send({name:'Berta',email:'berta@example.test',password:'Password-456',birthDate}).expect(201);bid=br.body.user.id;});
+  await t.test('registro exige confirmación y login entrega cookies HttpOnly',async()=>{
+    for (const [agent,name,email,password] of [[a,'Ana','ana@example.test','Password-123'],[b,'Berta','berta@example.test','Password-456']]) {
+      const r=await agent.post('/api/auth/registro').send({name,email,password,birthDate:'1995-04-12'}).expect(201);
+      assert.equal(r.body.user,null);assert.equal(r.body.confirmationRequired,true);
+      await agent.post('/api/auth/login').send({email,password}).expect(401);
+      await auth.confirm(email);
+      const login=await agent.post('/api/auth/login').send({email,password}).expect(200);
+      if(agent===a)aid=login.body.user.id;else bid=login.body.user.id;
+      assert.ok(login.headers['set-cookie'].some(c=>c.includes('HttpOnly')));
+    }
+  });
   await t.test('propietario de prendas y renderizado de texto no confiable',async()=>{const r=await a.post('/api/garments').send({name:'Camisa A',category:'top',colors:['#112233'],userId:bid}).expect(201);garmentId=r.body.item._id;assert.equal(r.body.item.userId,aid);assert.equal((await b.get('/api/garments')).body.items.length,0);await b.delete('/api/garments/'+garmentId).expect(404);await a.post('/api/garments').send({name:'<img onerror=alert(1)>',category:'top'}).expect(400);});
   await t.test('perfil versionado y presupuesto independiente del análisis',async()=>{const p=(await a.patch('/api/profile').send({hairColor:'castaño',currency:'EUR',budget:20}).expect(200)).body.profile;assert.equal(p.version,1);assert.equal(p.visualVersion,1);const p2=(await a.patch('/api/profile').send({budget:30}).expect(200)).body.profile;assert.equal(p2.visualVersion,1);assert.equal(p2.version,2);});
   let face;
@@ -33,7 +45,7 @@ test('integración HTTP: sesiones, aislamiento, perfil, tareas, armario, compras
   await t.test('feedback persistente tiene efecto de duplicidad',async()=>{await a.post('/api/recommendation-feedback').send({variantId:'maybelline-lifter-moon',action:'owned'}).expect(200);const rec=await a.post('/api/purchase-recommendations').send({variantId:'maybelline-lifter-moon'}).expect(200);assert.equal(rec.body.state,'low_priority');assert.equal((await b.get('/api/owned-cosmetics')).body.items.length,0);});
   await t.test('tutorial conserva progreso por versión',async()=>{const items=(await a.get('/api/tutorials').expect(200)).body.items;const tutorial=items[0],key=tutorial.id+':'+tutorial.analysisId+':'+tutorial.profileVersion;await a.post('/api/tutorial-progress').send({key,completed:[0]}).expect(200);assert.deepEqual((await a.get('/api/tutorial-progress?key='+encodeURIComponent(key))).body.completed,[0]);});
   await t.test('liveness, readiness y adaptador ESM',async()=>{await a.get('/api/health').expect(200);await a.get('/api/ready').expect(200);assert.equal((await import('../vercel/api/index.js')).default,app);});
-  await t.test('recuperación no simula correo sin transporte',async()=>{delete process.env.SMTP_URL;const response=await a.post('/api/auth/forgot-password').send({email:'ana@example.test'}).expect(503);assert.equal(response.body.code,'MAIL_NOT_CONFIGURED');});
-  await t.test('borrado revoca sesión y elimina todas las colecciones personales',async()=>{await a.delete('/api/account').send({confirmation:'ELIMINAR'}).expect(200);assert.equal(await repo.countRows('users',aid),0);for(const table of ['photos','outfits','garments','outfit_plans','owned_cosmetics','recommendation_feedback','tutorial_progress','analysis_jobs','quotas','sessions'])assert.equal(await repo.countRows(table,aid),0,table);await a.get('/api/profile').expect(401);assert.ok(await repo.userById(bid));});
- }finally{await new Promise(resolve=>server.close(resolve));await stopCluster();}
+  await t.test('recuperación delega el envío en Supabase Auth',async()=>{const response=await a.post('/api/auth/forgot-password').send({email:'ana@example.test'}).expect(200);assert.equal(response.body.ok,true);});
+  await t.test('borrado revoca sesión y elimina todas las colecciones personales',async()=>{await a.delete('/api/account').send({confirmation:'ELIMINAR'}).expect(200);assert.equal(await repo.countRows('users',aid),0);for(const table of ['photos','outfits','garments','outfit_plans','owned_cosmetics','recommendation_feedback','tutorial_progress','analysis_jobs','quotas'])assert.equal(await repo.countRows(table,aid),0,table);await a.get('/api/profile').expect(401);assert.ok(await repo.userById(bid));});
+ }finally{await new Promise(resolve=>server.close(resolve));await stopCluster();auth.reset();}
 });

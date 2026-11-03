@@ -1,0 +1,59 @@
+name: stylingu
+x-app: &app
+  platform: linux/amd64
+  build:
+    context: .
+    target: runtime
+    args:
+      RELEASE_VERSION: ${RELEASE_VERSION:-development}
+  image: stylingu:local
+  user: "65532:65532"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m,uid=65532,gid=65532
+  pids_limit: 128
+  mem_limit: 1g
+  cpus: 1
+  restart: unless-stopped
+  stop_grace_period: 11m
+  healthcheck:
+    test: [CMD, /nodejs/bin/node, -e, "fetch('http://127.0.0.1:8080/api/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+    interval: 15s
+    timeout: 10s
+    start_period: 45s
+    retries: 3
+services:
+  app:
+    <<: *app
+    profiles: [development]
+    ports: ["127.0.0.1:8080:8080"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    environment:
+      NODE_ENV: development
+      RELEASE_VERSION: ${RELEASE_VERSION:-development}
+      PUBLIC_ORIGIN: http://localhost:8080
+      DATABASE_URL: ${DATABASE_URL:-}
+      JOBS_DATABASE_URL: ${JOBS_DATABASE_URL:-}
+      SUPABASE_URL: ${SUPABASE_URL:-http://host.docker.internal:54321}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:-}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+      AI_PROVIDER: mock
+      PG_POOL_MAX: "3"
+  staging:
+    <<: *app
+    profiles: [staging]
+    ports: ["127.0.0.1:8081:8080"]
+    environment:
+      NODE_ENV: production
+      RELEASE_VERSION: ${RELEASE_VERSION:-development}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://stylingu-staging.example}
+      DATABASE_URL: ${DATABASE_URL:-}
+      JOBS_DATABASE_URL: ${JOBS_DATABASE_URL:-}
+      PG_SSL_CA: ${PG_SSL_CA:-}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:-}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+      MODEL_API_KEY: ${MODEL_API_KEY:-}
+      AI_PROVIDER: meta

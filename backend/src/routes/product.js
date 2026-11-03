@@ -6,6 +6,7 @@ import { aiLimiter } from '../middleware/rateLimit.js';
 import { metaClient,capabilities } from '../../../shared/meta-client.js';
 import { decodePhoto } from '../../../shared/personal-service.js';
 import { normalizePhoto } from '../images.js';
+import { adminClient } from '../supabase.js';
 import { fail } from '../../../shared/product-domain.js';
 export const productRoutes=Router();
 const handle=fn=>(req,res,next)=>Promise.resolve(fn(req,res)).catch(next);
@@ -50,9 +51,11 @@ r.delete('/account',handle(async(req,res)=>{
  // foráneas `on delete cascade` arrastran fotos, armario, planes y trabajos.
  // Las claves de Storage se recogen antes del borrado. Reintentar es seguro.
  await repo.markDeleting(userId);
- await repo.deleteSessionsForUser(userId);
- const keys=await repo.deleteAccount(userId);
- await storage.remove(keys).catch(()=>{});
- await destroySession(req,res);
+ const keys = await repo.photoKeysForUser(userId);
+ await storage.remove(keys);
+ const {error} = await adminClient().auth.admin.deleteUser(userId);
+ if(error) fail('No se pudo finalizar el borrado. Reintenta.','DELETE_FAILED',503);
+ // Auth deletion cascades to the application profile and all its data.
+ await destroySession(req,res).catch(()=>{});
  res.json({ok:true});
 }));

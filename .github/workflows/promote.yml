@@ -1,0 +1,45 @@
+name: Promote production
+on:
+  workflow_dispatch:
+    inputs:
+      build_run:
+        description: Successful CI run that published and tested the staging release
+        required: true
+      release:
+        description: Full commit SHA from that CI run
+        required: true
+      bootstrap:
+        description: First installation only
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.read.outputs.image }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-${{ inputs.release }}
+          run-id: ${{ inputs.build_run }}
+          github-token: ${{ github.token }}
+      - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN: ${{ inputs.build_run }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN" > run.json
+          node -e 'const fs=require("fs"),r=JSON.parse(fs.readFileSync("run.json")),v=JSON.parse(fs.readFileSync("release.json"));if(r.conclusion!=="success"||r.event!=="push"||r.head_branch!=="main"||r.head_sha!==process.env.RELEASE||v.commit!==r.head_sha)throw Error("Unverified staging run");fs.appendFileSync(process.env.GITHUB_OUTPUT,"image="+v.image+"\n")'
+  production:
+    needs: release
+    uses: ./.github/workflows/deploy-slot.yml
+    with:
+      target: production
+      image: ${{ needs.release.outputs.image }}
+      release: ${{ inputs.release }}
+      bootstrap: ${{ inputs.bootstrap }}
+    secrets: inherit

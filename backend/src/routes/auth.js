@@ -1,126 +1,82 @@
-// auth.js — auth de StylingU: registro, login, logout, perfil y flujo de personalización.
-import express from "express";
-import bcrypt from "bcryptjs";
-import { connectDB, dbState } from "../config/db.js";
-import * as repo from "../db/repo.js";
-import { createSession, destroySession, requireUser } from "../middleware/auth.js";
-import { authLimiter } from "../middleware/rateLimit.js";
-import { ageFromBirthDate, MIN_AGE } from "../age.js";
-
+import { Router } from 'express';
+import { createHash } from 'node:crypto';
+import { authClient, authError } from '../supabase.js';
+import { destroySession, requireUser } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/rateLimit.js';
+import { ageFromBirthDate, MIN_AGE } from '../age.js';
+import * as repo from '../db/repo.js';
 import { cleanPrefs, analysisForProfile } from '../../../shared/personal-service.js';
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const router = express.Router();
-router.use(async (req, res, next) => {
-  if (req.path === '/yo' && !req.headers.cookie?.includes('stylingu_sid=')) return res.json({ user: null });
-  try { await connectDB(); next(); } catch { res.status(503).json({ error: 'Sin base de datos.' }); }
-});
-// Express 4 no propaga rechazos de handlers async automáticamente.
-for (const method of ['get', 'post', 'put']) {
-  const original = router[method].bind(router);
-  router[method] = (path, ...handlers) => original(path, ...handlers.map(fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)));
-}
-router.use('/registro', authLimiter);
-router.use('/login', authLimiter);
-router.get('/yo', async (req, res, next) => {
-  if (!req.headers.cookie?.includes('stylingu_sid=')) return res.json({ user: null });
-  return requireUser(req, res, async () => {
-    try {
-      const user = await repo.userById(req.sessionUser);
-      res.json({ user: user ? { id: user._id, name: user.name, email: user.email } : null });
-    } catch (err) { next(err); }
-  });
-});
-
-// Registro básico
-router.post("/registro", async (req, res) => {
-  await connectDB();
-  if (dbState() !== "conectado") {
-    return res.status(503).json({ error: "Sin base de datos: el registro llegará con tu cuenta." });
-  }
-  const { name, email, password, birthDate, analysis } = req.body ?? {};
-  const emailStr = String(email ?? "").toLowerCase().trim();
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: "name, email y password son requeridos." });
-  }
-  if (!EMAIL_RE.test(emailStr)) return res.status(400).json({ error: "Email no válido." });
-  if (String(password).length < 8 || Buffer.byteLength(String(password)) > 72) {
-    return res.status(400).json({ error: "La contraseña necesita 8+ caracteres y un máximo de 72 bytes." });
-  }
-  if (birthDate == null || birthDate === "") {
-    return res.status(400).json({ code: "BIRTH_DATE_REQUIRED", error: "Indica tu fecha de nacimiento para crear la cuenta." });
-  }
+const router = Router();
+const handle = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const publicUser = u => ({ id: u._id, name: u.name, email: u.email });
+const passwordValid = v => typeof v === 'string' && v.length >= 8 && Buffer.byteLength(v) <= 72;
+router.post('/registro', authLimiter, handle(async (req, res) => {
+  const { name, email, password, birthDate, analysis } = req.body || {};
+  if (typeof name !== 'string' || !name.trim() || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !passwordValid(password)) return res.status(400).json({ error: 'Revisa nombre, email y contraseña (8 caracteres mínimo, 72 bytes máximo).' });
+  if (!birthDate) return res.status(400).json({ code: 'BIRTH_DATE_REQUIRED', error: 'Indica tu fecha de nacimiento.' });
   const age = ageFromBirthDate(birthDate);
-  if (age === null) {
-    return res.status(400).json({ code: "INVALID_BIRTH_DATE", error: "La fecha de nacimiento no es válida. Usa el formato AAAA-MM-DD." });
+  if (age === null) return res.status(400).json({ code: 'INVALID_BIRTH_DATE', error: 'Fecha no válida.' });
+  if (age < MIN_AGE) return res.status(403).json({ code: 'UNDERAGE', error: 'Debes tener al menos 16 años para crear una cuenta.' });
+  if (analysis != null) return res.status(400).json({ error: 'Completa el análisis después de crear la cuenta.' });
+  const client = authClient(req, res);
+  const { data, error } = await client.auth.signUp({ email: email.trim().toLowerCase(), password, options: { data: { name: name.trim().slice(0, 60), birth_date: birthDate }, emailRedirectTo: new URL('/api/auth/callback', process.env.PUBLIC_ORIGIN || 'http://localhost:8080').href } });
+  authError(error, 'No se pudo registrar la cuenta. Revisa los datos o intenta entrar.');
+  if (data.session) await client.auth.signOut({ scope: 'local' });
+  // Always require email confirmation; a misconfigured Auth server must not open the app.
+  res.status(201).json({ user: null, confirmationRequired: true, message: 'Revisa tu correo y confirma tu cuenta antes de entrar.' });
+}));
+router.post('/login', authLimiter, handle(async (req, res) => {
+  const { email, password } = req.body || {};
+  if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Email y contraseña son requeridos.' });
+  req.auth = authClient(req, res);
+  const { data, error } = await req.auth.auth.signInWithPassword({ email, password });
+  authError(error, 'Email o contraseña incorrectos.');
+  if (!data.user?.email_confirmed_at) return res.status(401).json({ code: 'EMAIL_NOT_CONFIRMED', error: 'Confirma tu correo antes de entrar.' });
+  return requireUser(req, res, handle(async () => {
+    const user = await repo.userById(req.sessionUser);
+    if (!user) return res.status(401).json({ error: 'Perfil no disponible.' });
+    res.json({ user: publicUser(user) });
+  }));
+}));
+router.get('/yo', handle(async (req, res) => {
+  if (!req.headers.cookie?.includes('stylingu_auth')) return res.json({ user: null });
+  return requireUser(req, res, handle(async () => {
+    const user = await repo.userById(req.sessionUser);
+    res.json({ user: user ? publicUser(user) : null });
+  }));
+}));
+router.post('/logout', handle(async (req, res) => { await destroySession(req, res); res.json({ ok: true }); }));
+router.get('/callback', authLimiter, handle(async (req, res) => {
+  const { token_hash, type, code } = req.query;
+  const client = authClient(req, res);
+  let result;
+  if (typeof code === 'string' && code.length < 2048 && !type) result = await client.auth.exchangeCodeForSession(code);
+  else if (typeof token_hash === 'string' && token_hash.length < 2048 && ['email', 'signup', 'recovery'].includes(type)) result = await client.auth.verifyOtp({ token_hash, type });
+  else return res.status(400).json({ error: 'Enlace de confirmación no válido.' });
+  authError(result.error, 'El enlace ha caducado o ya fue utilizado.');
+  res.set('Referrer-Policy', 'no-referrer');
+  if (type === 'recovery') {
+    const digest = createHash('sha256').update(result.data.session.access_token).digest('hex');
+    res.cookie('stylingu_recovery', digest, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 600000 });
+    return res.redirect('/#reset=supabase');
   }
-  if (age < MIN_AGE) {
-    return res.status(403).json({ code: "UNDERAGE", error: `Debes tener al menos ${MIN_AGE} años para crear una cuenta.` });
-  }
-  if (analysis != null) return res.status(400).json({ error: 'Crea la cuenta y después finaliza el análisis con tus fotos.' });
-
-  const exists = await repo.userByEmail(emailStr);
-  if (exists) return res.status(409).json({ error: "Ese email ya tiene cuenta." });
-
-  const user = await repo.createUser({
-    name: String(name).slice(0, 60),
-    email: emailStr,
-    passwordHash: await bcrypt.hash(String(password), 12),
-    birthDate
-  });
-  await createSession(req, res, user._id);
-  return res.status(201).json({ user: { id: user._id, name: user.name, email: user.email } });
-});
-
-// Login básico
-router.post("/login", async (req, res) => {
-  await connectDB();
-  if (dbState() !== "conectado") {
-    return res.status(503).json({ error: "Sin base de datos: el login llegará con tu cuenta." });
-  }
-  const { email, password } = req.body ?? {};
-  const emailStr = String(email ?? "").toLowerCase().trim();
-  if (!email || !password) {
-    return res.status(400).json({ error: "email y password son requeridos." });
-  }
-  const user = await repo.credentialsByEmail(emailStr);
-  if (!user || user.deleting || !(await bcrypt.compare(String(password), user.passwordHash ?? ''))) {
-    return res.status(401).json({ error: "Email o contraseña incorrectos." });
-  }
-  await createSession(req, res, user._id);
-  return res.json({ user: { id: user._id, name: user.name, email: user.email } });
-});
-
-// Logout
-router.post("/logout", async (req, res) => {
-  await destroySession(req, res);
-  return res.json({ ok: true });
-});
-
-// Perfil: preferencias + análisis persistidos.
-router.get("/perfil", requireUser, async (req, res) => {
-  await connectDB();
+  // Confirmation verifies the address; password login prevents an unsolicited link from logging a browser into another account.
+  await client.auth.signOut({scope:'local'});
+  res.redirect('/#auth=confirmed');
+}));
+router.get('/perfil', requireUser, handle(async (req, res) => {
   const user = await repo.userById(req.sessionUser);
-  if (!user) return res.status(401).json({ error: "Sesión sin cuenta." });
-  return res.json({
-    preferences: user.preferences ?? { goals: [], jewelry: "", styles: [] },
-    analysis: user.analysis ?? null
-  });
-});
-
-router.put("/perfil", requireUser, async (req, res) => {
-  await connectDB();
-  const body = req.body ?? {};
+  if (!user) return res.status(401).json({ error: 'Sesión sin cuenta.' });
+  res.json({ preferences: user.preferences, analysis: user.analysis ?? null });
+}));
+router.put('/perfil', requireUser, handle(async (req, res) => {
   const user = await repo.userById(req.sessionUser);
-  if (!user) return res.status(401).json({ error: "Sesión sin cuenta." });
-  const patch = {};
-  if (['goals', 'jewelry', 'styles'].some(key => key in body)) patch.preferences = cleanPrefs(body);
+  if (!user) return res.status(401).json({ error: 'Sesión sin cuenta.' });
+  const body = req.body || {}, patch = {};
+  if (['goals', 'jewelry', 'styles'].some(k => k in body)) patch.preferences = cleanPrefs(body);
   if ('analysis' in body) patch.analysis = analysisForProfile(user, body.analysis);
   const saved = await repo.saveUser(req.sessionUser, patch);
-  if (!saved) return res.status(401).json({ error: "Sesión sin cuenta." });
-  return res.json({ preferences: saved.preferences, analysis: saved.analysis ?? null });
-});
-
-
+  res.json({ preferences: saved.preferences, analysis: saved.analysis });
+}));
 export { router as authRoutes };
-
 export default router;

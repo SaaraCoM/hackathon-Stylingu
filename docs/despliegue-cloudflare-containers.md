@@ -1,3 +1,5 @@
+> **Guía histórica:** sustituida por [Despliegue seguro](despliegue-seguro.md). No usar las instrucciones antiguas de credenciales o promoción.
+
 # Despliegue en Cloudflare Containers
 
 Estado: scaffolding listo y validado con `wrangler deploy --dry-run --containers-rollout=none`.
