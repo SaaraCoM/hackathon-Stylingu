@@ -9,6 +9,12 @@
     "BACKEND_URL": "https://zbfxwbuuuzjzmsrraxkf.supabase.co/functions/v1/stylingu-api",
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFyiycbgRQEQ11_9"
   },
+  "exports": {
+    "StylinguContainer": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
   "ratelimits": [
     {
       "name": "API_GUARD",
@@ -26,13 +32,5 @@
         "period": 60
       }
     }
-  ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "STYLINGU_CONTAINER",
-        "class_name": "StylinguContainer"
-      }
-    ]
-  }
+  ]
 }

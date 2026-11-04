@@ -39,6 +39,7 @@ android/.gradle/
 .playwright-cli/
 .superdesign/
 .tmp-preview/
+.tmp-edge/
 __pycache__/
 .next/
 .venv/

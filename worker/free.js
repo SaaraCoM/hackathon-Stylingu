@@ -65,4 +65,6 @@ export function createWorker(assets,fetcher=fetch){
   return new Response(Uint8Array.from(atob(item.base64),c=>c.charCodeAt(0)),{headers});
  }};
 }
+// Compatibilidad con el namespace heredado de Containers. No se enlaza en el runtime gratuito.
 export class StylinguContainer{async fetch(){return json({code:'LEGACY_RUNTIME_RETIRED'},410);}}
+
