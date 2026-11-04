@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "node tests/ux.js"
+    "test": "node tests/ux.js && node tests/makeup-map.js"
   },
   "dependencies": {
     "@zxing/browser": "0.1.5",

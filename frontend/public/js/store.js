@@ -83,5 +83,6 @@ const store={
  getCatalog:()=>personalState.catalog,
  setScanner:value=>{personalState.scanner=value;window.dispatchEvent(new Event('stylingu:scanner'));},
  getScanner:()=>personalState.scanner,
+ getMakeupMapSelection:()=>readJSON('makeup-map',null),saveMakeupMapSelection:shape=>writeJSON('makeup-map',shape),
  requestTimeout
 };

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="./figma.css" />
 <link rel="stylesheet" href="./product.css" />
 <link rel="stylesheet" href="./editorial.css" />
+<link rel="stylesheet" href="./makeup-map.css" />
 <link rel="stylesheet" href="./inline-migrated.css" />
 </head>
 <body>
@@ -382,10 +383,22 @@
       <div class="section-head">
         <div>
           <p class="section-index">02 / Tu mapa</p>
-          <h2 id="faceMapTitle">Cómo se traduce en tu cara.</h2>
-          <p class="section-lede">Forma del rostro, apertura ocular y colocación del color. Una guía para practicar, no una medida biométrica.</p>
+          <h2 id="faceMapTitle">Tu mapa de maquillaje</h2>
+          <p class="section-lede">Descubre dónde aplicar cada producto según la forma de tu rostro.</p>
         </div>
       </div>
+      <div class="makeup-map-heading">
+        <span class="eyebrow">Mapa ilustrativo</span>
+        <div class="makeup-map-selection"><label for="makeupMapShape">Forma del rostro</label>
+          <select id="makeupMapShape"><option value="">Elegir un mapa</option><option value="ovalado">Ovalado</option><option value="corazon">Corazón</option><option value="diamante">Diamante</option><option value="cuadrada">Cuadrado</option></select>
+          <button id="makeupMapRestore" type="button" class="btn" disabled>Usar forma del análisis</button>
+        </div>
+        <p id="makeupMapOrigin" class="fine" role="status" aria-live="polite"></p>
+      </div>
+      <div id="faceMakeupMap"></div>
+      <p class="fine makeup-map-note">Los colores del mapa señalan dónde aplicar los productos; no representan sus tonos reales. Son orientaciones que puedes adaptar a tu gusto.</p>
+      <div id="makeupMapContext"></div>
+      <p class="fine makeup-map-photo-note">Este mapa utiliza una ilustración. La prueba de color sobre tu foto tiene sus propios controles de alineación debajo; estas capas no se superponen a la fotografía.</p>
       <div class="face-map">
         <dl class="face-metrics">
           <div><dt>Forma del rostro</dt><dd id="faceShape"></dd></div>
@@ -393,13 +406,42 @@
           <div><dt>Tipo de delineado</dt><dd id="eyelinerType"></dd></div>
           <div><dt>Colocación de sombras</dt><dd id="shadowPlacement"></dd></div>
         </dl>
-        <div class="look-card">
-          <span class="eyebrow">Probador de color</span>
-          <h2>Muestra de color</h2>
-          <p class="muted">Ajusta brillo, opacidad y sombra sobre la muestra de tu look. Sin cámara en vivo.</p>
+        <div class="look-card" id="virtualTryon">
+          <span class="eyebrow">Probador virtual de colores</span>
+          <h2 id="tryonTitle">Tu paleta, sobre tu rostro.</h2>
+          <p class="muted" id="tryonHelp">Prueba los colores del análisis o un tono del catálogo. Ajusta las zonas para encajarlas con tu foto frontal.</p>
+          <div class="tryon-stage" id="tryonStage">
+            <img id="tryonPhoto" data-analysis-photo="face" alt="Tu rostro para probar colores de maquillaje" />
+            <svg id="tryonOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" hidden>
+              <defs><filter id="tryonSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="0.8" /></filter></defs>
+              <g id="tryonEyes" filter="url(#tryonSoft)"><ellipse data-anchor="leftEye" rx="5.5" ry="1.8" /><ellipse data-anchor="rightEye" rx="5.5" ry="1.8" /></g>
+              <g id="tryonBlush" filter="url(#tryonSoft)"><ellipse data-anchor="leftCheek" rx="6" ry="3.5" /><ellipse data-anchor="rightCheek" rx="6" ry="3.5" /></g>
+              <path id="tryonLips" fill-rule="evenodd" d="M -7 0 Q -3 -3.5 0 -1.8 Q 3 -3.5 7 0 Q 0 6 -7 0 Z M -5 0 Q 0 1 5 0 Q 0 2 -5 0 Z" />
+            </svg>
+          </div>
+          <p class="fine" id="tryonStatus" role="status" aria-live="polite">Completa tu análisis para probar colores sobre tu foto.</p>
+          <fieldset id="tryonControls" disabled aria-describedby="tryonHelp tryonDisclaimer">
+            <legend>Colores y acabado</legend>
+            <label for="tryonZone">Zona que quieres probar</label>
+            <select id="tryonZone"><option value="labial">Labios</option><option value="colorete">Colorete</option><option value="sombra">Sombras</option></select>
+            <div id="tryonPalette" class="tryon-palette" role="group" aria-label="Colores de tu análisis"></div>
+            <label for="tryonColor">Color personalizado</label><input id="tryonColor" type="color" value="#AA5533" />
+            <p id="tryonSelected" class="fine"></p>
           <div class="slider-row"><label for="sliderBrillo">Labios: brillo</label><input id="sliderBrillo" type="range" min="0" max="100" value="50" /></div>
           <div class="slider-row"><label for="sliderOpacidad">Labios: opacidad</label><input id="sliderOpacidad" type="range" min="0" max="100" value="80" /></div>
           <div class="slider-row"><label for="sliderSombra">Sombra: intensidad</label><input id="sliderSombra" type="range" min="0" max="100" value="35" /></div>
+            <div class="slider-row"><label for="tryonBlushOpacity">Colorete: intensidad</label><input id="tryonBlushOpacity" type="range" min="0" max="100" value="40" /></div>
+            <details class="tryon-alignment"><summary>Ajustar posición a mi rostro</summary>
+              <p class="fine">Elige un punto y pulsa sobre su posición en la foto, o usa los controles. Alinea las sombras sobre los párpados y el centro del labial sobre los labios.</p>
+              <label for="tryonAnchor">Punto que quieres mover</label>
+              <select id="tryonAnchor"><option value="lips">Centro de labios</option><option value="leftCheek">Mejilla izquierda en la foto</option><option value="rightCheek">Mejilla derecha en la foto</option><option value="leftEye">Párpado izquierdo en la foto</option><option value="rightEye">Párpado derecho en la foto</option></select>
+              <div class="slider-row"><label for="tryonX">Posición horizontal</label><input id="tryonX" type="range" min="0" max="100" step="0.5" value="50" /></div>
+              <div class="slider-row"><label for="tryonY">Posición vertical</label><input id="tryonY" type="range" min="0" max="100" step="0.5" value="73" /></div>
+              <div class="slider-row"><label for="tryonSize">Tamaño del punto</label><input id="tryonSize" type="range" min="40" max="200" value="100" /></div>
+              <div class="slider-row"><label for="tryonAngle">Inclinación del punto</label><input id="tryonAngle" type="range" min="-45" max="45" value="0" /></div>
+            </details>
+            <div class="row"><button id="tryonCompare" type="button" class="btn" aria-pressed="false">Ver original</button><button id="tryonReset" type="button" class="btn">Restablecer prueba</button></div>
+          </fieldset>
           <p><span class="pill" id="lookBadge"></span></p>
           <h3 id="lookTitle"></h3>
           <p class="muted" id="lookDesc"></p>
@@ -407,7 +449,7 @@
             <div class="look-swatch" id="lookColorPreview" aria-hidden="true"></div>
             <div class="look-swatch" id="lookBlushPreview" aria-hidden="true"></div>
           </div>
-          <p class="fine">Consulta de tonos, sin simulación sobre la foto ni cámara en vivo.</p>
+          <p class="fine" id="tryonDisclaimer">Simulación orientativa sobre tu foto, con alineación manual. El acabado real depende de la piel, la luz y la pantalla. La paleta del análisis no equivale a una referencia Pantone certificada.</p>
           <button class="btn" data-open-consult type="button">Actualizar mi análisis</button>
         </div>
       </div>
@@ -435,7 +477,7 @@
         <div>
           <p class="section-index">04 / Labios</p>
           <h2 id="lipsTitle">El tono que te acompaña.</h2>
-          <p class="section-lede">Tu tono recomendado y referencias de acabado. Las fichas del catálogo se muestran solo cuando están verificadas.</p>
+          <p class="section-lede">Las tres referencias más cercanas a tu guía de labios, con los nombres y tonos de las fichas oficiales.</p>
         </div>
       </div>
       <div id="lipList"></div>
@@ -452,7 +494,7 @@
         <div>
           <p class="section-index">05 / Colorete</p>
           <h2 id="blushTitle">Dónde nace el color.</h2>
-          <p class="section-lede">Colocación del colorete y el iluminador según tu análisis.</p>
+          <p class="section-lede">Tres tonos seleccionados según el colorete que propone tu análisis. Pruébalos sobre tu foto.</p>
         </div>
       </div>
       <div id="blushList"></div>
@@ -462,8 +504,8 @@
       <div class="section-head">
         <div>
           <p class="section-index">06 / Mirada</p>
-          <h2 id="eyesTitle">Tu cuarteto de sombras.</h2>
-          <p class="section-lede">Tus colores del análisis y dos referencias visuales de acabado.</p>
+          <h2 id="eyesTitle">Sombras que van contigo.</h2>
+          <p class="section-lede">Las tres referencias más cercanas a los colores de tu paleta, para probar y comparar.</p>
         </div>
       </div>
       <div class="quad" id="eyesQuad"></div>
@@ -726,6 +768,9 @@
 <script src="./js/color.js"></script>
 <script src="./js/wardrobe.js"></script>
 <script src="./js/makeup.js"></script>
+<script src="./js/tryon.js"></script>
+<script src="./js/face-makeup-map.js"></script>
+<script src="./js/makeup-map.js"></script>
 <script src="./js/compras.js"></script>
 <script src="./js/onboarding.js"></script>
 <script src="./js/design.js"></script>

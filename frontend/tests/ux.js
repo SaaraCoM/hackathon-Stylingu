@@ -4,9 +4,10 @@ const localDate=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padSt
 (async()=>{
  const root=path.join(__dirname,'../public');const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;
- w.structuredClone=structuredClone;w.AbortSignal=AbortSignal;w.fetch=async()=>({ok:true,json:async()=>({user:null})});w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
+ const makeupCatalog=JSON.parse(fs.readFileSync(path.join(root,'makeup-catalog.json'),'utf8'));
+ w.structuredClone=structuredClone;w.AbortSignal=AbortSignal;w.fetch=async url=>({ok:true,json:async()=>String(url).endsWith('makeup-catalog.json')?makeupCatalog:{user:null}});w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
  const files=[...html.matchAll(/<script src="\.\/([^"]+)"/g)].map(m=>m[1]).filter(f=>!['js/barcode.js','js/pwa.js'].includes(f));
- w.eval(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\nwindow.testStore=store;window.testApply=applyAnalysis;window.testSetUser=u=>{currentUser=u;store.setUser(u)};window.testD=D;');
+ w.eval(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\nwindow.testStore=store;window.testApply=applyAnalysis;window.testSetUser=u=>{currentUser=u;store.setUser(u)};window.testD=D;window.testClearMakeupCatalog=()=>{makeupCatalog=[]};');
  await new Promise(r=>setTimeout(r,30));let checks=0;function check(name,fn){return Promise.resolve().then(fn).then(()=>{checks++;console.log('ok - '+name);});}
  await check('sin sesión no expone contenido ni ejemplos',()=>{assert.equal(w.document.getElementById('appShell').hidden,true);assert.equal(w.testD.outfits.length,0);assert.equal(w.testD.palette.length,0);});
  await check('almacenamiento separado por cuenta',()=>{w.testSetUser({id:'a'});w.testStore.saveProfile({name:'Ana'});w.testStore.addOutfit({top:'Camisa privada'});w.testSetUser({id:'b'});assert.equal(w.testStore.getProfile(),null);assert.equal(w.testStore.getOutfits().length,0);w.testSetUser({id:'a'});assert.equal(w.testStore.getProfile().name,'Ana');});
@@ -46,20 +47,91 @@ const localDate=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padSt
  });
 
  /* --- Entrega 2: maquillaje con catálogo real y tutoriales distintos --- */
- await check('el maquillaje usa el catálogo real y no inventa tonos',()=>{
+ await check('el maquillaje distingue referencias oficiales y colores aproximados',()=>{
   w.testStore.setCatalog([{_id:'v1',shade:'Moon',market:'US',finish:'brillo',colorVerified:false,hex:'',product:{brand:'Maybelline',name:'Lifter Gloss',category:'labial'},source:'https://example.test/ficha'}]);
   w.eval('renderProducts()');
   const lip=w.document.getElementById('lipList').textContent;
-  assert.match(lip,/Maybelline/);assert.match(lip,/Moon/);assert.match(lip,/color no verificado/);
-  assert.doesNotMatch(lip,/melocotón/);
-  assert.match(w.document.getElementById('blushList').textContent,/Sin referencias verificadas/);
-  assert.match(w.document.getElementById('eyesQuad').textContent,/Sin referencias verificadas/);
+  assert.match(lip,/Rare Beauty/);assert.match(lip,/color de pantalla aproximado/);
+  assert.doesNotMatch(lip,/color verificado/);
+  assert.equal(w.document.querySelectorAll('#blushList .prod-row').length,3);
+  assert.equal(w.document.querySelectorAll('#eyesQuad .prod-row').length,3);
+  assert.equal(w.testStore.getCatalog()[0].hex,'','no se inventa un color verificado para Moon');
  });
- await check('catálogo vacío no se rellena con ejemplos',()=>{
+ await check('catálogo remoto vacío conserva las referencias oficiales incluidas',()=>{
   w.testStore.setCatalog([]);w.eval('renderProducts()');
-  assert.match(w.document.getElementById('lipList').textContent,/Sin referencias verificadas/);
+  assert.equal(w.document.querySelectorAll('#lipList .prod-row').length,3);
+  for(const link of w.document.querySelectorAll('#lipList a, #blushList a, #eyesQuad a'))assert.match(link.href,/^https:\/\/www\.(rarebeauty|elfcosmetics)\.com\//);
+ });
+ await check('las recomendaciones cambian con los colores del rostro',()=>{
+  w.testApply({...analysis,makeup:{...analysis.makeup,lipHex:'#C77C65',blushHex:'#DE927B'}});
+  assert.equal(w.document.querySelector('#lipList .prod-row').dataset.variantId,'rare-beauty-soft-pinch-lip-oil-joy');
+  assert.equal(w.document.querySelector('#blushList .prod-row').dataset.variantId,'rare-beauty-soft-pinch-blush-joy');
+  w.testApply({...analysis,makeup:{...analysis.makeup,lipHex:'#78465D',blushHex:'#793E61'},colorimetry:{...analysis.colorimetry,palette:['#886391']}});
+  assert.equal(w.document.querySelector('#lipList .prod-row').dataset.variantId,'rare-beauty-soft-pinch-lip-oil-affection');
+  assert.equal(w.document.querySelector('#blushList .prod-row').dataset.variantId,'rare-beauty-soft-pinch-blush-faith');
+  assert.equal(w.document.querySelector('#eyesQuad .prod-row').dataset.variantId,'elf-liquid-metallic-eyeshadow-supernova');
+  w.testApply(analysis);
+ });
+ await check('los colores desconocidos no adelantan tonos comparables y se penaliza evitar',()=>{
+  w.testApply({...analysis,colorimetry:{...analysis.colorimetry,avoid:[{hex:'#AA5533'}]}});
+  const ranked=w.eval("rankMakeupVariants([{_id:'unknown',colorVerified:false,hex:'#AA5533'},{_id:'avoid',colorVerified:true,hex:'#AA5533'},{_id:'near',colorVerified:true,hex:'#DD8866'}],'labial')");
+  assert.equal(ranked[0]._id,'near');assert.equal(ranked[2]._id,'unknown');
+  assert.equal(w.eval("makeupDistance('#000000','#000000')"),0);
+  w.testApply(analysis);
+ });
+ await check('un fallo al cargar catálogo permite reintentar sin inventar referencias',async()=>{
+  const fetch=w.fetch;w.fetch=async()=>({ok:false});w.testClearMakeupCatalog();
+  await w.eval('loadMakeupCatalog()');
+  assert.match(w.document.getElementById('lipList').textContent,/Reintentar cargar catálogo/);
+  w.fetch=fetch;await w.eval('loadMakeupCatalog()');
+  assert.equal(w.document.querySelectorAll('#lipList .prod-row').length,3);
+ });
+ await check('el probador espera la foto y aplica colores por zona',()=>{
+  assert.equal(w.document.getElementById('tryonControls').disabled,true);
+  const photo=w.document.getElementById('tryonPhoto');
+  Object.defineProperty(photo,'complete',{configurable:true,value:true});Object.defineProperty(photo,'naturalWidth',{configurable:true,value:600});
+  photo.dispatchEvent(new w.Event('load'));
+  assert.equal(w.document.getElementById('tryonControls').disabled,false);
+  const lips=w.document.getElementById('tryonLips'),blush=w.document.getElementById('tryonBlush');
+  assert.equal(lips.getAttribute('fill'),'#AA5533');assert.equal(blush.getAttribute('fill'),'#BB6644');
+  w.document.querySelector('#blushList .makeup-try').click();
+  assert.equal(w.document.getElementById('tryonZone').value,'colorete');
+  assert.equal(lips.getAttribute('fill'),'#AA5533');
+  assert.match(w.document.getElementById('tryonSelected').textContent,/aproximación/);
+  const color=w.document.getElementById('tryonColor');color.value='#336699';color.dispatchEvent(new w.Event('input'));
+  assert.equal(blush.getAttribute('fill'),'#336699');
+ });
+ await check('intensidad cero elimina el color y comparar recupera el original',()=>{
+  for(const [id,shape] of [['sliderOpacidad','tryonLips'],['sliderSombra','tryonEyes'],['tryonBlushOpacity','tryonBlush']]){
+   const slider=w.document.getElementById(id);slider.value='0';slider.dispatchEvent(new w.Event('input'));
+   assert.equal(w.document.getElementById(shape).getAttribute('opacity'),'0');
+  }
+  const compare=w.document.getElementById('tryonCompare');compare.click();
+  assert.equal(w.document.getElementById('tryonOverlay').hasAttribute('hidden'),true);assert.equal(compare.getAttribute('aria-pressed'),'true');
+  compare.click();assert.equal(w.document.getElementById('tryonOverlay').hasAttribute('hidden'),false);
+ });
+ await check('la alineación funciona con controles y con una pulsación en la foto',()=>{
+  const anchor=w.document.getElementById('tryonAnchor');anchor.value='lips';anchor.dispatchEvent(new w.Event('change'));
+  const x=w.document.getElementById('tryonX');x.value='42';x.dispatchEvent(new w.Event('input'));
+  assert.match(w.document.getElementById('tryonLips').getAttribute('transform'),/translate\(42 73\)/);
+  w.document.querySelector('.tryon-alignment').open=true;
+  w.document.getElementById('tryonPhoto').getBoundingClientRect=()=>({left:0,top:0,width:100,height:200});
+  w.document.getElementById('tryonStage').dispatchEvent(new w.MouseEvent('click',{clientX:50,clientY:150,bubbles:true}));
+  assert.match(w.document.getElementById('tryonLips').getAttribute('transform'),/translate\(50 75\)/);
+  w.document.getElementById('tryonReset').click();
+  assert.match(w.document.getElementById('tryonLips').getAttribute('transform'),/translate\(50 73\)/);
+  assert.equal(w.document.getElementById('sliderOpacidad').value,'80');
+ });
+ await check('cambiar de cuenta limpia la foto, el color y la alineación del probador',()=>{
+  w.testSetUser({id:'other'});
+  assert.equal(w.document.getElementById('tryonPhoto').hasAttribute('src'),false);
+  assert.equal(w.document.getElementById('tryonOverlay').hasAttribute('hidden'),true);
+  assert.equal(w.document.getElementById('tryonControls').disabled,true);
+  assert.equal(w.document.querySelectorAll('#tryonPalette button').length,0);
+  w.testSetUser({id:'a'});w.testApply(analysis);
  });
  await check('cambiar de look cambia pasos, productos e intensidad',async()=>{
+  await tick();
   w.api=async(path)=>{if(String(path).startsWith('/tutorial-progress'))return {completed:[]};return {};};
   const tutorials=[
    {id:'diario',title:'Diario suave',duration:8,difficulty:'inicial',intensity:'suave',categories:['colorete','labial'],goal:'día a día',zone:'rostro completo',steps:['Paso diario 1','Paso diario 2'],materials:['brocha'],adaptations:'Rostro oval.',alternative:'Omite el labial.'},

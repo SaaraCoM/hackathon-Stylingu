@@ -1,0 +1,9 @@
+MAPAS FACIALES DE MAQUILLAJE — 900 × 1100 px
+
+Cada archivo PSD contiene una vista compuesta y las capas independientes Rostro_Base, bronceador, contorno, colorete e iluminador.
+Cada subcarpeta incluye PNG transparentes independientes para la app.
+Los archivos ORA son un formato abierto alternativo con capas editables.
+
+Para la app: renderiza Rostro_Base y muestra u oculta cada PNG según los interruptores de la interfaz. El orden sugerido es broncer > contorno > colorete > iluminador. Para usar solo tres botones puedes agrupar bronceador y contorno en un único botón, aunque los cuatro se entregan separados.
+
+Mapas ilustrativos generales; adaptar intensidad y aplicación al rostro individual.

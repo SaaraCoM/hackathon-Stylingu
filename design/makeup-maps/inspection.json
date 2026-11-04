@@ -1,0 +1,546 @@
+{
+  "dimensions": [
+    900,
+    1100
+  ],
+  "sourceArchiveSha256": "300ed3a357ac30fcc5c5bcf63fb9ac4e668674bb613fa4751f9325f164c50763",
+  "checks": [
+    "PNG pixels equal ORA layers",
+    "ORA offsets all (0,0)",
+    "Composites equal reference previews"
+  ],
+  "faces": {
+    "ovalado": {
+      "layers": {
+        "base": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            36,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        "bronzer": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            143
+          ],
+          "alphaBounds": [
+            200,
+            269,
+            700,
+            883
+          ]
+        },
+        "contour": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            150
+          ],
+          "alphaBounds": [
+            214,
+            465,
+            686,
+            713
+          ]
+        },
+        "blush": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            167
+          ],
+          "alphaBounds": [
+            228,
+            522,
+            672,
+            638
+          ]
+        },
+        "highlighter": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            200
+          ],
+          "alphaBounds": [
+            261,
+            287,
+            640,
+            870
+          ]
+        }
+      },
+      "psdLayers": [
+        {
+          "name": "Rostro_Base",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "bronceador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "contorno",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "colorete",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "iluminador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        }
+      ],
+      "runtimeBytes": 322402,
+      "originalPngBytes": 330015
+    },
+    "corazon": {
+      "layers": {
+        "base": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            36,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        "bronzer": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            143
+          ],
+          "alphaBounds": [
+            190,
+            195,
+            710,
+            439
+          ]
+        },
+        "contour": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            165
+          ],
+          "alphaBounds": [
+            207,
+            249,
+            694,
+            686
+          ]
+        },
+        "blush": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            167
+          ],
+          "alphaBounds": [
+            249,
+            524,
+            651,
+            641
+          ]
+        },
+        "highlighter": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            200
+          ],
+          "alphaBounds": [
+            269,
+            293,
+            632,
+            899
+          ]
+        }
+      },
+      "psdLayers": [
+        {
+          "name": "Rostro_Base",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "bronceador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "contorno",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "colorete",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "iluminador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        }
+      ],
+      "runtimeBytes": 293869,
+      "originalPngBytes": 299210
+    },
+    "diamante": {
+      "layers": {
+        "base": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            36,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        "bronzer": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            142
+          ],
+          "alphaBounds": [
+            239,
+            228,
+            662,
+            924
+          ]
+        },
+        "contour": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            141
+          ],
+          "alphaBounds": [
+            197,
+            531,
+            703,
+            969
+          ]
+        },
+        "blush": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            167
+          ],
+          "alphaBounds": [
+            260,
+            532,
+            640,
+            654
+          ]
+        },
+        "highlighter": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            199
+          ],
+          "alphaBounds": [
+            252,
+            288,
+            648,
+            867
+          ]
+        }
+      },
+      "psdLayers": [
+        {
+          "name": "Rostro_Base",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "bronceador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "contorno",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "colorete",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "iluminador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        }
+      ],
+      "runtimeBytes": 326568,
+      "originalPngBytes": 331983
+    },
+    "cuadrada": {
+      "layers": {
+        "base": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            36,
+            255
+          ],
+          "alphaBounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        "bronzer": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            143
+          ],
+          "alphaBounds": [
+            189,
+            228,
+            712,
+            893
+          ]
+        },
+        "contour": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            164
+          ],
+          "alphaBounds": [
+            189,
+            576,
+            712,
+            855
+          ]
+        },
+        "blush": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            167
+          ],
+          "alphaBounds": [
+            249,
+            502,
+            651,
+            620
+          ]
+        },
+        "highlighter": {
+          "size": [
+            900,
+            1100
+          ],
+          "alphaRange": [
+            0,
+            200
+          ],
+          "alphaBounds": [
+            266,
+            295,
+            634,
+            876
+          ]
+        }
+      },
+      "psdLayers": [
+        {
+          "name": "Rostro_Base",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "bronceador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "contorno",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "colorete",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        },
+        {
+          "name": "iluminador",
+          "bounds": [
+            0,
+            0,
+            900,
+            1100
+          ]
+        }
+      ],
+      "runtimeBytes": 340090,
+      "originalPngBytes": 344930
+    }
+  }
+}

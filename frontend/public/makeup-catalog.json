@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-04",
+  "colorBasis": "editorial-approximation",
+  "products": [
+    {
+      "_id": "rare-beauty-soft-pinch-lip-oil",
+      "brand": "Rare Beauty",
+      "name": "Soft Pinch Tinted Lip Oil",
+      "category": "labial",
+      "finish": "brillo",
+      "market": "US",
+      "source": "https://www.rarebeauty.com/products/soft-pinch-tinted-lip-oil",
+      "shades": [
+        {"shade": "Joy", "description": "Melocotón apagado", "previewHex": "#C77C65"},
+        {"shade": "Serenity", "description": "Rosa cálido", "previewHex": "#B86E70"},
+        {"shade": "Hope", "description": "Malva nude", "previewHex": "#A76D80"},
+        {"shade": "Happy", "description": "Rosa frío", "previewHex": "#CC7299"},
+        {"shade": "Honesty", "description": "Marrón nude", "previewHex": "#986C57"},
+        {"shade": "Affection", "description": "Baya apagada", "previewHex": "#78465D"}
+      ]
+    },
+    {
+      "_id": "rare-beauty-soft-pinch-blush",
+      "brand": "Rare Beauty",
+      "name": "Soft Pinch Liquid Blush",
+      "category": "colorete",
+      "finish": "luminoso",
+      "market": "US",
+      "source": "https://www.rarebeauty.com/products/soft-pinch-liquid-blush",
+      "shades": [
+        {"shade": "Joy", "description": "Melocotón apagado", "previewHex": "#DE927B"},
+        {"shade": "Virtue", "description": "Melocotón beige", "previewHex": "#C99179"},
+        {"shade": "Hope", "description": "Malva nude", "previewHex": "#BD8797"},
+        {"shade": "Happy", "description": "Rosa frío", "previewHex": "#DA85AB"},
+        {"shade": "Love", "description": "Terracota", "previewHex": "#A95F49", "finish": "mate"},
+        {"shade": "Faith", "description": "Baya profunda", "previewHex": "#793E61", "finish": "mate"}
+      ]
+    },
+    {
+      "_id": "elf-liquid-metallic-eyeshadow",
+      "brand": "e.l.f. Cosmetics",
+      "name": "Liquid Metallic Eyeshadow",
+      "category": "sombra",
+      "finish": "metálico",
+      "market": "US",
+      "source": "https://www.elfcosmetics.com/products/liquid-metallic-eyeshadow/",
+      "shades": [
+        {"shade": "Moon", "description": "Champaña perlado", "previewHex": "#D4BD98"},
+        {"shade": "Meteor", "description": "Bronce dorado", "previewHex": "#997247"},
+        {"shade": "Comet", "description": "Oro rosa con destellos fríos", "previewHex": "#BC9392"},
+        {"shade": "Galaxy", "description": "Topo frío y neutro", "previewHex": "#8C7B80"},
+        {"shade": "Aurora", "description": "Verde jade", "previewHex": "#517E68"},
+        {"shade": "Supernova", "description": "Violeta amatista", "previewHex": "#886391"}
+      ]
+    }
+  ]
+}
