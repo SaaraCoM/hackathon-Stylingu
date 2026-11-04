@@ -8,8 +8,8 @@ import { authLimiter } from "../middleware/rateLimit.js";
 import { ageFromBirthDate, MIN_AGE } from "../age.js";
 
 import { cleanPrefs, analysisForProfile } from '../../../shared/personal-service.js';
-import {cleanProfile,nextProfile} from '../../../shared/product-domain.js';
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { cleanProfile, nextProfile } from '../../../shared/product-domain.js';
+import { defaultInputSecurityValidator } from '../../../shared/security-policy.js';
 const router = express.Router();
 router.use(async (req, res, next) => {
   if (req.path === '/yo' && !req.headers.cookie?.includes('stylingu_sid=')) return res.json({ user: null });
@@ -41,10 +41,10 @@ router.post("/registro", async (req, res) => {
   const { name, email, password, birthDate, analysis } = req.body ?? {};
   if(typeof email!=='string'||typeof password!=='string'||email.length>160)return res.status(400).json({error:'Credenciales no válidas.'});
   const emailStr = email.toLowerCase().trim();
-  if (typeof name!=='string'||!name.trim()||name.length>60||/[<>\u0000]/.test(name)||!email||!password) {
+  if (typeof name!=='string'||!name.trim()||name.length>60||/[<>\u0000-\u001F\u007F]/.test(name)||!email||!password) {
     return res.status(400).json({ error: "name, email y password son requeridos." });
   }
-  if (!EMAIL_RE.test(emailStr)) return res.status(400).json({ error: "Email no válido." });
+  if (!defaultInputSecurityValidator.isValidEmail(emailStr)) return res.status(400).json({ error: "Email no válido." });
   if (String(password).length < 8 || Buffer.byteLength(String(password)) > 72) {
     return res.status(400).json({ error: "La contraseña necesita 8+ caracteres y un máximo de 72 bytes." });
   }
@@ -66,7 +66,7 @@ router.post("/registro", async (req, res) => {
   const preferences=cleanPrefs(req.body.preferences||{});
   const profile=nextProfile({version:0,visualVersion:0,declared:{},corrections:[]},cleanProfile(req.body.declared||{}));
   const user = await repo.createUser({
-    name: String(name).slice(0, 60),
+    name: String(name).trim().slice(0, 60),
     email: emailStr,
     passwordHash: await bcrypt.hash(String(password), 12),
     birthDate, preferences, profile
@@ -82,8 +82,11 @@ router.post("/login", async (req, res) => {
     return res.status(503).json({ error: "Sin base de datos: el login llegará con tu cuenta." });
   }
   const { email, password } = req.body ?? {};
-  const emailStr = String(email ?? "").toLowerCase().trim();
-  if (!email || !password) {
+  if (typeof email !== "string" || typeof password !== "string" || email.length > 160 || Buffer.byteLength(password) > 72) {
+    return res.status(400).json({ error: "email y password son requeridos." });
+  }
+  const emailStr = email.toLowerCase().trim();
+  if (!emailStr || !password) {
     return res.status(400).json({ error: "email y password son requeridos." });
   }
   const user = await repo.credentialsByEmail(emailStr);

@@ -6,12 +6,13 @@ import * as repo from '../db/repo.js';
 import { connectDB } from '../config/db.js';
 import { authLimiter } from '../middleware/rateLimit.js';
 import { fail } from '../../../shared/product-domain.js';
+import { defaultInputSecurityValidator } from '../../../shared/security-policy.js';
 export const recoveryRoutes=Router();
 const handle=fn=>(req,res,next)=>Promise.resolve(fn(req,res)).catch(next);
 const hash=s=>createHash('sha256').update(s).digest('hex');
 recoveryRoutes.post('/forgot-password',authLimiter,handle(async(req,res)=>{
  if(!process.env.SMTP_URL||!process.env.MAIL_FROM||!process.env.PUBLIC_ORIGIN)fail('Recuperación por correo no configurada. Contacta con soporte.','MAIL_NOT_CONFIGURED',503);
- const email=req.body?.email;if(typeof email!=='string'||email.length>160)fail('Email no válido.');
+ const email=req.body?.email;if(!defaultInputSecurityValidator.isValidEmail(email))fail('Email no válido.');
  await connectDB();const user=await repo.userByEmail(email.toLowerCase().trim());
  if(user&&!user.deleting) {
   const token=randomBytes(32).toString('hex');const doc=await repo.createResetToken({userId:user._id,hash:hash(token),expiresAt:new Date(Date.now()+30*60000)});
@@ -23,7 +24,7 @@ recoveryRoutes.post('/forgot-password',authLimiter,handle(async(req,res)=>{
 }));
 recoveryRoutes.post('/reset-password',authLimiter,handle(async(req,res)=>{
  const {token,password}=req.body||{};
- if(typeof token!=='string'||!/^\w{64}$/.test(token)||typeof password!=='string'||password.length<8||Buffer.byteLength(password)>72)fail('Token o contraseña no válidos (8 caracteres mínimo, 72 bytes máximo).');
+ if(typeof token!=='string'||!/^[a-f0-9]{64}$/.test(token)||typeof password!=='string'||password.length<8||Buffer.byteLength(password)>72)fail('Token o contraseña no válidos (8 caracteres mínimo, 72 bytes máximo).');
  await connectDB();const passwordHash=await bcrypt.hash(password,12);
  // El DELETE ... RETURNING consume el token de forma atómica: dos peticiones
  // simultáneas no pueden reutilizarlo.

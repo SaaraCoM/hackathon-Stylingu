@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {signProxy,verifyProxy} from '../shared/proxy-auth.js';
 import {createWorker} from '../worker/free.js';
+import {defaultCorsAndOriginPolicy, defaultInputSecurityValidator} from '../shared/security-policy.js';
 const origin='https://stylingu-free-preview.castellanomateossara.workers.dev';
 const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
 const privateKey=await crypto.subtle.exportKey('jwk',pair.privateKey),publicKey=await crypto.subtle.exportKey('jwk',pair.publicKey);
@@ -43,4 +44,29 @@ test('Worker: CSRF, límite previo al captcha, JSON y tamaño; no filtra secreto
  assert.equal((await worker.fetch(req('/api/profile'),{...env,EDGE_SIGNING_KEY:''})).status,503);
  assert.equal(forwarded,0);
  const config=await worker.fetch(new Request(origin+'/api/public-config',{headers:{'CF-Connecting-IP':'192.0.2.3'}}),env);assert.deepEqual(await config.json(),{turnstileRequired:true,sitekey:'public-test'});assert.match(config.headers.get('Content-Security-Policy'),/frame-ancestors 'none'/);assert.equal(config.headers.get('X-Frame-Options'),'DENY');
+});
+test('CORS Meta AI y API: preflight OPTIONS estricto sin asterisco y bloqueo de API keys en cabeceras del cliente',async()=>{
+ const worker=createWorker({},async()=>Response.json({ok:true}));
+ const preflightOk=await worker.fetch(new Request(origin+'/api/personal/analyze',{method:'OPTIONS',headers:{Origin:origin,'CF-Connecting-IP':'192.0.2.3'}}),env);
+ assert.equal(preflightOk.status,204);
+ assert.equal(preflightOk.headers.get('Access-Control-Allow-Origin'),origin);
+ assert.notEqual(preflightOk.headers.get('Access-Control-Allow-Origin'),'*');
+ assert.equal(preflightOk.headers.get('Access-Control-Allow-Credentials'),'true');
+ assert.equal(preflightOk.headers.get('Vary'),'Origin');
+ const preflightEvil=await worker.fetch(new Request(origin+'/api/personal/analyze',{method:'OPTIONS',headers:{Origin:'https://evil.test','CF-Connecting-IP':'192.0.2.3'}}),env);
+ assert.equal(preflightEvil.status,403);
+ assert.equal(preflightEvil.headers.get('Access-Control-Allow-Origin'),null);
+ assert.equal(defaultCorsAndOriginPolicy.isOriginTrusted('*',origin,'*'),false);
+ const forbiddenKey=await worker.fetch(req('/api/personal/analyze',{headers:{'X-Meta-Api-Key':'leaked-client-key'}}),env);
+ assert.equal(forbiddenKey.status,400);
+ assert.equal((await forbiddenKey.json()).code,'CLIENT_API_KEY_FORBIDDEN');
+});
+test('Validación de servidor: emails estrictos y filtrado anti-XSS en armario',()=>{
+ assert.equal(defaultInputSecurityValidator.isValidEmail('sara@stylingu.es'),true);
+ for(const badEmail of ['','a..b@stylingu.es','.a@stylingu.es','a@stylingu','<script>@stylingu.es','a@.stylingu.es']){
+  assert.equal(defaultInputSecurityValidator.isValidEmail(badEmail),false,badEmail);
+ }
+ assert.throws(()=>defaultInputSecurityValidator.validateWardrobeOutfitPayload({top:'<script>alert(1)</script>',bottom:'Pantalón',jacket:'Blazer'}),e=>e.status===400);
+ const cleanOutfit=defaultInputSecurityValidator.validateWardrobeOutfitPayload({top:'Camisa seda',bottom:'Pantalón recto',jacket:'Blazer lino',note:'Ideal oficina'});
+ assert.equal(cleanOutfit.top,'Camisa seda');
 });

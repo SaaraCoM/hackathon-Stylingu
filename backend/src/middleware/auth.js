@@ -6,7 +6,10 @@ import * as repo from '../db/repo.js';
 const NAME = 'stylingu_sid';
 const TTL = 30 * 24 * 60 * 60 * 1000;
 const hash = token => crypto.createHash('sha256').update(token).digest('hex');
-const tokenFrom = req => parse(req.headers.cookie || '')[NAME];
+const tokenFrom = req => {
+  const raw = parse(req.headers.cookie || '')[NAME];
+  return typeof raw === 'string' && /^[a-f0-9]{64}$/.test(raw) ? raw : undefined;
+};
 
 export async function createSession(req, res, userId) {
   const token = crypto.randomBytes(32).toString('hex');
@@ -14,7 +17,7 @@ export async function createSession(req, res, userId) {
   res.cookie(NAME, token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: req.secure || process.env.NODE_ENV === 'production',
+    secure: Boolean(req.secure || process.env.NODE_ENV === 'production'),
     maxAge: TTL,
     path: '/'
   });
@@ -23,7 +26,12 @@ export async function createSession(req, res, userId) {
 export async function destroySession(req, res) {
   const token = tokenFrom(req);
   if (token) await repo.deleteSessionRow(hash(token));
-  res.clearCookie(NAME, { path: '/' });
+  res.clearCookie(NAME, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: Boolean(req.secure || process.env.NODE_ENV === 'production'),
+    path: '/'
+  });
 }
 
 export async function requireUser(req, res, next) {

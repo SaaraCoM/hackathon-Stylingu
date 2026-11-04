@@ -578,3 +578,4 @@ export class VisagismAndStylingGuideService {
 }
 
 export const defaultVisagismGuide = new VisagismAndStylingGuideService();
+

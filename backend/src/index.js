@@ -8,15 +8,27 @@ import { productRoutes } from './routes/product.js';
 import { recoveryRoutes } from './routes/recovery.js';
 import { apiLimiter } from './middleware/rateLimit.js';
 import { verifyTurnstile } from './middleware/turnstile.js';
+import { defaultSecurityHeadersPolicy, defaultCorsAndOriginPolicy } from '../../shared/security-policy.js';
 const app=express();
 app.disable('x-powered-by');
 if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);
 app.use((req,res,next)=>{
- res.set('X-Content-Type-Options','nosniff').set('Referrer-Policy','same-origin').set('Permissions-Policy','camera=(self)');
+ defaultSecurityHeadersPolicy.applyToExpressResponse(res);
  if(req.path.startsWith('/api/'))res.set('Cache-Control','private, no-store');
- if(!['GET','HEAD','OPTIONS'].includes(req.method)&&req.get('Origin')) {
-  const expected=process.env.PUBLIC_ORIGIN||req.protocol+'://'+req.get('host');
-  if(req.get('Origin')!==expected)return res.status(403).json({code:'ORIGIN_DENIED',error:'Origen no permitido.'});
+ if(defaultCorsAndOriginPolicy.hasForbiddenClientCredentialHeaders(function(name){return req.get(name);})) {
+  return res.status(400).json({code:'CLIENT_API_KEY_FORBIDDEN',error:'La clave de Meta AI se gestiona exclusivamente en el servidor.'});
+ }
+ const origin=req.get('Origin');
+ const expected=process.env.PUBLIC_ORIGIN||req.protocol+'://'+req.get('host');
+ if(origin) {
+  const trusted=defaultCorsAndOriginPolicy.isOriginTrusted(origin,expected,process.env.ALLOWED_ORIGINS);
+  if(trusted) {
+   const corsHeaders=defaultCorsAndOriginPolicy.buildCorsHeaders(origin,expected,process.env.ALLOWED_ORIGINS);
+   for(const [k,v] of Object.entries(corsHeaders))res.set(k,v);
+   if(req.method==='OPTIONS'&&req.path.startsWith('/api/'))return res.status(204).end();
+  } else if(!['GET','HEAD'].includes(req.method)||req.path.startsWith('/api/personal')||req.path.startsWith('/api/scans')) {
+   return res.status(403).json({code:'ORIGIN_DENIED',error:'Origen no permitido.'});
+  }
  }
  next();
 });
@@ -43,6 +55,7 @@ app.use((err,_req,res,_next)=>{
  const unique=err.code==='23505';
  const status=err.type==='entity.too.large'?413:err.type==='entity.parse.failed'?400:unique?409:err.status||500;
  const code=typeof err.code==='string'&&!/^\d+$/.test(err.code)?err.code:status===409?'CONFLICT':status===500?'INTERNAL_ERROR':'INVALID_INPUT';
- res.status(status).json({code,error:status===413?'Las fotos superan el tamaño permitido.':err.status?err.message:status===500?'Error interno del servidor.':'Solicitud no válida.'});
+ const safeMessage=status===413?'Las fotos superan el tamaño permitido.':status===500?'Error interno del servidor.':err.status?err.message:'Solicitud no válida.';
+ res.status(status).json({code,error:safeMessage});
 });
 export default app;
