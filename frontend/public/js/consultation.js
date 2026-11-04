@@ -65,7 +65,7 @@ for (const key of ['face', 'body']) {
       showConsultationError('Usa PNG, JPEG o WebP de hasta 8 MB por foto.'); return;
     }
     try {
-      const value = await preparePhotoFile(file);
+      const value = await preparePhotoFile(file, key);
       if (input.files?.[0] !== file) return;
       photoValues[key] = value; preview.src = value; preview.hidden = false;
       consultationError.hidden = true;
