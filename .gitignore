@@ -33,6 +33,7 @@ android/.gradle/
 *.keystore
 
 # Skill / temporal
+.codex/
 .taste-skill/
 .tmp-ref/
 .playwright-cli/
