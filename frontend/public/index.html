@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="./product.css" />
 <link rel="stylesheet" href="./editorial.css" />
 <link rel="stylesheet" href="./client.css" />
+<link rel="stylesheet" href="./design-app.css" />
 </head>
 <body>
 <section id="analysisGate" class="analysis-gate" aria-labelledby="gateTitle">
@@ -37,6 +38,7 @@
   </div>
 </section>
 <div id="appShell" hidden>
+<div id="stylingu-design-root"></div>
 <a class="skiplink" href="#contenido">Saltar al contenido</a>
 <header class="topbar">
   <div class="topbar-inner">
@@ -367,12 +369,7 @@
           <div><dt>Colocación de sombras</dt><dd id="shadowPlacement"></dd></div>
         </dl>
         <div class="look-card">
-          <span class="eyebrow">Probador de color</span>
-          <h2>Muestra de color</h2>
-          <p class="muted">Ajusta brillo, opacidad y sombra sobre la muestra de tu look. Sin cámara en vivo.</p>
-          <div class="slider-row"><label for="sliderBrillo">Labios: brillo</label><input id="sliderBrillo" type="range" min="0" max="100" value="50" /></div>
-          <div class="slider-row"><label for="sliderOpacidad">Labios: opacidad</label><input id="sliderOpacidad" type="range" min="0" max="100" value="80" /></div>
-          <div class="slider-row"><label for="sliderSombra">Sombra: intensidad</label><input id="sliderSombra" type="range" min="0" max="100" value="35" /></div>
+          <div id="tone-simulator-root"><p>Activa JavaScript para preparar el probador sobre tu foto.</p></div>
           <p><span class="pill" id="lookBadge"></span></p>
           <h3 id="lookTitle"></h3>
           <p class="muted" id="lookDesc"></p>
@@ -724,5 +721,7 @@
 <script src="./app.js"></script>
 <script src="./js/editorial.js"></script>
 <script src="./js/pwa.js"></script>
+<script src="./js/design-bridge.js"></script>
+<script src="./js/design-app.js"></script>
 </body>
 </html>

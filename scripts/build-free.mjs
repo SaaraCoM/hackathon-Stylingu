@@ -1,4 +1,5 @@
 import {Script} from 'node:vm';
+import './build-design.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -16,12 +17,16 @@ async function walk(dir){return (await Promise.all((await fs.readdir(path.join(r
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain; charset=utf-8'};
 const assets={};
 for(const file of (await walk('frontend/public')).sort()){
+  // Large on-device ML assets are static files, not embedded Worker code.
+  if(file.split(path.sep).join('/').startsWith('frontend/public/vision/'))continue;
   const type=mime[path.extname(file)];if(!type)throw new Error('Tipo de recurso público no previsto: '+file);
   let bytes=await fs.readFile(path.join(root,file));
   if(file.replaceAll('\\','/').includes('/assets/editorial/')&&path.extname(file)==='.jpg')bytes=await sharp(bytes).rotate().resize({width:1200,height:1400,fit:'inside',withoutEnlargement:true}).jpeg({quality:82}).toBuffer();
   assets['/'+path.relative('frontend/public',file).split(path.sep).join('/')]={type,base64:bytes.toString('base64')};
 }
 const codeHash=createHash('sha256').update(JSON.stringify(assets));
+await fs.mkdir(path.join(root,'deploy/vision-assets'),{recursive:true});
+await fs.cp(path.join(root,'frontend/public/vision'),path.join(root,'deploy/vision-assets/vision'),{recursive:true});
 for(const file of [...await walk('backend/src'),...await walk('shared'),...await walk('edge'),'worker/free.js'].sort())codeHash.update(await fs.readFile(path.join(root,file)));
 const release=codeHash.digest('hex').slice(0,16);
 const cachePaths=Object.keys(assets).filter(k=>k!=='/sw.js'&&k!=='/index.html');

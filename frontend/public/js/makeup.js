@@ -1,5 +1,4 @@
-/* Makeup tab: real catalogue references and the personalized tutorial.
-   The sliders stay a colour sample, never a live try-on. */
+/* Catalogue and tutorials. React owns the photo-based tone simulator. */
 const MAKEUP_GROUPS=[
  ['lipList',['labial','labios','lip']],
  ['blushList',['colorete','rubor','blush']],
@@ -56,10 +55,7 @@ function selectLook(key,btn){
  /* Selecting a look loads its own products, intensity and ordered steps. */
  if(t&&typeof showTutorial==='function')showTutorial(t).catch(()=>{});
 }
-function updatePreviewFx(){const el=document.getElementById('lookColorPreview');if(!el)return;const b=Number(document.getElementById('sliderBrillo').value)||0,o=Number(document.getElementById('sliderOpacidad').value)||0,s=Number(document.getElementById('sliderSombra').value)||0;el.style.filter=`brightness(${0.7+b/160}) saturate(${1+s/200})`;el.style.opacity=String(0.35+o/155);}
 renderProducts();renderLooks();selectLook('diario',document.querySelector('[data-look="diario"]'));
-for(const id of ['sliderBrillo','sliderOpacidad','sliderSombra'])document.getElementById(id).addEventListener('input',updatePreviewFx);
-updatePreviewFx();
 window.addEventListener('stylingu:catalog',()=>renderProducts());
 window.addEventListener('stylingu:tutorials',()=>{renderLooks();selectLook('diario',document.querySelector('[data-look="diario"]'));});
 window.addEventListener('stylingu:account',()=>{renderProducts();renderLooks();});

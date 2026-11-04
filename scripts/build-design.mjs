@@ -1,0 +1,11 @@
+import {build} from '../frontend/node_modules/esbuild/lib/main.js';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const root=fileURLToPath(new URL('../',import.meta.url));
+await fs.mkdir(path.join(root,'frontend/public/vision/wasm'),{recursive:true});
+await fs.copyFile(path.join(root,'frontend/models/face-landmarker.task'),path.join(root,'frontend/public/vision/face-landmarker.task'));
+await fs.cp(path.join(root,'frontend/node_modules/@mediapipe/tasks-vision/wasm'),path.join(root,'frontend/public/vision/wasm'),{recursive:true});
+await build({absWorkingDir:root,entryPoints:['frontend/src/design/main.tsx'],bundle:true,minify:true,format:'iife',jsx:'automatic',target:['es2022'],define:{'process.env.NODE_ENV':'"production"'},outfile:'frontend/public/js/design-app.js',legalComments:'linked'});
+execFileSync(process.execPath,[fileURLToPath(new URL('../frontend/node_modules/@tailwindcss/cli/dist/index.mjs',import.meta.url)),'-i','frontend/src/design/design.css','-o','frontend/public/design-app.css','--minify'],{cwd:root,stdio:'inherit'});

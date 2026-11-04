@@ -2,6 +2,11 @@
   "name": "hackathon-stylingu",
   "main": "frontend/dist/free-worker.mjs",
   "compatibility_date": "2026-11-03",
+  "assets": {
+    "directory": "./deploy/vision-assets",
+    "binding": "VISION_ASSETS",
+    "run_worker_first": true
+  },
   "observability": {
     "enabled": true
   },

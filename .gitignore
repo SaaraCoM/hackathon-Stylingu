@@ -13,6 +13,7 @@ frontend/node_modules/
 # Build / PWA
 frontend/dist/
 frontend/build/
+frontend/public/vision/
 *.log
 
 # Datos locales (Postgres embebido y fotos de desarrollo)

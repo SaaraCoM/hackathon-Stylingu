@@ -19,6 +19,7 @@ function switchTab(id, focus) {
     if (selected && focus) b.focus();
   });
   if (typeof renderDesign === 'function') renderDesign(id);
+  window.dispatchEvent(new CustomEvent('stylingu:navigate', {detail:id}));
 }
 function stepTab(dir) {
   const i = tabBtns.findIndex((b) => b.getAttribute("aria-selected") === "true");

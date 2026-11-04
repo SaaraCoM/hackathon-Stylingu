@@ -5,7 +5,7 @@ const AUTH=new Set(['/api/auth/login','/api/auth/registro','/api/auth/forgot-pas
 export const SECURITY_HEADERS={
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Permissions-Policy':'camera=(self), microphone=(), geolocation=()','X-Frame-Options':'DENY',
  'Strict-Transport-Security':'max-age=31536000; includeSubDomains',
- 'Content-Security-Policy':"default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+ 'Content-Security-Policy':"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
 };
 const json=(data,status=200,extra={})=>Response.json(data,{status,headers:{...SECURITY_HEADERS,'Cache-Control':'no-store',...extra}});
 async function boundedBody(request,max){
@@ -59,6 +59,14 @@ export function createWorker(assets,fetcher=fetch){
    }catch{return json({code:'BACKEND_UNAVAILABLE',error:'No se pudo conectar. Reintenta en unos segundos.'},503);}
   }
   if(!['GET','HEAD'].includes(request.method))return json({code:'METHOD_NOT_ALLOWED'},405);
+  if(url.pathname.startsWith('/vision/')){
+   if(!env.VISION_ASSETS)return new Response('Detector no disponible.',{status:503,headers:SECURITY_HEADERS});
+   const response=await env.VISION_ASSETS.fetch(request);
+   const headers=new Headers(response.headers);
+   for(const [key,value] of Object.entries(SECURITY_HEADERS))headers.set(key,value);
+   if(url.pathname.endsWith('.wasm'))headers.set('Content-Type','application/wasm');
+   return new Response(response.body,{status:response.status,headers});
+  }
   const key=url.pathname==='/'?'/index.html':url.pathname,item=assets[key];if(!item)return new Response('No encontrado.',{status:404,headers:SECURITY_HEADERS});
   const headers={...SECURITY_HEADERS,'Content-Type':item.type,'Cache-Control':key.endsWith('.html')||key==='/sw.js'?'no-cache':'public, max-age=600'};
   if(request.method==='HEAD')return new Response(null,{headers});

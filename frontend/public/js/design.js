@@ -8,7 +8,7 @@ const designViews = {
   'tab-makeup': {
     kicker: '02 / Maquillaje',
     title: () => 'Hoy, tu rostro en primer plano.',
-    description: 'Una lectura cercana de tu rostro, tus tonos y tus pasos de maquillaje. Sin simulación sobre la foto.'
+    description: 'Tus tonos y pasos de maquillaje, con un probador orientativo sobre tu foto.'
   },
   'tab-armario': {
     kicker: '03 / Armario',
