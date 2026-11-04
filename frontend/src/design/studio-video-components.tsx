@@ -16,6 +16,11 @@ import {
   type SeasonFamilyKey
 } from './colorimetry-atlas';
 import {
+  defaultVisagismGuide,
+  type EyewearFrameStyle,
+  type FaceShapeKey
+} from './visagism-guide';
+import {
   ArrowIcon,
   BagIcon,
   CameraIcon,
@@ -1395,5 +1400,525 @@ export function CompleteColorimetryAtlasSection({
     </section>
   );
 }
+
+function EyewearFrameSvg({ style }: { style: EyewearFrameStyle }) {
+  switch (style) {
+    case 'cat-eye':
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <path
+            d="M10 18 Q28 8 56 18 Q62 28 50 36 Q26 38 14 26 Z M130 18 Q112 8 84 18 Q78 28 90 36 Q114 38 126 26 Z"
+            fill="rgba(212, 163, 115, 0.16)"
+            stroke="currentColor"
+            strokeWidth="2.8"
+          />
+          <path d="M56 19 Q70 15 84 19" fill="none" stroke="currentColor" strokeWidth="2.4" />
+        </svg>
+      );
+    case 'aviator':
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <path
+            d="M14 14 H58 Q62 34 42 40 Q16 38 14 20 Z M82 14 H126 Q124 38 98 40 Q78 34 82 14 Z"
+            fill="rgba(212, 163, 115, 0.14)"
+            stroke="currentColor"
+            strokeWidth="2.2"
+          />
+          <path d="M56 14 H84 M58 19 H82" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case 'pantos-round':
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <circle
+            cx="38"
+            cy="25"
+            r="17"
+            fill="rgba(212, 163, 115, 0.14)"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          />
+          <circle
+            cx="102"
+            cy="25"
+            r="17"
+            fill="rgba(212, 163, 115, 0.14)"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          />
+          <path d="M55 22 Q70 16 85 22" fill="none" stroke="currentColor" strokeWidth="2.2" />
+        </svg>
+      );
+    case 'clubmaster':
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <path d="M12 15 Q36 10 58 16 M82 16 Q104 10 128 15" stroke="currentColor" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <path
+            d="M16 16 Q18 38 38 38 Q56 38 56 17 M84 17 Q84 38 102 38 Q122 38 124 16"
+            fill="rgba(212, 163, 115, 0.12)"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path d="M56 18 H84" stroke="currentColor" strokeWidth="2.2" />
+        </svg>
+      );
+    case 'oversize-geometric':
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <polygon
+            points="14,12 56,12 60,26 48,40 20,40 12,26"
+            fill="rgba(212, 163, 115, 0.15)"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          />
+          <polygon
+            points="84,12 126,12 128,26 120,40 92,40 80,26"
+            fill="rgba(212, 163, 115, 0.15)"
+            stroke="currentColor"
+            strokeWidth="2.4"
+          />
+          <path d="M58 18 H82" stroke="currentColor" strokeWidth="2.2" />
+        </svg>
+      );
+    default:
+      return (
+        <svg viewBox="0 0 140 48" className="su-eyewear-svg" aria-hidden="true">
+          <rect
+            x="14"
+            y="13"
+            width="44"
+            height="24"
+            rx="6"
+            fill="rgba(212, 163, 115, 0.16)"
+            stroke="currentColor"
+            strokeWidth="2.6"
+          />
+          <rect
+            x="82"
+            y="13"
+            width="44"
+            height="24"
+            rx="6"
+            fill="rgba(212, 163, 115, 0.16)"
+            stroke="currentColor"
+            strokeWidth="2.6"
+          />
+          <path d="M58 19 H82" stroke="currentColor" strokeWidth="2.4" />
+        </svg>
+      );
+  }
+}
+
+/**
+ * Guía Integral de Visagismo:
+ * 1) ¿Dorado o Plata? · ¿Cálida o Fría? · ¿Contraste Alto, Medio o Bajo?
+ * 2) Qué gafas favorecen según la forma de cara (con las 6 formas explorables).
+ * 3) Posicionamiento anatómico de Contouring, Iluminador y Rubor con mapa facial y referencia real.
+ */
+export function VisagismContouringAndEyewearGuide({ account }: { account: AccountSlot }) {
+  const allShapes = useMemo(() => defaultVisagismGuide.getAllFaceShapes(), []);
+  const detectedShape = useMemo(
+    () => defaultVisagismGuide.resolveFaceShape(account.analysis?.makeup?.faceShape),
+    [account.analysis?.makeup?.faceShape]
+  );
+  const [selectedShapeKey, setSelectedShapeKey] = useState<FaceShapeKey>(detectedShape.key);
+  const [zoneFilter, setZoneFilter] = useState<'all' | 'contour' | 'highlight' | 'blush'>('all');
+  const [showGlassesOverlay, setShowGlassesOverlay] = useState(false);
+
+  const activeShape = useMemo(
+    () => allShapes.find(s => s.key === selectedShapeKey) || detectedShape,
+    [allShapes, selectedShapeKey, detectedShape]
+  );
+
+  const diagnosis = useMemo(
+    () => defaultVisagismGuide.buildThermalMetalAndContrastDiagnosis(account.analysis),
+    [account.analysis]
+  );
+
+  const visibleZones = useMemo(
+    () =>
+      activeShape.contouringGuide.zones.filter(
+        z => zoneFilter === 'all' || z.type === zoneFilter
+      ),
+    [activeShape, zoneFilter]
+  );
+
+  return (
+    <section
+      className="su-section su-visagism-section"
+      aria-label="Guía de Visagismo: Dorado o Plata, Temperatura, Contraste, Gafas y Contouring"
+    >
+      <div className="su-section-head">
+        <div>
+          <p className="su-kicker">Diagnóstico Óptico, Joyería, Gafas &amp; Esculpido Facial</p>
+          <h2>Guía de Metales, Subtono, Contraste, Gafas y Contouring</h2>
+          <p>
+            Descubre si te favorece más el dorado o la plata, si tu armonía es cálida o fría, tu
+            nivel de contraste, las monturas de gafas para tu rostro y el mapa exacto de contouring.
+          </p>
+        </div>
+      </div>
+
+      {/* 1. TRÍPTICO DE DIAGNÓSTICO: DORADO VS PLATA · CÁLIDA VS FRÍA · CONTRASTE */}
+      <div className="su-diagnosis-triptych">
+        {/* Tarjeta A: ¿Dorado o Plata? */}
+        <article className="su-card su-diag-card">
+          <span className="su-kicker">01 · Guía de Joyería y Metales</span>
+          <h3>¿Dorado o Plata?</h3>
+          <p className="su-diag-verdict">{diagnosis.metalWinner}</p>
+          <div className="su-metal-medallions" role="list" aria-label="Afinidad con metales">
+            <div className="su-metal-medallion" role="listitem">
+              <span
+                className="su-metal-disc su-metal-gold"
+                aria-hidden="true"
+              />
+              <div>
+                <strong>Dorado / Oro</strong>
+                <small>{diagnosis.goldAffinity}% afinidad</small>
+              </div>
+            </div>
+            <div className="su-metal-medallion" role="listitem">
+              <span
+                className="su-metal-disc su-metal-silver"
+                aria-hidden="true"
+              />
+              <div>
+                <strong>Plata / Platino</strong>
+                <small>{diagnosis.silverAffinity}% afinidad</small>
+              </div>
+            </div>
+            <div className="su-metal-medallion" role="listitem">
+              <span
+                className="su-metal-disc su-metal-rosegold"
+                aria-hidden="true"
+              />
+              <div>
+                <strong>Oro Rosa / Champán</strong>
+                <small>{diagnosis.roseGoldAffinity}% afinidad</small>
+              </div>
+            </div>
+          </div>
+          <p className="su-diag-body">{diagnosis.metalExplanation}</p>
+          <p className="su-diag-tip">
+            <strong>En tus gafas:</strong> {diagnosis.eyewearMetalTip}
+          </p>
+        </article>
+
+        {/* Tarjeta B: ¿Cálida o Fría? */}
+        <article className="su-card su-diag-card">
+          <span className="su-kicker">02 · Temperatura Dérmica</span>
+          <h3>¿Cálida o Fría?</h3>
+          <p className="su-diag-verdict">Armonía {diagnosis.temperatureCategory}</p>
+          <div className="su-thermal-meter" aria-label="Escala térmica Fría a Cálida">
+            <div className="su-thermal-labels">
+              <span>Fría (Azulada/Rosada)</span>
+              <strong>{diagnosis.temperatureScoreWarm}% Cálida</strong>
+              <span>Cálida (Dorada/Melocotón)</span>
+            </div>
+            <div className="su-thermal-bar">
+              <span
+                className="su-thermal-marker"
+                style={{ left: `${diagnosis.temperatureScoreWarm}%` }}
+              />
+            </div>
+          </div>
+          <p className="su-diag-body">{diagnosis.temperatureExplanation}</p>
+        </article>
+
+        {/* Tarjeta C: ¿Contraste Alto, Medio o Bajo? */}
+        <article className="su-card su-diag-card">
+          <span className="su-kicker">03 · Escala de Luminancia</span>
+          <h3>¿Contraste Alto, Medio o Bajo?</h3>
+          <p className="su-diag-verdict">{diagnosis.contrastLevel}</p>
+          <div className="su-contrast-scale" aria-label="Nivel de contraste personal">
+            {(
+              [
+                ['Contraste Bajo', 'Suave · Tonal'],
+                ['Contraste Medio', 'Equilibrado'],
+                ['Contraste Alto', 'Intenso · Nítido']
+              ] as const
+            ).map(([level, tag]) => (
+              <div
+                key={level}
+                className={`su-contrast-pill ${
+                  diagnosis.contrastLevel === level ? 'is-active' : ''
+                }`}
+              >
+                <strong>{level.replace('Contraste ', '')}</strong>
+                <small>{tag}</small>
+              </div>
+            ))}
+          </div>
+          <p className="su-diag-body">{diagnosis.contrastExplanation}</p>
+          <p className="su-diag-tip">
+            <strong>Regla al vestir:</strong> {diagnosis.contrastStylingRule}
+          </p>
+        </article>
+      </div>
+
+      {/* 2. SELECTOR INTERACTIVO DE FORMA DE CARA */}
+      <div className="su-card su-faceshape-bar">
+        <div className="su-faceshape-bar-head">
+          <div>
+            <span className="su-kicker">Morfología Facial</span>
+            <h3>
+              Selecciona la forma de rostro ({activeShape.label}
+              {activeShape.key === detectedShape.key ? ' · Detectada en tu perfil' : ''})
+            </h3>
+          </div>
+          <button
+            type="button"
+            className={`su-button ${showGlassesOverlay ? 'su-button-primary' : ''}`}
+            onClick={() => setShowGlassesOverlay(prev => !prev)}
+          >
+            {showGlassesOverlay ? 'Ocultar gafas en el mapa' : 'Probar montura sobre el mapa'}
+          </button>
+        </div>
+        <div className="su-range-filter-bar" role="tablist" aria-label="Formas de rostro">
+          {allShapes.map(shape => (
+            <button
+              key={shape.key}
+              type="button"
+              role="tab"
+              aria-selected={activeShape.key === shape.key}
+              className={`su-range-chip ${activeShape.key === shape.key ? 'is-active' : ''}`}
+              onClick={() => setSelectedShapeKey(shape.key)}
+            >
+              {shape.label}
+              {shape.key === detectedShape.key ? ' ★' : ''}
+            </button>
+          ))}
+        </div>
+        <p className="su-faceshape-summary">
+          <strong>Proporción:</strong> {activeShape.proportionsSummary}{' '}
+          <strong>Objetivo óptico:</strong> {activeShape.opticalGoal}
+        </p>
+      </div>
+
+      {/* 3. PANEL DOBLE: MAPA ANATÓMICO DE CONTOURING + GUÍA DE GAFAS */}
+      <div className="su-visagism-main-grid">
+        {/* Columna Izquierda: Posicionamiento de Contouring, Rubor e Iluminador */}
+        <article className="su-card su-contouring-card">
+          <header className="su-range-group-head">
+            <div>
+              <span className="su-kicker">Mapa Anatómico Facial</span>
+              <h3>Posicionamiento de Contouring, Iluminador y Rubor ({activeShape.label})</h3>
+              <p>{activeShape.contouringGuide.summary}</p>
+            </div>
+          </header>
+
+          <div className="su-range-filter-bar" role="group" aria-label="Filtrar capas del mapa">
+            {(
+              [
+                ['all', 'Todas las capas'],
+                ['contour', 'Contouring / Bronzer'],
+                ['highlight', 'Iluminador / Luz'],
+                ['blush', 'Rubor / Blush']
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                className={`su-range-chip ${zoneFilter === key ? 'is-active' : ''}`}
+                onClick={() => setZoneFilter(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="su-contour-visual-row">
+            {/* Diagrama SVG Anatómico de Contouring */}
+            <div className="su-contour-diagram-wrap">
+              <svg
+                viewBox="0 0 240 250"
+                className="su-contour-svg"
+                role="img"
+                aria-label={`Mapa de posicionamiento de contouring para ${activeShape.label}`}
+              >
+                <defs>
+                  <radialGradient id="skinBaseGrad" cx="50%" cy="45%" r="55%">
+                    <stop offset="0%" stopColor="#F5DEC9" />
+                    <stop offset="100%" stopColor="#DEC0A6" />
+                  </radialGradient>
+                </defs>
+
+                {/* Cuello base */}
+                <path
+                  d="M 92 204 L 86 244 L 154 244 L 148 204 Z"
+                  fill="#D5B499"
+                  stroke="#B8967A"
+                  strokeWidth="1.2"
+                />
+
+                {/* Contorno de la cara según la forma */}
+                <path
+                  d={activeShape.faceOutlinePath}
+                  fill="url(#skinBaseGrad)"
+                  stroke="#8D6B53"
+                  strokeWidth="2"
+                />
+
+                {/* Líneas guía de tercios faciales */}
+                <line x1="38" y1="88" x2="202" y2="88" stroke="rgba(90,65,50,0.18)" strokeDasharray="3 3" />
+                <line x1="38" y1="144" x2="202" y2="144" stroke="rgba(90,65,50,0.18)" strokeDasharray="3 3" />
+                <line x1="120" y1="16" x2="120" y2="232" stroke="rgba(90,65,50,0.18)" strokeDasharray="3 3" />
+
+                {/* Facciones anatómicas (Cejas, ojos, nariz, labios) */}
+                <g stroke="#594134" fill="none" strokeLinecap="round">
+                  {/* Cejas */}
+                  <path d="M 74 84 Q 90 75 106 82" strokeWidth="2.6" />
+                  <path d="M 134 82 Q 150 75 166 84" strokeWidth="2.6" />
+                  {/* Ojos */}
+                  <ellipse cx="90" cy="96" rx="11" ry="5.5" fill="#FFFDF9" strokeWidth="1.5" />
+                  <circle cx="90" cy="96" r="4" fill="#5C4033" />
+                  <ellipse cx="150" cy="96" rx="11" ry="5.5" fill="#FFFDF9" strokeWidth="1.5" />
+                  <circle cx="150" cy="96" r="4" fill="#5C4033" />
+                  {/* Nariz */}
+                  <path d="M 113 138 Q 120 144 127 138" strokeWidth="1.6" />
+                  {/* Labios */}
+                  <path
+                    d="M 100 168 Q 112 162 120 166 Q 128 162 140 168 Q 128 178 120 178 Q 112 178 100 168 Z"
+                    fill="#C97A6E"
+                    stroke="#8E4A40"
+                    strokeWidth="1.2"
+                  />
+                </g>
+
+                {/* Zonas de Contouring, Rubor e Iluminador */}
+                {visibleZones.map(zone => {
+                  const fill =
+                    zone.type === 'contour'
+                      ? 'rgba(110, 66, 44, 0.62)'
+                      : zone.type === 'highlight'
+                      ? 'rgba(255, 248, 214, 0.82)'
+                      : 'rgba(218, 114, 102, 0.56)';
+                  const stroke =
+                    zone.type === 'contour'
+                      ? '#5A3422'
+                      : zone.type === 'highlight'
+                      ? '#D4A843'
+                      : '#B84A3E';
+                  return (
+                    <path
+                      key={zone.id}
+                      d={zone.d}
+                      fill={fill}
+                      stroke={stroke}
+                      strokeWidth="1.2"
+                      strokeDasharray={zone.type === 'highlight' ? '2 2' : undefined}
+                    >
+                      <title>{zone.label}</title>
+                    </path>
+                  );
+                })}
+
+                {/* Superposición opcional de la montura de gafas ideal */}
+                {showGlassesOverlay && (
+                  <g stroke="#2B211E" strokeWidth="2.8" fill="rgba(255,255,255,0.14)">
+                    <rect x="64" y="82" width="46" height="28" rx="8" />
+                    <rect x="130" y="82" width="46" height="28" rx="8" />
+                    <path d="M 110 92 H 130" />
+                  </g>
+                )}
+              </svg>
+
+              <div className="su-contour-legend" aria-label="Leyenda del mapa de contouring">
+                <span>
+                  <i className="su-legend-dot su-legend-contour" /> Contouring (Sombra/Definición)
+                </span>
+                <span>
+                  <i className="su-legend-dot su-legend-highlight" /> Iluminador (Volumen/Luz)
+                </span>
+                <span>
+                  <i className="su-legend-dot su-legend-blush" /> Rubor (Foco ascendente)
+                </span>
+              </div>
+            </div>
+
+            {/* Referencia fotográfica real y zonas detalladas */}
+            <div className="su-contour-details">
+              <div className="su-contour-photo-ref">
+                <img
+                  src="./assets/svg-design/makeup.jpg"
+                  alt="Referencia real de luz en pómulo, puente nasal y contorno suave"
+                  loading="lazy"
+                />
+                <img
+                  src="./assets/pasos/paso-4.jpg"
+                  alt="Detalle de transición entre contorno, rubor e iluminador en el pómulo"
+                  loading="lazy"
+                />
+              </div>
+
+              <dl className="su-contour-dl">
+                <div>
+                  <dt>● Contouring (Sombra Escultora)</dt>
+                  <dd>{activeShape.contouringGuide.contourWhere}</dd>
+                </div>
+                <div>
+                  <dt>✦ Iluminador (Puntos de Luz)</dt>
+                  <dd>{activeShape.contouringGuide.highlightWhere}</dd>
+                </div>
+                <div>
+                  <dt>♥ Rubor / Blush</dt>
+                  <dd>{activeShape.contouringGuide.blushWhere}</dd>
+                </div>
+              </dl>
+
+              <ol className="su-contour-steps">
+                {activeShape.contouringGuide.stepByStep.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </article>
+
+        {/* Columna Derecha: Guía de Gafas según su Forma de Cara */}
+        <article className="su-card su-eyewear-card">
+          <header className="su-range-group-head">
+            <div>
+              <span className="su-kicker">Óptica &amp; Proporción Facial</span>
+              <h3>Qué gafas te favorecen ({activeShape.label})</h3>
+              <p>
+                Monturas seleccionadas para equilibrar el tercio superior, medio e inferior de tu
+                rostro.
+              </p>
+            </div>
+          </header>
+
+          <div className="su-eyewear-list">
+            {activeShape.eyewearRecommended.map(frame => (
+              <div key={frame.id} className="su-eyewear-item">
+                <div className="su-eyewear-illustration">
+                  <EyewearFrameSvg style={frame.id} />
+                  <span className="su-eyewear-score">{frame.fitScore}% Fit</span>
+                </div>
+                <div className="su-eyewear-copy">
+                  <strong>{frame.name}</strong>
+                  <p>{frame.why}</p>
+                  <small>
+                    <strong>Ajuste recomendado:</strong> {frame.bridgeAndRimTip}
+                  </small>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="su-eyewear-avoid-box">
+            <strong>Monturas a evitar en {activeShape.label}:</strong>
+            <ul>
+              {activeShape.eyewearAvoid.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 
 

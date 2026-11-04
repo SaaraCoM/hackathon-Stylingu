@@ -1246,6 +1246,442 @@ body.su-sheet-open { overflow: hidden; }
   }
 }
 
+/* ==========================================================================
+   Guía de Visagismo: Dorado/Plata, Cálida/Fría, Contraste, Gafas y Contouring
+   ========================================================================== */
+
+.su-visagism-section {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.su-diagnosis-triptych {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  min-width: 0;
+}
+
+.su-diag-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.su-diag-card h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.su-diag-verdict {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--rose-soft);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--line);
+}
+
+.su-metal-medallions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.su-metal-medallion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.su-metal-disc {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  border: 1px solid rgba(33, 25, 22, 0.22);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7);
+}
+
+.su-metal-gold {
+  background: linear-gradient(135deg, #FCE694 0%, #D4AF37 50%, #9A7418 100%);
+}
+
+.su-metal-silver {
+  background: linear-gradient(135deg, #F8FAFC 0%, #CBD5E1 50%, #64748B 100%);
+}
+
+.su-metal-rosegold {
+  background: linear-gradient(135deg, #FDE2D4 0%, #E2A391 52%, #A66A5A 100%);
+}
+
+.su-metal-medallion strong {
+  display: block;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.su-metal-medallion small {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.su-diag-body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.su-diag-tip {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.su-thermal-meter {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.su-thermal-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.su-thermal-labels strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.su-thermal-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563EB 0%, #93C5FD 35%, #FDE68A 65%, #D97706 100%);
+  border: 1px solid rgba(33, 25, 22, 0.18);
+}
+
+.su-thermal-marker {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 3px solid #ffffff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.su-contrast-scale {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.su-contrast-pill {
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-align: center;
+  display: grid;
+  gap: 2px;
+}
+
+.su-contrast-pill strong {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.su-contrast-pill small {
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+
+.su-contrast-pill.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.su-contrast-pill.is-active strong,
+.su-contrast-pill.is-active small {
+  color: var(--bg);
+}
+
+.su-faceshape-bar {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.su-faceshape-bar-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.su-faceshape-bar-head h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.su-faceshape-summary {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.su-faceshape-summary strong {
+  color: var(--ink);
+}
+
+.su-visagism-main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  min-width: 0;
+}
+
+.su-contouring-card,
+.su-eyewear-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.su-contour-visual-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  min-width: 0;
+}
+
+.su-contour-diagram-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.su-contour-svg {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+}
+
+.su-contour-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.su-contour-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.su-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 1px solid rgba(33, 25, 22, 0.25);
+}
+
+.su-legend-contour {
+  background: #6E422C;
+}
+
+.su-legend-highlight {
+  background: #FFF6CC;
+}
+
+.su-legend-blush {
+  background: #DA7266;
+}
+
+.su-contour-details {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.su-contour-photo-ref {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.su-contour-photo-ref img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.su-contour-dl {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.su-contour-dl div {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.su-contour-dl dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.su-contour-dl dd {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.su-contour-steps {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.su-eyewear-list {
+  display: grid;
+  gap: 10px;
+}
+
+.su-eyewear-item {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.su-eyewear-illustration {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--ink);
+}
+
+.su-eyewear-svg {
+  width: 100%;
+  max-width: 104px;
+  height: auto;
+}
+
+.su-eyewear-score {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.su-eyewear-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.su-eyewear-copy strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.su-eyewear-copy p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.su-eyewear-copy small {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.su-eyewear-avoid-box {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--rose-soft);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.su-eyewear-avoid-box ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 860px) {
+  .su-diagnosis-triptych {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .su-visagism-main-grid {
+    grid-template-columns: 1.25fr 1fr;
+  }
+  .su-contour-visual-row {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .su-app * { scroll-behavior: auto !important; }
 }

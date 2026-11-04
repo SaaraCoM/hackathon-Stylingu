@@ -24,7 +24,8 @@ import {
   PersonalColorimetryAllRanges,
   StudioCollageMyPagePanel,
   StudioSimilarCatalogPanel,
-  StudioSubTabsBar
+  StudioSubTabsBar,
+  VisagismContouringAndEyewearGuide
 } from './studio-video-components';
 import { defaultColorimetryAtlas } from './colorimetry-atlas';
 import { ToneSimulator } from './tryon/ToneSimulator';
@@ -232,6 +233,7 @@ export function HomeView({
             selectedSwatch={homeSwatch}
             onSelectSwatch={setHomeSwatch}
           />
+          <VisagismContouringAndEyewearGuide account={account} />
         </>
       )}
 
@@ -516,6 +518,8 @@ export function ColorView({
         onSelectSwatch={handleSelectSwatch}
       />
 
+      <VisagismContouringAndEyewearGuide account={account} />
+
       <CompleteColorimetryAtlasSection
         activeUserSeasonName={c?.season}
         comparedSeasonId={comparedSeasonId}
@@ -574,6 +578,8 @@ export function MakeupView({
       />
 
       <MakeupMedallionsRow account={account} onOpenTryOn={onTryOn} />
+
+      <VisagismContouringAndEyewearGuide account={account} />
 
       <div className="su-makeup-grid">
         {makeupTiles.map(tile => (
