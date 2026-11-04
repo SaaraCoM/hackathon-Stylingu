@@ -21,3 +21,15 @@ tests
 vercel
 android
 *.log
+**/.env
+**/.env.*
+**/.dev.vars*
+.codex
+.agents
+.aws
+.wrangler
+.tmp-*
+.superdesign
+.taste-skill
+deploy
+frontend/public/vision

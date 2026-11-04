@@ -7,6 +7,7 @@ import { mountPersonal } from './personal.js';
 import { productRoutes } from './routes/product.js';
 import { recoveryRoutes } from './routes/recovery.js';
 import { apiLimiter } from './middleware/rateLimit.js';
+import { verifyTurnstile } from './middleware/turnstile.js';
 const app=express();
 app.disable('x-powered-by');
 if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);
@@ -21,10 +22,14 @@ app.use((req,res,next)=>{
 });
 app.use('/api',apiLimiter);
 app.use(express.json({limit:'6mb'}));
-app.get('/api/public-config',(_req,res)=>res.json({turnstileRequired:process.env.NODE_ENV==='production'}));
+app.get('/api/public-config',(_req,res)=>res.json({turnstileRequired:process.env.NODE_ENV==='production',sitekey:process.env.TURNSTILE_SITE_KEY||undefined}));
 app.get('/api/health',(_req,res)=>res.json({ok:true,service:'stylingu',version:process.env.RELEASE_VERSION||'development'}));
 app.get('/api/ready',async(_req,res)=>{try{await connectDB();if(dbState()!=='conectado')throw new Error();res.json({ready:true});}catch{res.status(503).json({ready:false});}});
-app.use('/api',apiLimiter);
+// The Edge deployment verifies at its proxy; the standalone server verifies here.
+app.use('/api/auth',(req,res,next)=>{
+ if(!app.locals.standaloneProduction)return next();
+ verifyTurnstile(req,process.env).then(()=>next(),next);
+});
 app.use('/api/auth',authRoutes);
 app.use('/api/auth',recoveryRoutes);
 app.use('/api',productRoutes);

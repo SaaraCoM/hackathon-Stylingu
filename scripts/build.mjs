@@ -3,9 +3,6 @@ import './build-design.mjs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {build} from '../frontend/node_modules/esbuild/lib/main.js';
-import {createRequire} from 'node:module';
-const require=createRequire(new URL('../backend/package.json',import.meta.url));
-const sharp=require('sharp');
 const root=fileURLToPath(new URL('../',import.meta.url)),pub=path.join(root,'frontend/public');
 await build({entryPoints:[path.join(root,'frontend/barcode-entry.js')],bundle:true,minify:true,format:'iife',outfile:path.join(pub,'js/barcode.js'),legalComments:'linked'});
 // Los iconos son recursos originales de la marca; el build no los sustituye.

@@ -1,7 +1,5 @@
-#!/bin/sh
-# Arranca el ejecutor de trabajos y el servidor HTTP en el mismo contenedor.
-# Cloudflare mantiene una sola instancia (max_instances: 1), así que no hay
-# dos ejecutores compitiendo por la misma cola.
+#!/bin/bash
+# Exit when either child fails so the host can restart the whole service.
 set -eu
 
 node backend/src/jobs.js &
@@ -16,13 +14,10 @@ stop() {
 
 trap stop TERM INT
 
-# Si el servidor muere, el contenedor debe reiniciarse; no dejamos vivo solo
-# al ejecutor de trabajos.
 set +e
-wait "$SERVER_PID"
+wait -n "$SERVER_PID" "$JOBS_PID"
 STATUS=$?
-set -e
-
-kill -TERM "$JOBS_PID" 2>/dev/null || true
+stop
+wait "$SERVER_PID" 2>/dev/null || true
 wait "$JOBS_PID" 2>/dev/null || true
 exit "$STATUS"
