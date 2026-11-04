@@ -869,6 +869,383 @@ body.su-sheet-open { overflow: hidden; }
   .su-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
+/* ==========================================================================
+   Todas las Gamas de Colorimetría & Atlas de las 12 Estaciones
+   ========================================================================== */
+
+.su-palette-big-all {
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)) !important;
+  gap: 10px;
+}
+
+.su-wheel-strip {
+  flex-wrap: wrap;
+}
+
+.su-wheel-season-select {
+  max-width: 190px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.su-all-ranges-section,
+.su-atlas-section {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.su-ranges-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.su-metals-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.su-metal-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--rose-soft);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+}
+
+.su-range-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.su-range-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.16s ease;
+}
+
+.su-range-chip.is-active,
+.su-range-chip:hover {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.su-ranges-stack {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.su-range-group-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.su-range-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.su-range-group-head h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.su-range-group-head p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.su-range-count-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.su-range-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.su-range-swatch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  gap: 8px;
+  min-width: 0;
+  transition: transform 0.14s ease, border-color 0.14s ease;
+}
+
+.su-range-swatch-card:hover,
+.su-range-swatch-card.is-selected {
+  transform: translateY(-1px);
+  border-color: var(--ink);
+}
+
+.su-range-swatch-color {
+  display: block;
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+  border: 1px solid rgba(33, 25, 22, 0.12);
+}
+
+.su-range-swatch-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.su-range-swatch-info strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.su-range-swatch-info code {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.su-range-swatch-info small {
+  font-size: 11px;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+.su-avoid-full {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.su-avoid-alt {
+  display: block;
+  margin-top: 2px;
+  font-weight: 600;
+  color: var(--ink) !important;
+}
+
+.su-atlas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  min-width: 0;
+}
+
+.su-atlas-season-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid var(--line);
+}
+
+.su-atlas-season-card.is-user-season {
+  border-width: 2px;
+  border-color: var(--rose);
+}
+
+.su-atlas-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.su-atlas-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.su-atlas-family-pill,
+.su-atlas-meta-pill,
+.su-atlas-user-pill {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.su-atlas-family-pill {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.su-atlas-meta-pill {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.su-atlas-user-pill {
+  background: var(--rose-soft);
+  color: var(--ink);
+  border: 1px solid var(--rose);
+}
+
+.su-atlas-card-head h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.su-atlas-desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+
+.su-atlas-subranges {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  min-width: 0;
+}
+
+.su-atlas-subrange-block {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.su-atlas-subrange-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.su-atlas-subrange-title span {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.su-atlas-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.su-atlas-swatch-chip,
+.su-atlas-avoid-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  text-align: left;
+  min-width: 0;
+}
+
+.su-atlas-swatch-chip:hover {
+  border-color: var(--ink);
+}
+
+.su-atlas-swatch-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  border: 1px solid rgba(33, 25, 22, 0.16);
+}
+
+.su-atlas-swatch-text {
+  display: grid;
+  min-width: 0;
+}
+
+.su-atlas-swatch-text strong {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.su-atlas-swatch-text small {
+  font-size: 10px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.su-atlas-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.su-atlas-card-foot strong {
+  color: var(--ink);
+}
+
+@media (min-width: 820px) {
+  .su-atlas-subranges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .su-atlas-avoid-block {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .su-app * { scroll-behavior: auto !important; }
 }

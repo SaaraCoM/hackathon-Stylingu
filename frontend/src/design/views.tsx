@@ -19,18 +19,24 @@ import {
 import {
   ColorimetryOutfitsCarousel,
   ColorWheelComparator,
+  CompleteColorimetryAtlasSection,
   MakeupMedallionsRow,
+  PersonalColorimetryAllRanges,
   StudioCollageMyPagePanel,
   StudioSimilarCatalogPanel,
   StudioSubTabsBar
 } from './studio-video-components';
+import { defaultColorimetryAtlas } from './colorimetry-atlas';
 import { ToneSimulator } from './tryon/ToneSimulator';
 
 const isHex = (value?: string): value is string => /^#[a-f0-9]{6}$/i.test(value || '');
 
 function paletteOf(account: AccountSlot): string[] {
   const own = (account.analysis?.colorimetry.palette || []).filter(isHex);
-  return (own.length ? own : DEFAULT_PALETTE).slice(0, 6);
+  const breakdown = defaultColorimetryAtlas.buildPersonalBreakdown(account.analysis);
+  const seasonHexes = breakdown.allHarmoniousSwatches.map(s => s.hex);
+  const merged = Array.from(new Set([...own, ...seasonHexes]));
+  return merged.length ? merged : DEFAULT_PALETTE;
 }
 
 export function ViewHead({
@@ -108,6 +114,7 @@ export function HomeView({
   const [subTab, setSubTab] = useState<StudioSubTab>('results');
   const [toneFilter, setToneFilter] = useState<'all' | 'warm' | 'cold'>('all');
   const [showSwitcher, setShowSwitcher] = useState(false);
+  const [homeSwatch, setHomeSwatch] = useState<string>(() => palette[0] || '#E7CE75');
 
   const q = query.trim().toLowerCase();
   const feed = useMemo(
@@ -219,6 +226,11 @@ export function HomeView({
           <ColorimetryOutfitsCarousel
             account={account}
             onNavigateOutfits={() => navigate('armario')}
+          />
+          <PersonalColorimetryAllRanges
+            account={account}
+            selectedSwatch={homeSwatch}
+            onSelectSwatch={setHomeSwatch}
           />
         </>
       )}
@@ -394,10 +406,10 @@ export function ColorView({
 }) {
   const palette = paletteOf(account);
   const c = account.analysis?.colorimetry;
-  const avoid = (account.analysis?.colorimetry.avoid || []).slice(0, 3);
   const [selectedSwatch, setSelectedSwatch] = useState<string>(() => palette[0] || '#E7CE75');
   const [subTab, setSubTab] = useState<StudioSubTab>('results');
   const [toneFilter, setToneFilter] = useState<'all' | 'warm' | 'cold'>('all');
+  const [comparedSeasonId, setComparedSeasonId] = useState<string>('verano-frio');
 
   useEffect(() => {
     const legacySwatches = document.querySelector<HTMLElement>('main#contenido #swatches');
@@ -420,7 +432,7 @@ export function ColorView({
         titleRef={titleRef}
         kicker="UColors"
         title="Los colores que hablan de ti."
-        description="Luz, contraste y armonía leídos en tu rostro."
+        description="Luz, contraste, todas tus subgamas y el atlas completo de las 12 estaciones."
         action={
           <button
             type="button"
@@ -447,7 +459,13 @@ export function ColorView({
           primaryAccount={account}
           peerAccount={peerAccount}
           toneFilter={toneFilter}
+          comparedSeasonId={comparedSeasonId}
+          onSelectComparedSeason={setComparedSeasonId}
         />
+      )}
+
+      {subTab === 'similar' && (
+        <StudioSimilarCatalogPanel account={account} onOpenScanner={onOpenConsultation} />
       )}
 
       {subTab === 'collage' && (
@@ -461,9 +479,12 @@ export function ColorView({
       <section className="su-card su-palette-card">
         <div className="su-palette-head">
           <div>
-            <h2 className="su-title su-title-sm">{c?.season || 'Tu paleta'}</h2>
+            <h2 className="su-title su-title-sm">
+              {c?.season || 'Tu paleta'} · Todos tus tonos ({palette.length})
+            </h2>
             <p>
-              {[c?.temperature, c?.contrast].filter(Boolean).join(' · ') || 'Tu análisis personal'}
+              {[c?.temperature, c?.contrast, c?.chroma].filter(Boolean).join(' · ') ||
+                'Tu espectro cromático completo'}
             </p>
           </div>
           <div className="su-palette-selected">
@@ -473,8 +494,8 @@ export function ColorView({
             </strong>
           </div>
         </div>
-        <div id="swatches" className="su-palette-big">
-          {palette.slice(0, 6).map((hex, index) => (
+        <div id="swatches" className="su-palette-big su-palette-big-all">
+          {palette.map((hex, index) => (
             <button
               type="button"
               key={hex + index}
@@ -489,13 +510,29 @@ export function ColorView({
         </div>
       </section>
 
+      <PersonalColorimetryAllRanges
+        account={account}
+        selectedSwatch={selectedSwatch}
+        onSelectSwatch={handleSelectSwatch}
+      />
+
+      <CompleteColorimetryAtlasSection
+        activeUserSeasonName={c?.season}
+        comparedSeasonId={comparedSeasonId}
+        onCompareSeasonInWheel={seasonId => {
+          setComparedSeasonId(seasonId);
+          setSubTab('results');
+        }}
+        onSelectSwatch={handleSelectSwatch}
+      />
+
       <section className="su-section">
         <div className="su-section-head">
           <h2>Tu dossier de inspiración</h2>
           <p>Looks enteros con tus tonos.</p>
         </div>
         <div className="su-rail">
-          {looks.slice(0, 3).map(look => (
+          {looks.map(look => (
             <article key={look.id} className="su-rail-card su-rail-look">
               <img src={look.image} alt={`Tabla de estilo: ${look.name}`} loading="lazy" />
               <span className="su-rail-tag">{look.occasion}</span>
@@ -509,26 +546,6 @@ export function ColorView({
           ))}
         </div>
       </section>
-
-      {avoid.length > 0 && (
-        <section className="su-section">
-          <div className="su-section-head">
-            <h2>Tonos a distanciar</h2>
-            <p>Con una alternativa cercana.</p>
-          </div>
-          <div className="su-avoid">
-            {avoid.map(item => (
-              <figure key={item.hex}>
-                <span style={{ background: item.hex }} />
-                <figcaption>
-                  <strong>{item.name}</strong>
-                  <small>{item.alt}</small>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-      )}
     </>
   );
 }

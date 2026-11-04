@@ -65,11 +65,18 @@ export const OUTFIT_STYLES = [
 ];
 
 export const SEASONS = [
-  "Otoño Cálido Suave",
-  "Otoño Profundo",
+  "Primavera Clara",
   "Primavera Cálida",
-  "Invierno Claro",
-  "Verano Suave"
+  "Primavera Brillante",
+  "Verano Claro",
+  "Verano Frío",
+  "Verano Suave",
+  "Otoño Cálido Suave",
+  "Otoño Cálido",
+  "Otoño Profundo",
+  "Invierno Profundo",
+  "Invierno Frío",
+  "Invierno Claro"
 ];
 
 export const AVOID = [
@@ -83,7 +90,10 @@ export const CHORD_HEX = [
   "#C49A45",
   "#865044",
   "#58624B",
-  "#D5B5AB"
+  "#D5B5AB",
+  "#EEDFDA",
+  "#A4503E",
+  "#4F777A"
 ];
 
 export const SILHOUETTES = [

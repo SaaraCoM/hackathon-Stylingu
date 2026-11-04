@@ -49,3 +49,27 @@ test('file specification policy enforces REQUIRED_FILE_VERSION v2.0 on images an
  assert.equal(policy.validateDossierPayload({fileVersion:'v2.0',schemaVersion:2,colorimetry:{season:'Otoño'}}).valid,true);
  assert.equal(policy.validateDossierPayload({fileVersion:'v1.0',schemaVersion:2,colorimetry:{season:'Otoño'}}).valid,false);
 });
+
+const atlasSource=await readFile(new URL('../frontend/src/design/colorimetry-atlas.ts',import.meta.url),'utf8');
+const {code:atlasCode}=await transform(atlasSource,{loader:'ts',format:'esm'});
+const {ColorimetryAtlasCatalog}=await import('data:text/javascript;base64,'+Buffer.from(atlasCode).toString('base64'));
+test('colorimetry atlas catalog provides all 12 seasons and all 6 subranges without truncation',()=>{
+ const catalog=new ColorimetryAtlasCatalog();
+ const allSeasons=catalog.getAllSeasons();
+ assert.equal(allSeasons.length,12);
+ for(const family of ['primavera','verano','otono','invierno']){
+  assert.equal(catalog.getSeasonsByFamily(family).length,3);
+ }
+ for(const season of allSeasons){
+  assert.ok(season.ranges.base.length>=3);
+  assert.ok(season.ranges.medios.length>=3);
+  assert.ok(season.ranges.acentos.length>=3);
+  assert.ok(season.ranges.profundos.length>=3);
+  assert.ok(season.ranges.iluminadores.length>=3);
+  assert.ok(season.ranges.evitar.length>=3);
+ }
+ const breakdown=catalog.buildPersonalBreakdown({colorimetry:{season:'Primavera Cálida',palette:['#123456','#ABCDEF','#E7CE75'],avoid:[{name:'Test',hex:'#010101',why:'Why',alt:'Alt'}]}});
+ assert.ok(breakdown.allHarmoniousSwatches.some(s=>s.hex==='#123456'));
+ assert.ok(breakdown.allHarmoniousSwatches.some(s=>s.hex==='#ABCDEF'));
+ assert.ok(breakdown.ranges.evitar.some(a=>a.hex==='#010101'));
+});

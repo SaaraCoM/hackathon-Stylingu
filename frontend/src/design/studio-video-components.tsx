@@ -9,6 +9,13 @@ import {
 import { defaultFileSpecPolicy, REQUIRED_FILE_VERSION } from './file-version';
 import { defaultApiClient, type PurchaseRecommendationResponse } from './api-client';
 import {
+  defaultColorimetryAtlas,
+  SUBRANGE_METADATA,
+  type ColorSubRangeKey,
+  type SeasonColorimetrySpec,
+  type SeasonFamilyKey
+} from './colorimetry-atlas';
+import {
   ArrowIcon,
   BagIcon,
   CameraIcon,
@@ -29,13 +36,16 @@ const COLD_WHEEL_TONES = [
 function expandWheelTones(basePalette: string[], fallback: string[]): string[] {
   const valid = basePalette.filter(isHex);
   const source = valid.length ? valid : fallback;
-  return Array.from({ length: 12 }, (_, idx) => source[idx % source.length]);
+  const count = Math.max(12, source.length);
+  return Array.from({ length: count }, (_, idx) => source[idx % source.length]);
 }
 
 function buildWheelSegments(tones: string[], cx = 110, cy = 110, rOuter = 98, rInner = 54) {
+  const total = Math.max(1, tones.length);
+  const stepDeg = 360 / total;
   return tones.map((hex, index) => {
-    const startAngle = ((index * 30 - 90) * Math.PI) / 180;
-    const endAngle = (((index + 1) * 30 - 90) * Math.PI) / 180;
+    const startAngle = ((index * stepDeg - 90) * Math.PI) / 180;
+    const endAngle = (((index + 1) * stepDeg - 90) * Math.PI) / 180;
     const x1 = cx + rOuter * Math.cos(startAngle);
     const y1 = cy + rOuter * Math.sin(startAngle);
     const x2 = cx + rOuter * Math.cos(endAngle);
@@ -199,19 +209,42 @@ export function StudioSubTabsBar({
 
 /**
  * Rueda comparativa interactiva Warm vs Cold y widget COLORGE (00:03-00:04 del vídeo).
- * Soporta comparar la armonía cálida/fría de la cuenta activa o comparar dos cuentas en vivo.
+ * Soporta comparar la armonía completa de la cuenta activa frente a las 12 estaciones o a otra cuenta.
  */
 export function ColorWheelComparator({
   primaryAccount,
   peerAccount,
-  toneFilter = 'all'
+  toneFilter = 'all',
+  comparedSeasonId,
+  onSelectComparedSeason
 }: {
   primaryAccount: AccountSlot;
   peerAccount: AccountSlot;
   toneFilter?: 'all' | 'warm' | 'cold';
+  comparedSeasonId?: string;
+  onSelectComparedSeason?: (seasonId: string) => void;
 }) {
+  const allSeasons = useMemo(() => defaultColorimetryAtlas.getAllSeasons(), []);
+  const personalBreakdown = useMemo(
+    () => defaultColorimetryAtlas.buildPersonalBreakdown(primaryAccount.analysis),
+    [primaryAccount.analysis]
+  );
+
   const [harmonyBalance, setHarmonyBalance] = useState(25);
   const [compareAccountsMode, setCompareAccountsMode] = useState(false);
+  const [internalSeasonId, setInternalSeasonId] = useState<string>('verano-frio');
+  const activeRightSeasonId = comparedSeasonId || internalSeasonId;
+
+  const setRightSeasonId = (id: string) => {
+    setInternalSeasonId(id);
+    onSelectComparedSeason?.(id);
+  };
+
+  const rightSeasonSpec = useMemo(
+    () => defaultColorimetryAtlas.findSeason(activeRightSeasonId),
+    [activeRightSeasonId]
+  );
+
   const [selectedHex, setSelectedHex] = useState<string>(() => {
     const first = primaryAccount.analysis?.colorimetry.palette?.[0];
     return isHex(first) ? first : DEFAULT_PALETTE[0];
@@ -219,16 +252,27 @@ export function ColorWheelComparator({
 
   const warmPalette = useMemo(() => {
     const own = (primaryAccount.analysis?.colorimetry.palette || []).filter(isHex);
-    return own.length ? own : DEFAULT_PALETTE;
-  }, [primaryAccount.analysis]);
+    const fullSeasonHexes = personalBreakdown.allHarmoniousSwatches.map(s => s.hex);
+    const merged = Array.from(new Set([...own.map(h => h.toUpperCase()), ...fullSeasonHexes]));
+    return merged.length ? merged : DEFAULT_PALETTE;
+  }, [primaryAccount.analysis, personalBreakdown]);
 
   const coldPalette = useMemo(() => {
     if (compareAccountsMode) {
-      const peer = (peerAccount.analysis?.colorimetry.palette || []).filter(isHex);
-      if (peer.length) return peer;
+      const peerBreakdown = defaultColorimetryAtlas.buildPersonalBreakdown(peerAccount.analysis);
+      const peerOwn = (peerAccount.analysis?.colorimetry.palette || []).filter(isHex);
+      const peerMerged = Array.from(
+        new Set([
+          ...peerOwn.map(h => h.toUpperCase()),
+          ...peerBreakdown.allHarmoniousSwatches.map(s => s.hex)
+        ])
+      );
+      if (peerMerged.length) return peerMerged;
     }
-    return COLD_WHEEL_TONES.slice(0, 6);
-  }, [compareAccountsMode, peerAccount.analysis]);
+    return defaultColorimetryAtlas
+      .getAllHarmoniousSwatchesForSeason(rightSeasonSpec)
+      .map(s => s.hex);
+  }, [compareAccountsMode, peerAccount.analysis, rightSeasonSpec]);
 
   const leftWheelSegments = useMemo(
     () => buildWheelSegments(expandWheelTones(warmPalette, DEFAULT_PALETTE)),
@@ -241,24 +285,31 @@ export function ColorWheelComparator({
   );
 
   const miniWheelSegments = useMemo(
-    () => buildWheelSegments(expandWheelTones([...warmPalette, ...coldPalette], DEFAULT_PALETTE), 36, 36, 32, 14),
+    () =>
+      buildWheelSegments(
+        expandWheelTones([...warmPalette, ...coldPalette], DEFAULT_PALETTE),
+        36,
+        36,
+        32,
+        14
+      ),
     [warmPalette, coldPalette]
   );
 
   return (
     <section className="su-wheel-comparator" aria-label="Comparador cromático Warm vs Cold">
       <div className="su-wheel-stage">
-        {/* Tarjeta izquierda: Armonía cálida / Cuenta principal con ilustración facial */}
+        {/* Tarjeta izquierda: Armonía completa de la cuenta principal con ilustración facial */}
         <article
           className={`su-wheel-card ${toneFilter === 'cold' ? 'is-dimmed' : ''}`}
           data-account-id={primaryAccount.accountId}
         >
           <div className="su-wheel-card-top">
             <span className="su-wheel-badge">
-              {primaryAccount.analysis?.colorimetry.season || 'Armonía Principal'}
+              {primaryAccount.analysis?.colorimetry.season || personalBreakdown.matchedSeason.name}
             </span>
             <span className="su-wheel-account su-personal" data-private>
-              {primaryAccount.profileData.name}
+              {primaryAccount.profileData.name} · {warmPalette.length} tonos
             </span>
           </div>
 
@@ -299,12 +350,12 @@ export function ColorWheelComparator({
 
           <div className="su-wheel-labels">
             <strong>Warm</strong>
-            <span>{primaryAccount.analysis?.colorimetry.temperature || 'Cálido'}</span>
+            <span>{primaryAccount.analysis?.colorimetry.temperature || personalBreakdown.matchedSeason.temperature}</span>
             <strong>Cold</strong>
           </div>
 
-          <div className="su-wheel-strip" role="list" aria-label="Tonos cálidos de la cuenta">
-            {warmPalette.slice(0, 6).map((hex, idx) => (
+          <div className="su-wheel-strip" role="list" aria-label="Todos los tonos de la cuenta activa">
+            {warmPalette.map((hex, idx) => (
               <button
                 key={hex + idx}
                 type="button"
@@ -312,7 +363,7 @@ export function ColorWheelComparator({
                 className={`su-wheel-swatch ${selectedHex.toLowerCase() === hex.toLowerCase() ? 'is-selected' : ''}`}
                 style={{ backgroundColor: hex }}
                 onClick={() => setSelectedHex(hex)}
-                aria-label={`Seleccionar tono cálido ${hex}`}
+                aria-label={`Seleccionar tono ${hex}`}
                 title={hex}
               />
             ))}
@@ -338,16 +389,16 @@ export function ColorWheelComparator({
             className={`su-wheel-vs ${compareAccountsMode ? 'is-active' : ''}`}
             onClick={() => setCompareAccountsMode(prev => !prev)}
             aria-pressed={compareAccountsMode}
-            title="Alternar comparación Warm/Cold o Cuenta A vs Cuenta B"
+            title="Alternar comparación frente a las 12 estaciones o Cuenta A vs Cuenta B"
           >
             VS
           </button>
           <small className="su-wheel-vs-caption">
-            {compareAccountsMode ? 'Multicuenta' : 'Subtonos'}
+            {compareAccountsMode ? 'Multicuenta' : '12 Estaciones'}
           </small>
         </div>
 
-        {/* Tarjeta derecha: Armonía fría / Cuenta comparada (00:03-00:04 del vídeo) */}
+        {/* Tarjeta derecha: Estación comparada (de las 12 estaciones) o Cuenta B */}
         <article
           className={`su-wheel-card su-wheel-card-cold ${toneFilter === 'warm' ? 'is-dimmed' : ''}`}
           data-account-id={compareAccountsMode ? peerAccount.accountId : primaryAccount.accountId}
@@ -356,11 +407,26 @@ export function ColorWheelComparator({
             <span className="su-wheel-badge">
               {compareAccountsMode
                 ? peerAccount.analysis?.colorimetry.season || 'Perfil Comparado'
-                : 'Contraste Frío'}
+                : rightSeasonSpec.name}
             </span>
-            <span className="su-wheel-account su-personal" data-private>
-              {compareAccountsMode ? peerAccount.profileData.name : 'Espectro Cold'}
-            </span>
+            {compareAccountsMode ? (
+              <span className="su-wheel-account su-personal" data-private>
+                {peerAccount.profileData.name} · {coldPalette.length} tonos
+              </span>
+            ) : (
+              <select
+                className="su-wheel-season-select"
+                value={rightSeasonSpec.id}
+                onChange={e => setRightSeasonId(e.target.value)}
+                aria-label="Seleccionar estación de colorimetría para comparar"
+              >
+                {allSeasons.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.temperature})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="su-wheel-canvas-wrap">
@@ -368,7 +434,7 @@ export function ColorWheelComparator({
               viewBox="0 0 220 220"
               className="su-wheel-svg"
               role="img"
-              aria-label="Rueda cromática de contraste frío"
+              aria-label="Rueda cromática de estación o cuenta comparada"
             >
               {rightWheelSegments.map(seg => (
                 <path
@@ -405,13 +471,13 @@ export function ColorWheelComparator({
           </div>
 
           <div className="su-wheel-labels">
-            <strong>Cone</strong>
-            <span>{compareAccountsMode ? 'Cuenta B' : 'Contraste'}</span>
-            <strong>Cold</strong>
+            <strong>{rightSeasonSpec.familyLabel}</strong>
+            <span>{compareAccountsMode ? 'Cuenta B' : rightSeasonSpec.chroma}</span>
+            <strong>{rightSeasonSpec.temperature}</strong>
           </div>
 
-          <div className="su-wheel-strip" role="list" aria-label="Tonos fríos de comparación">
-            {coldPalette.slice(0, 6).map((hex, idx) => (
+          <div className="su-wheel-strip" role="list" aria-label="Todos los tonos de la estación comparada">
+            {coldPalette.map((hex, idx) => (
               <button
                 key={hex + idx}
                 type="button"
@@ -989,4 +1055,345 @@ export function StudioCollageMyPagePanel({
     </section>
   );
 }
+
+/**
+ * Desglose completo de TODAS las subgamas cromáticas de la cuenta activa
+ * (Base, Medios, Acentos, Profundos, Iluminadores y Tonos a Distanciar) sin recortes.
+ */
+export function PersonalColorimetryAllRanges({
+  account,
+  selectedSwatch,
+  onSelectSwatch
+}: {
+  account: AccountSlot;
+  selectedSwatch: string;
+  onSelectSwatch: (hex: string) => void;
+}) {
+  const breakdown = useMemo(
+    () => defaultColorimetryAtlas.buildPersonalBreakdown(account.analysis),
+    [account.analysis]
+  );
+  const [activeRange, setActiveRange] = useState<'all' | ColorSubRangeKey>('all');
+
+  const totalCount =
+    breakdown.allHarmoniousSwatches.length + breakdown.ranges.evitar.length;
+
+  const visibleRanges = useMemo(() => {
+    if (activeRange === 'all') {
+      return SUBRANGE_METADATA;
+    }
+    return SUBRANGE_METADATA.filter(meta => meta.key === activeRange);
+  }, [activeRange]);
+
+  return (
+    <section
+      className="su-section su-all-ranges-section"
+      aria-label="Todas las gamas de tu colorimetría"
+    >
+      <div className="su-section-head su-ranges-head">
+        <div>
+          <p className="su-kicker">Espectro Cromático Completo</p>
+          <h2>Todas las gamas de tu colorimetría ({totalCount} tonos)</h2>
+          <p>
+            Sin selección reducida: explora todos tus neutros base, tonos medios, acentos,
+            profundos de sastrería, iluminadores faciales y contrastes a distanciar.
+          </p>
+        </div>
+        <div className="su-metals-pills" aria-label="Metales recomendados">
+          {breakdown.matchedSeason.metals.map(metal => (
+            <span key={metal} className="su-metal-pill">
+              ✦ {metal}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="su-range-filter-bar" role="tablist" aria-label="Filtrar por subgama cromática">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeRange === 'all'}
+          className={`su-range-chip ${activeRange === 'all' ? 'is-active' : ''}`}
+          onClick={() => setActiveRange('all')}
+        >
+          Todas las gamas ({totalCount})
+        </button>
+        {SUBRANGE_METADATA.map(meta => {
+          const count =
+            meta.key === 'evitar'
+              ? breakdown.ranges.evitar.length
+              : breakdown.ranges[meta.key].length;
+          return (
+            <button
+              key={meta.key}
+              type="button"
+              role="tab"
+              aria-selected={activeRange === meta.key}
+              className={`su-range-chip ${activeRange === meta.key ? 'is-active' : ''}`}
+              onClick={() => setActiveRange(meta.key)}
+            >
+              {meta.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="su-ranges-stack">
+        {visibleRanges.map(meta => {
+          if (meta.key === 'evitar') {
+            const items = breakdown.ranges.evitar;
+            return (
+              <article key={meta.key} className="su-card su-range-group-card">
+                <header className="su-range-group-head">
+                  <div>
+                    <h3>{meta.label}</h3>
+                    <p>{meta.subtitle}</p>
+                  </div>
+                  <span className="su-range-count-badge">{items.length} tonos</span>
+                </header>
+                <div className="su-avoid su-avoid-full">
+                  {items.map((item, idx) => (
+                    <figure key={item.hex + idx}>
+                      <span style={{ background: item.hex }} />
+                      <figcaption>
+                        <strong>
+                          {item.name} · <code>{item.hex.toUpperCase()}</code>
+                        </strong>
+                        <small>{item.why}</small>
+                        <small className="su-avoid-alt">Alternativa: {item.alt}</small>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </article>
+            );
+          }
+
+          const swatches = breakdown.ranges[meta.key];
+          return (
+            <article key={meta.key} className="su-card su-range-group-card">
+              <header className="su-range-group-head">
+                <div>
+                  <h3>{meta.label}</h3>
+                  <p>{meta.subtitle}</p>
+                </div>
+                <span className="su-range-count-badge">{swatches.length} tonos</span>
+              </header>
+              <div className="su-range-swatch-grid">
+                {swatches.map((swatch, idx) => {
+                  const isSelected =
+                    selectedSwatch.toUpperCase() === swatch.hex.toUpperCase();
+                  return (
+                    <button
+                      key={swatch.hex + idx}
+                      type="button"
+                      className={`su-range-swatch-card ${isSelected ? 'is-selected' : ''}`}
+                      onClick={() => onSelectSwatch(swatch.hex)}
+                      aria-label={`Seleccionar ${swatch.name} (${swatch.hex})`}
+                    >
+                      <span
+                        className="su-range-swatch-color"
+                        style={{ backgroundColor: swatch.hex }}
+                      />
+                      <div className="su-range-swatch-info">
+                        <strong>{swatch.name}</strong>
+                        <code>{swatch.hex.toUpperCase()}</code>
+                        <small>{swatch.usage}</small>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Atlas Completo de las 12 Estaciones de Colorimetría (Primavera, Verano, Otoño e Invierno)
+ * con todas las gamas de cada estación y comparación directa en la rueda cromática.
+ */
+export function CompleteColorimetryAtlasSection({
+  activeUserSeasonName,
+  comparedSeasonId,
+  onCompareSeasonInWheel,
+  onSelectSwatch
+}: {
+  activeUserSeasonName?: string;
+  comparedSeasonId?: string;
+  onCompareSeasonInWheel: (seasonId: string) => void;
+  onSelectSwatch: (hex: string) => void;
+}) {
+  const [familyFilter, setFamilyFilter] = useState<'all' | SeasonFamilyKey>('all');
+  const seasons = useMemo(
+    () => defaultColorimetryAtlas.getSeasonsByFamily(familyFilter),
+    [familyFilter]
+  );
+  const matchedUserSeason = useMemo(
+    () => defaultColorimetryAtlas.findSeason(activeUserSeasonName),
+    [activeUserSeasonName]
+  );
+
+  const renderSeasonCard = (season: SeasonColorimetrySpec) => {
+    const isUserSeason = season.id === matchedUserSeason.id;
+    const isCompared = season.id === comparedSeasonId;
+    const harmoniousCount =
+      defaultColorimetryAtlas.getAllHarmoniousSwatchesForSeason(season).length;
+
+    return (
+      <article
+        key={season.id}
+        className={`su-card su-atlas-season-card ${isUserSeason ? 'is-user-season' : ''} ${
+          isCompared ? 'is-compared-season' : ''
+        }`}
+      >
+        <header className="su-atlas-card-head">
+          <div>
+            <div className="su-atlas-badges">
+              <span className="su-atlas-family-pill">{season.familyLabel}</span>
+              <span className="su-atlas-meta-pill">Subtono {season.temperature}</span>
+              <span className="su-atlas-meta-pill">Contraste {season.contrast}</span>
+              {isUserSeason && (
+                <span className="su-atlas-user-pill">★ Tu estación actual</span>
+              )}
+            </div>
+            <h3>{season.name}</h3>
+            <p className="su-atlas-desc">{season.description}</p>
+          </div>
+          <button
+            type="button"
+            className={`su-button ${isCompared ? 'su-button-primary' : ''}`}
+            onClick={() => onCompareSeasonInWheel(season.id)}
+          >
+            {isCompared ? 'Comparando en rueda' : 'Comparar en rueda'}
+          </button>
+        </header>
+
+        <div className="su-atlas-subranges">
+          {(
+            [
+              ['Base y Neutros', season.ranges.base],
+              ['Tonos Medios', season.ranges.medios],
+              ['Acentos Vibrantes', season.ranges.acentos],
+              ['Profundos', season.ranges.profundos],
+              ['Iluminadores', season.ranges.iluminadores]
+            ] as const
+          ).map(([groupTitle, list]) => (
+            <div key={groupTitle} className="su-atlas-subrange-block">
+              <div className="su-atlas-subrange-title">
+                <strong>{groupTitle}</strong>
+                <span>{list.length} tonos</span>
+              </div>
+              <div className="su-atlas-mini-grid">
+                {list.map(sw => (
+                  <button
+                    key={sw.hex + sw.name}
+                    type="button"
+                    className="su-atlas-swatch-chip"
+                    onClick={() => onSelectSwatch(sw.hex)}
+                    title={`${sw.name} (${sw.hex}) · ${sw.usage}`}
+                    aria-label={`${season.name} - ${sw.name} ${sw.hex}`}
+                  >
+                    <span
+                      className="su-atlas-swatch-dot"
+                      style={{ backgroundColor: sw.hex }}
+                    />
+                    <span className="su-atlas-swatch-text">
+                      <strong>{sw.name}</strong>
+                      <small>{sw.hex}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="su-atlas-subrange-block su-atlas-avoid-block">
+            <div className="su-atlas-subrange-title">
+              <strong>Tonos a Distanciar en {season.name}</strong>
+              <span>{season.ranges.evitar.length} tonos</span>
+            </div>
+            <div className="su-atlas-mini-grid">
+              {season.ranges.evitar.map(av => (
+                <div key={av.hex + av.name} className="su-atlas-avoid-chip">
+                  <span
+                    className="su-atlas-swatch-dot"
+                    style={{ backgroundColor: av.hex }}
+                  />
+                  <span className="su-atlas-swatch-text">
+                    <strong>
+                      {av.name} ({av.hex})
+                    </strong>
+                    <small>Alternativa: {av.alt}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <footer className="su-atlas-card-foot">
+          <span>
+            <strong>Joyería ideal:</strong> {season.metals.join(' · ')}
+          </span>
+          <span>
+            <strong>Total gama:</strong> {harmoniousCount} tonos armónicos +{' '}
+            {season.ranges.evitar.length} a evitar
+          </span>
+        </footer>
+      </article>
+    );
+  };
+
+  return (
+    <section
+      className="su-section su-atlas-section"
+      aria-label="Atlas Completo de las 12 Estaciones de Colorimetría"
+    >
+      <div className="su-section-head">
+        <div>
+          <p className="su-kicker">Sistema Estacional de 12 Gamas</p>
+          <h2>Atlas Completo de Colorimetría (Las 12 Estaciones)</h2>
+          <p>
+            Todas las estaciones cromáticas (Primavera, Verano, Otoño e Invierno en sus variantes
+            Clara, Cálida/Fría, Suave, Profunda y Brillante) con la totalidad de sus gamas.
+          </p>
+        </div>
+      </div>
+
+      <div
+        className="su-range-filter-bar"
+        role="tablist"
+        aria-label="Filtrar las 12 estaciones por familia"
+      >
+        {(
+          [
+            ['all', 'Todas las 12 estaciones (252 tonos)'],
+            ['primavera', 'Primavera · 3 gamas'],
+            ['verano', 'Verano · 3 gamas'],
+            ['otono', 'Otoño · 3 gamas'],
+            ['invierno', 'Invierno · 3 gamas']
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={familyFilter === key}
+            className={`su-range-chip ${familyFilter === key ? 'is-active' : ''}`}
+            onClick={() => setFamilyFilter(key)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="su-atlas-grid">{seasons.map(renderSeasonCard)}</div>
+    </section>
+  );
+}
+
 
