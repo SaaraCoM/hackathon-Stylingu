@@ -1,5 +1,12 @@
 {
   "appId": "app.stylingu.atelier",
   "appName": "StylingU",
-  "webDir": "public"
+  "webDir": "public",
+  "server": {
+    "url": "https://hackathon-stylingu.castellanomateossara.workers.dev",
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
 }

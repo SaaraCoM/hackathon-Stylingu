@@ -8,16 +8,21 @@
     "build:design": "node ../scripts/build-design.mjs",
     "test:design": "node --test ../tests/svg-design-unit.mjs",
     "test:design:browser": "cd .. && node tests/svg-design-browser.mjs",
-    "test:tryon": "cd .. && node tests/tone-browser.mjs"
+    "test:tryon": "cd .. && node tests/tone-browser.mjs",
+    "test:posthog": "cd .. && node tests/posthog-replay.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@mediapipe/tasks-vision": "0.10.22-rc.20250304",
     "@zxing/browser": "0.1.5",
     "@zxing/library": "0.21.3",
+    "posthog-js": "1.445.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
     "@tailwindcss/cli": "^4.3.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

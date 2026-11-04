@@ -62,3 +62,8 @@ deploy/
 Thumbs.db
 .vscode/
 .idea/
+
+# Temporal y compilación móvil local
+.freebuff/
+.tmp/
+frontend/android/

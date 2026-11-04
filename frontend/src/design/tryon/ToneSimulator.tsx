@@ -1,41 +1,40 @@
 import {useEffect,useRef,useState} from 'react';
 import {privatePhoto} from '../media';
-import {detectFace} from './detector';
 import {renderMakeup} from './render';
-import type {Point} from './geometry';
+import {loadFace,type PreparedFace} from './face-cache';
 interface Props {photo?:string;lip?:string;palette?:string[];identity:string}
-interface Ready {image:HTMLImageElement;points:Point[]}
 const tone=(value?:string,fallback='#9b424d')=>/^#[a-f0-9]{6}$/i.test(value||'')?value!:fallback;
 export function ToneSimulator({photo,lip,palette=[],identity}:Props){
  const [status,setStatus]=useState<'idle'|'loading'|'ready'|'error'>('idle');
  const [message,setMessage]=useState('Prepara tu foto para ajustar el color a tus labios y párpados.');
- const [ready,setReady]=useState<Ready|null>(null);
+ const [ready,setReady]=useState<PreparedFace|null>(null);
  const [lipColor,setLipColor]=useState(tone(lip));
  const [shadowColor,setShadowColor]=useState(tone(palette[0],'#826074'));
  const [opacity,setOpacity]=useState(50),[shadowOpacity,setShadowOpacity]=useState(25),[gloss,setGloss]=useState(30),[original,setOriginal]=useState(false);
- const canvas=useRef<HTMLCanvasElement>(null),request=useRef<AbortController|null>(null);
+ const canvas=useRef<HTMLCanvasElement>(null);
  const src=privatePhoto(photo,window.STYLINGU_API_BASE);
- useEffect(()=>()=>{request.current?.abort();if(canvas.current){canvas.current.width=0;canvas.current.height=0;}},[]);
- useEffect(()=>{request.current?.abort();setReady(null);setStatus('idle');setOriginal(false);setLipColor(tone(lip));setShadowColor(tone(palette[0],'#826074'));setMessage('Prepara tu foto para ajustar el color a tus labios y párpados.');},[src,identity]);
+ const srcRef=useRef(src);
+ useEffect(()=>{srcRef.current=src;},[src]);
+ useEffect(()=>()=>{if(canvas.current){canvas.current.width=0;canvas.current.height=0;}},[]);
+ useEffect(()=>{setReady(null);setStatus('idle');setOriginal(false);setLipColor(tone(lip));setShadowColor(tone(palette[0],'#826074'));setMessage('Prepara tu foto para ajustar el color a tus labios y párpados.');},[src,identity]);
  useEffect(()=>{
   if(!ready||!canvas.current)return;
   try{renderMakeup(canvas.current,ready.image,ready.image.naturalWidth,ready.image.naturalHeight,ready.points,{lip:lipColor,shadow:shadowColor,opacity,shadowOpacity,gloss,original});}
   catch(error){setReady(null);setStatus('error');setMessage(error instanceof Error?error.message:'No se pudo dibujar la simulación.');}
  },[ready,lipColor,shadowColor,opacity,shadowOpacity,gloss,original]);
  async function prepare(){
-  if(!src)return;request.current?.abort();const controller=new AbortController();request.current=controller;
-  const signal=AbortSignal.any([controller.signal,AbortSignal.timeout(60000)]);
+  if(!src)return;
+  const current=src;
   setReady(null);setStatus('loading');setMessage('Preparando tu foto y detectando el contorno del rostro…');
-  let objectUrl:string|undefined;
   try{
-   const response=await fetch(src,{credentials:'include',signal});
-   if(!response.ok)throw new Error('No se pudo recuperar tu foto. Comprueba la sesión y reintenta.');
-   const blob=await response.blob();if(!blob.type.startsWith('image/'))throw new Error('La foto recibida no es válida.');
-   objectUrl=URL.createObjectURL(blob);const image=new Image();image.src=objectUrl;await image.decode();signal.throwIfAborted();
-   const points=await detectFace(image,signal);signal.throwIfAborted();
-   setReady({image,points});setStatus('ready');setMessage('Contornos detectados. Ajusta los tonos y compara con tu foto original.');
-  }catch(error){if(controller.signal.aborted)return;setStatus('error');setMessage(error instanceof Error&&error.name==='TimeoutError'?'La preparación ha tardado demasiado. Revisa la conexión y reintenta.':error instanceof Error?error.message:'No se pudo preparar la simulación. Reintenta.');}
-  finally{if(objectUrl)URL.revokeObjectURL(objectUrl);}
+   const face=await loadFace(current);
+   if(srcRef.current!==current)return;
+   setReady(face);setStatus('ready');setMessage('Contornos detectados. Ajusta los tonos y compara con tu foto original.');
+  }catch(error){
+   if(srcRef.current!==current)return;
+   setStatus('error');
+   setMessage(error instanceof Error&&error.name==='TimeoutError'?'La preparación ha tardado demasiado. Revisa la conexión y reintenta.':error instanceof Error?error.message:'No se pudo preparar la simulación. Reintenta.');
+  }
  }
  const enabled=status==='ready';
  return <section className="su-tryon tw:rounded-xl tw:bg-[#f6f2ec] tw:p-5" aria-labelledby="tryon-title">

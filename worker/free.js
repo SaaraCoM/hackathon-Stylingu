@@ -5,7 +5,7 @@ const AUTH=new Set(['/api/auth/login','/api/auth/registro','/api/auth/forgot-pas
 export const SECURITY_HEADERS={
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin','Permissions-Policy':'camera=(self), microphone=(), geolocation=()','X-Frame-Options':'DENY',
  'Strict-Transport-Security':'max-age=31536000; includeSubDomains',
- 'Content-Security-Policy':"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+ 'Content-Security-Policy':"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://*.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://challenges.cloudflare.com https://*.posthog.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
 };
 const json=(data,status=200,extra={})=>Response.json(data,{status,headers:{...SECURITY_HEADERS,'Cache-Control':'no-store',...extra}});
 async function boundedBody(request,max){

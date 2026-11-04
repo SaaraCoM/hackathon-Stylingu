@@ -1,11 +1,18 @@
 {
-  "name": "StylingU Atelier",
+  "id": "/",
+  "name": "StylingU · Asistente de belleza",
   "short_name": "StylingU",
+  "description": "Colorimetría, maquillaje, conjuntos y compras personalizadas a partir de tus fotos.",
+  "lang": "es",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#FFF8F6",
-  "theme_color": "#865044",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#FBF6EF",
+  "theme_color": "#FBF6EF",
+  "categories": ["lifestyle", "shopping"],
   "icons": [
     {
       "src": "/assets/icon-192.png",
