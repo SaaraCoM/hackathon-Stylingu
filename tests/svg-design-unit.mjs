@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {transform} from '../frontend/node_modules/esbuild/lib/main.js';
+
 const source=await readFile(new URL('../frontend/src/design/media.ts',import.meta.url),'utf8');
 const {code}=await transform(source,{loader:'ts',format:'esm'});
 const {privatePhoto}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
@@ -11,6 +12,7 @@ test('personal photo only accepts the existing authenticated route',()=>{
  assert.equal(privatePhoto(route,'https://api.example.test'),'https://api.example.test'+route);
  for(const value of [undefined,'','javascript:alert(1)','https://tracker.test/photo.jpg','//tracker.test/photo.jpg',route+'?redirect=x','/api/personal/photos/../account','/api/personal/photos/short'])assert.equal(privatePhoto(value),undefined);
 });
+
 const geometry=await readFile(new URL('../frontend/src/design/tryon/geometry.ts',import.meta.url),'utf8');
 const {code:geometryCode}=await transform(geometry,{loader:'ts',format:'esm'});
 const {validateFace,eyePolygons,clamp}=await import('data:text/javascript;base64,'+Buffer.from(geometryCode).toString('base64'));
@@ -32,4 +34,18 @@ test('eyeshadow polygons follow rotated/scaled facial geometry',()=>{
   assert.ok(Math.abs(rotated[side][i].y-original[side][i].x)<1e-10);
  }
  assert.equal(clamp(NaN),0);assert.equal(clamp(-3),0);assert.equal(clamp(9),1);
+});
+
+const fileVersionSource=await readFile(new URL('../frontend/src/design/file-version.ts',import.meta.url),'utf8');
+const {code:fileVersionCode}=await transform(fileVersionSource,{loader:'ts',format:'esm'});
+const {REQUIRED_FILE_VERSION,FileSpecificationPolicy}=await import('data:text/javascript;base64,'+Buffer.from(fileVersionCode).toString('base64'));
+test('file specification policy enforces REQUIRED_FILE_VERSION v2.0 on images and dossiers',()=>{
+ assert.equal(REQUIRED_FILE_VERSION,'v2.0');
+ const policy=new FileSpecificationPolicy();
+ assert.equal(policy.getMetadata().shortBadge,'Archivo v2.0');
+ assert.equal(policy.validateImageFile({type:'image/jpeg',size:1024}).valid,true);
+ assert.equal(policy.validateImageFile({type:'image/gif',size:1024}).valid,false);
+ assert.equal(policy.validateImageFile({type:'image/png',size:9*1024*1024}).valid,false);
+ assert.equal(policy.validateDossierPayload({fileVersion:'v2.0',schemaVersion:2,colorimetry:{season:'Otoño'}}).valid,true);
+ assert.equal(policy.validateDossierPayload({fileVersion:'v1.0',schemaVersion:2,colorimetry:{season:'Otoño'}}).valid,false);
 });
