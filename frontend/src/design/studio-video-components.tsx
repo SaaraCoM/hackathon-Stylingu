@@ -989,3 +989,4 @@ export function StudioCollageMyPagePanel({
     </section>
   );
 }
+

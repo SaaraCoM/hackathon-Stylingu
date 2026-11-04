@@ -9,7 +9,7 @@ import {
   SearchIcon,
   SparkleIcon
 } from './icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import {
   AccountSwitcher,
@@ -399,11 +399,19 @@ export function ColorView({
   const [subTab, setSubTab] = useState<StudioSubTab>('results');
   const [toneFilter, setToneFilter] = useState<'all' | 'warm' | 'cold'>('all');
 
+  useEffect(() => {
+    const legacySwatches = document.querySelector<HTMLElement>('main#contenido #swatches');
+    const legacySwatchName = document.querySelector<HTMLElement>('main#contenido #swatchName');
+    if (legacySwatches) legacySwatches.removeAttribute('id');
+    if (legacySwatchName) legacySwatchName.removeAttribute('id');
+    return () => {
+      if (legacySwatches) legacySwatches.id = 'swatches';
+      if (legacySwatchName) legacySwatchName.id = 'swatchName';
+    };
+  }, []);
+
   const handleSelectSwatch = (hex: string) => {
     setSelectedSwatch(hex.toUpperCase());
-    document.querySelectorAll('#swatchName').forEach(el => {
-      el.textContent = hex.toUpperCase();
-    });
   };
 
   return (
@@ -460,7 +468,9 @@ export function ColorView({
           </div>
           <div className="su-palette-selected">
             <span>Tono activo:</span>
-            <strong id="swatchName">{selectedSwatch.toUpperCase()}</strong>
+            <strong id="swatchName" className="su-active-swatch-name">
+              {selectedSwatch.toUpperCase()}
+            </strong>
           </div>
         </div>
         <div id="swatches" className="su-palette-big">

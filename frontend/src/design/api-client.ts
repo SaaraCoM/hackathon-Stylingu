@@ -247,3 +247,4 @@ export class StylingApiClient {
 }
 
 export const defaultApiClient = new StylingApiClient();
+
